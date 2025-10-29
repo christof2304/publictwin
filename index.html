@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Public Twin - Citizen Comments on Design Variants</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
@@ -14,13 +14,183 @@
       padding: 0;
       overflow: hidden;
     }
+    
+    /* Hamburger Menu Button */
+    #menuToggle {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 50px;
+      height: 50px;
+      background: rgba(42, 42, 42, 0.95);
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      z-index: 150;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      padding: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    #menuToggle:active {
+      transform: scale(0.95);
+    }
+    
+    #menuToggle span {
+      width: 25px;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    
+    #menuToggle.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+    
+    #menuToggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+    
+    #menuToggle.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+    
+    /* Panel with slide animation */
+    #panel {
+      position: absolute;
+      top: 10px;
+      left: 70px;
+      background: rgba(42, 42, 42, 0.95);
+      border-radius: 8px;
+      padding: 15px;
+      color: white;
+      z-index: 100;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      max-width: 320px;
+      font-family: Arial, sans-serif;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+    }
+    
+    #panel.hidden {
+      transform: translateX(-400px);
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      #panel {
+        left: 10px;
+        right: 10px;
+        top: 70px;
+        max-width: none;
+        max-height: calc(100vh - 90px);
+      }
+      
+      #panel.hidden {
+        transform: translateY(-600px);
+      }
+    }
+    
+    /* Touch-friendly buttons */
+    button {
+      min-height: 44px;
+      touch-action: manipulation;
+    }
   </style>
 </head>
 <body>
   <div id="cesiumContainer"></div>
   
+  <!-- Hamburger Menu Toggle Button -->
+  <button id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  
+  <!-- Main Panel -->
+  <div id="panel" class="hidden">
+    <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #555; padding-bottom: 8px;">🏙️ Public Twin - Citizen Participation</h3>
+    
+    <button id="addCommentBtn" style="background: #48b; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">➕ Add Comment</button>
+    
+    <div style="margin: 15px 0; padding: 10px; border-top: 1px solid #555; background: rgba(255,255,255,0.05); border-radius: 4px;">
+      <h4 style="color: #5ac; margin: 0 0 10px 0; font-size: 13px;">🎨 Design Variants:</h4>
+      <button id="variant1Btn" style="background: #4caf50; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">● Variant 1 (Asset 3291876)</button>
+      <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Variant 2 (Asset 3658308)</button>
+      <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Variant 3 (Asset 3154873)</button>
+      
+      <!-- Voting Widget -->
+      <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
+        <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Vote for <span id="votingVariantName" style="color: #4caf50; font-weight: bold;">Variant 1</span>:</div>
+        <div style="display: flex; gap: 10px;">
+          <button id="thumbsUpBtn" style="flex: 1; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 18px;">👍</button>
+          <button id="thumbsDownBtn" style="flex: 1; background: #d32f2f; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 18px;">👎</button>
+        </div>
+      </div>
+      
+      <!-- Voting Overview -->
+      <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+        <div style="font-size: 11px; color: #888; margin-bottom: 8px; text-align: center;">📊 Voting Results:</div>
+        <div id="votingOverview" style="font-size: 11px;">
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
+            <span style="color: #4caf50;">Variant 1:</span>
+            <span><span style="color: #4caf50;">👍 0</span> | <span style="color: #d32f2f;">👎 0</span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
+            <span style="color: #2196f3;">Variant 2:</span>
+            <span><span style="color: #4caf50;">👍 0</span> | <span style="color: #d32f2f;">👎 0</span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+            <span style="color: #ff9800;">Variant 3:</span>
+            <span><span style="color: #4caf50;">👍 0</span> | <span style="color: #d32f2f;">👎 0</span></span>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555;">
+        <div style="font-size: 11px; color: #888; margin-bottom: 5px;">Base Map:</div>
+        <button id="basemapBtn" style="background: #4caf50; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; width: calc(100% - 10px); margin-bottom: 5px;">Google 3D Tiles</button>
+        <button id="osmBuildingsBtn" style="display: none; background: #666; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; width: calc(100% - 10px);">✗ OSM Buildings</button>
+      </div>
+    </div>
+    
+    <div style="margin-top: 15px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; color: #888; font-size: 13px;">📋 Comments (<span id="commentCount">0</span>):</h4>
+        <button id="clearAllBtn" style="display: none; background: #d32f2f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Clear All</button>
+      </div>
+      <div id="commentItems" style="max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 5px;"><div style="color: #666; font-size: 12px; padding: 5px;">No comments yet</div></div>
+    </div>
+    
+    <div id="statusMessage" style="display: none; background: rgba(72, 136, 187, 0.9); padding: 8px 12px; border-radius: 4px; margin-top: 10px; font-size: 12px;"></div>
+  </div>
+
+  <!-- Comment Dialog -->
+  <div id="commentDialog" style="position: absolute; display: none; background: rgba(42, 42, 42, 0.95); border-radius: 8px; padding: 20px; color: white; z-index: 200; box-shadow: 0 8px 16px rgba(0,0,0,0.5); min-width: 320px; font-family: Arial, sans-serif;">
+    <h4 style="margin-top: 0; margin-bottom: 15px; color: #48b;">New Comment</h4>
+    <div style="background: rgba(72,136,187,0.2); padding: 8px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
+      Comment for: <strong id="dialogVariant">Variant 1</strong>
+    </div>
+    <input type="text" id="commentTitle" placeholder="Comment Title" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; box-sizing: border-box;">
+    <textarea id="commentText" placeholder="Your comment on the design..." style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; min-height: 80px; resize: vertical; box-sizing: border-box;"></textarea>
+    <div style="margin-top: 15px; text-align: right;">
+      <button id="cancelCommentBtn" style="background: #666; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Cancel</button>
+      <button id="saveCommentBtn" style="background: #4caf50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Save</button>
+    </div>
+  </div>
+  
   <script>
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2NTY4OWFmYy05NzI4LTQ4ZWEtODc5Yi0zYWQ2Njg5ZDFiMTgiLCJpZCI6MjYzNTkwLCJpYXQiOjE3NTIyNTM2MzZ9.ie5CjK4mgkYmOOdiJp-Zwdy_biqwWXFAVOeD3Fx6_Ro';
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNWFjNDYxZC0yN2U5LTQ0MGYtYWY1Ny1lN2VmNGJiNjVlYTQiLCJpZCI6MjYzNTkwLCJpYXQiOjE3NjE3MzIzOTh9.HsP4Aq5jS6OiRwUXc8uRv6nwbrTcx8ugaGSkLiTYhO8';
 
     const viewer = new Cesium.Viewer("cesiumContainer", {
       timeline: false,
@@ -33,101 +203,65 @@
     let comments = [];
     let currentPosition = null;
     let isAddingComment = false;
-    let previewEntity = null; // Preview marker
+    let previewEntity = null;
     let tileset1 = null;
     let tileset2 = null;
     let tileset3 = null;
     let googleTileset = null;
     let osmBuildings = null;
     let googleImageryLayer = null;
-    let activeVariant = 'variant1'; // 'variant1', 'variant2', or 'variant3'
-    let basemapMode = 'google3d'; // 'google3d' or 'terrain'
+    let activeVariant = 'variant1';
+    let basemapMode = 'google3d';
+    let menuOpen = false;
     
-    // Voting data
     let votes = {
       variant1: { thumbsUp: 0, thumbsDown: 0 },
       variant2: { thumbsUp: 0, thumbsDown: 0 },
       variant3: { thumbsUp: 0, thumbsDown: 0 }
     };
 
-    // Create UI Panel
-    const panel = document.createElement('div');
-    panel.style.cssText = 'position: absolute; top: 10px; left: 10px; background: rgba(42, 42, 42, 0.95); border-radius: 8px; padding: 15px; color: white; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.3); max-width: 320px; font-family: Arial, sans-serif;';
-    panel.innerHTML = `
-      <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #555; padding-bottom: 8px;">🏙️ Public Twin - Citizen Participation</h3>
+    // Menu Toggle Functionality
+    const menuToggle = document.getElementById('menuToggle');
+    const panel = document.getElementById('panel');
+    
+    function toggleMenu() {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        panel.classList.remove('hidden');
+        menuToggle.classList.add('active');
+      } else {
+        panel.classList.add('hidden');
+        menuToggle.classList.remove('active');
+      }
+    }
+    
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    // Touch gesture: Swipe from left to open menu
+    let touchStartX = 0;
+    let touchStartY = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffX = touchEndX - touchStartX;
+      const diffY = Math.abs(touchEndY - touchStartY);
       
-      <button id="addCommentBtn" style="background: #48b; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">➕ Add Comment</button>
+      // Swipe from left edge (first 50px) to the right (at least 100px)
+      if (touchStartX < 50 && diffX > 100 && diffY < 50 && !menuOpen) {
+        toggleMenu();
+      }
       
-      <div style="margin: 15px 0; padding: 10px; border-top: 1px solid #555; background: rgba(255,255,255,0.05); border-radius: 4px;">
-        <h4 style="color: #5ac; margin: 0 0 10px 0; font-size: 13px;">🎨 Design Variants:</h4>
-        <button id="variant1Btn" style="background: #4caf50; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">● Variant 1 (Asset 3291876)</button>
-        <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Variant 2 (Asset 3658308)</button>
-        <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Variant 3 (Asset 3154873)</button>
-        
-        <!-- Voting Widget -->
-        <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
-          <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Vote for <span id="votingVariantName" style="color: #4caf50; font-weight: bold;">Variant 1</span>:</div>
-          <div style="display: flex; gap: 10px;">
-            <button id="thumbsUpBtn" style="flex: 1; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 18px;">👍</button>
-            <button id="thumbsDownBtn" style="flex: 1; background: #d32f2f; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 18px;">👎</button>
-          </div>
-        </div>
-        
-        <!-- Voting Overview -->
-        <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 4px;">
-          <div style="font-size: 11px; color: #888; margin-bottom: 8px; text-align: center;">📊 Voting Results:</div>
-          <div id="votingOverview" style="font-size: 11px;">
-            <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
-              <span style="color: #4caf50;">Variant 1:</span>
-              <span><span style="color: #4caf50;">👍 0</span> | <span style="color: #d32f2f;">👎 0</span></span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
-              <span style="color: #2196f3;">Variant 2:</span>
-              <span><span style="color: #4caf50;">👍 0</span> | <span style="color: #d32f2f;">👎 0</span></span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-              <span style="color: #ff9800;">Variant 3:</span>
-              <span><span style="color: #4caf50;">👍 0</span> | <span style="color: #d32f2f;">👎 0</span></span>
-            </div>
-          </div>
-        </div>
-        
-        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555;">
-          <div style="font-size: 11px; color: #888; margin-bottom: 5px;">Base Map:</div>
-          <button id="basemapBtn" style="background: #4caf50; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; width: calc(100% - 10px); margin-bottom: 5px;">Google 3D Tiles</button>
-          <button id="osmBuildingsBtn" style="display: none; background: #666; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; width: calc(100% - 10px);">✗ OSM Buildings</button>
-        </div>
-      </div>
-      
-      <div style="margin-top: 15px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <h4 style="margin: 0; color: #888; font-size: 13px;">📋 Comments (<span id="commentCount">0</span>):</h4>
-          <button id="clearAllBtn" style="display: none; background: #d32f2f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Clear All</button>
-        </div>
-        <div id="commentItems" style="max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 5px;"><div style="color: #666; font-size: 12px; padding: 5px;">No comments yet</div></div>
-      </div>
-      
-      <div id="statusMessage" style="display: none; background: rgba(72, 136, 187, 0.9); padding: 8px 12px; border-radius: 4px; margin-top: 10px; font-size: 12px;"></div>
-    `;
-    document.body.appendChild(panel);
-
-    // Create Comment Dialog
-    const commentDialog = document.createElement('div');
-    commentDialog.id = 'commentDialog';
-    commentDialog.style.cssText = 'position: absolute; display: none; background: rgba(42, 42, 42, 0.95); border-radius: 8px; padding: 20px; color: white; z-index: 200; box-shadow: 0 8px 16px rgba(0,0,0,0.5); min-width: 320px; font-family: Arial, sans-serif;';
-    commentDialog.innerHTML = `
-      <h4 style="margin-top: 0; margin-bottom: 15px; color: #48b;">New Comment</h4>
-      <div style="background: rgba(72,136,187,0.2); padding: 8px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
-        Comment for: <strong id="dialogVariant">Variant 1</strong>
-      </div>
-      <input type="text" id="commentTitle" placeholder="Comment Title" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; box-sizing: border-box;">
-      <textarea id="commentText" placeholder="Your comment on the design..." style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; min-height: 80px; resize: vertical; box-sizing: border-box;"></textarea>
-      <div style="margin-top: 15px; text-align: right;">
-        <button id="cancelCommentBtn" style="background: #666; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Cancel</button>
-        <button id="saveCommentBtn" style="background: #4caf50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Save</button>
-      </div>
-    `;
-    document.body.appendChild(commentDialog);
+      // Swipe from right to left on open menu to close
+      if (menuOpen && diffX < -100 && diffY < 50) {
+        toggleMenu();
+      }
+    });
 
     // Status messages
     function showStatus(message, type = '') {
@@ -141,12 +275,10 @@
       setTimeout(() => statusEl.style.display = 'none', 3000);
     }
 
-    // Update comment list
     function updateCommentList() {
       const container = document.getElementById('commentItems');
       container.innerHTML = '';
       
-      // Filter comments by active variant
       const filteredComments = comments.filter(c => c.variant === activeVariant);
       document.getElementById('commentCount').textContent = filteredComments.length;
       
@@ -178,7 +310,6 @@
       });
     }
 
-    // Update comment visibility
     function updateCommentVisibility() {
       comments.forEach(comment => {
         const entity = viewer.entities.getById(comment.id);
@@ -188,7 +319,6 @@
       });
     }
 
-    // Vote for current variant
     function vote(voteType) {
       if (voteType === 'up') {
         votes[activeVariant].thumbsUp++;
@@ -200,7 +330,6 @@
       updateVotingOverview();
     }
 
-    // Update voting overview display
     function updateVotingOverview() {
       document.getElementById('votingOverview').innerHTML = `
         <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
@@ -218,13 +347,11 @@
       `;
     }
 
-    // Get variant name
     function getVariantName(variant) {
       return variant === 'variant1' ? 'Variant 1' : 
              variant === 'variant2' ? 'Variant 2' : 'Variant 3';
     }
 
-    // Update voting widget for current variant
     function updateVotingWidget() {
       const variantName = getVariantName(activeVariant);
       const color = activeVariant === 'variant1' ? '#4caf50' : 
@@ -233,7 +360,6 @@
       document.getElementById('votingVariantName').style.color = color;
     }
 
-    // Switch variant
     function switchVariant(variant) {
       activeVariant = variant;
       
@@ -277,12 +403,10 @@
       updateVotingWidget();
     }
 
-    // Create preview marker
     function createPreviewMarker(lon, lat, height) {
-      // Remove existing preview
       removePreviewMarker();
       
-      const position = Cesium.Cartesian3.fromDegrees(lon, lat, height + 2); // Reduced offset
+      const position = Cesium.Cartesian3.fromDegrees(lon, lat, height + 2);
       const color = activeVariant === 'variant1' ? '#4caf50' : 
                     activeVariant === 'variant2' ? '#2196f3' : '#ff9800';
       
@@ -309,7 +433,6 @@
       });
     }
 
-    // Remove preview marker
     function removePreviewMarker() {
       if (previewEntity) {
         viewer.entities.remove(previewEntity);
@@ -317,64 +440,52 @@
       }
     }
 
-    // Open comment dialog
     function openCommentDialog(screenPosition) {
       const dialog = document.getElementById('commentDialog');
       const variantText = activeVariant === 'variant1' ? 'Variant 1' : 
                           activeVariant === 'variant2' ? 'Variant 2' : 'Variant 3';
       
-      // Update dialog variant indicator
       document.getElementById('dialogVariant').textContent = variantText;
-      
-      // Clear previous values
       document.getElementById('commentTitle').value = '';
       document.getElementById('commentText').value = '';
       
-      // Position dialog near click
       dialog.style.display = 'block';
       dialog.style.left = Math.min(screenPosition.x + 20, window.innerWidth - 360) + 'px';
       dialog.style.top = Math.min(screenPosition.y - 50, window.innerHeight - 300) + 'px';
       
-      // Focus title field
       setTimeout(() => document.getElementById('commentTitle').focus(), 100);
     }
 
-    // Close comment dialog
     function closeCommentDialog() {
       document.getElementById('commentDialog').style.display = 'none';
       document.getElementById('commentTitle').value = '';
       document.getElementById('commentText').value = '';
-      removePreviewMarker(); // Remove preview when canceling
+      removePreviewMarker();
       isAddingComment = false;
       document.getElementById('addCommentBtn').style.background = '#48b';
       document.getElementById('addCommentBtn').textContent = '➕ Add Comment';
     }
 
-    // Load 3D assets
     async function loadAssets() {
       try {
         showStatus('Loading 3D models...', 'loading');
         
-        // Load Google 3D Tiles by default
         googleTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2275207);
         viewer.scene.primitives.add(googleTileset);
         console.log('Google 3D Tiles loaded');
         
-        // Load Variant 1
         tileset1 = await Cesium.Cesium3DTileset.fromIonAssetId(3291876);
         viewer.scene.primitives.add(tileset1);
         console.log('Asset 3291876 loaded');
         
-        // Load Variant 2
         tileset2 = await Cesium.Cesium3DTileset.fromIonAssetId(3658308);
         viewer.scene.primitives.add(tileset2);
-        tileset2.show = false; // Variant 2 hidden by default
+        tileset2.show = false;
         console.log('Asset 3658308 loaded');
         
-        // Load Variant 3
         tileset3 = await Cesium.Cesium3DTileset.fromIonAssetId(3154873);
         viewer.scene.primitives.add(tileset3);
-        tileset3.show = false; // Variant 3 hidden by default
+        tileset3.show = false;
         console.log('Asset 3154873 loaded');
         
         showStatus('All assets loaded!', 'success');
@@ -386,16 +497,13 @@
       }
     }
 
-    // Switch to Terrain + Google Satellite mode
     async function switchToTerrainMode() {
       showStatus('Switching to Terrain + Satellite...', 'loading');
       
-      // Hide Google 3D Tiles
       if (googleTileset) {
         googleTileset.show = false;
       }
       
-      // Add Google Satellite imagery if not already added
       if (!googleImageryLayer) {
         try {
           googleImageryLayer = viewer.imageryLayers.addImageryProvider(
@@ -409,24 +517,19 @@
         googleImageryLayer.show = true;
       }
       
-      // Enable terrain
       viewer.terrainProvider = await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
       
       basemapMode = 'terrain';
       document.getElementById('basemapBtn').textContent = 'Cesium Terrain + Satellite';
       document.getElementById('basemapBtn').style.background = '#2196f3';
-      
-      // Show OSM Buildings button
       document.getElementById('osmBuildingsBtn').style.display = 'block';
       
       showStatus('Terrain mode active', 'success');
     }
 
-    // Switch to Google 3D Tiles mode
     async function switchToGoogle3DMode() {
       showStatus('Switching to Google 3D Tiles...', 'loading');
       
-      // Show Google 3D Tiles (load if not already loaded)
       if (!googleTileset) {
         try {
           googleTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2275207);
@@ -441,33 +544,26 @@
         googleTileset.show = true;
       }
       
-      // Hide Google Satellite imagery
       if (googleImageryLayer) {
         googleImageryLayer.show = false;
       }
       
-      // Hide OSM Buildings if active
       if (osmBuildings) {
         osmBuildings.show = false;
       }
       
-      // Disable terrain (use ellipsoid)
       viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
       
       basemapMode = 'google3d';
       document.getElementById('basemapBtn').textContent = 'Google 3D Tiles';
       document.getElementById('basemapBtn').style.background = '#4caf50';
-      
-      // Hide OSM Buildings button
       document.getElementById('osmBuildingsBtn').style.display = 'none';
       
       showStatus('Google 3D mode active', 'success');
     }
 
-    // Toggle OSM Buildings
     async function toggleOSMBuildings() {
       if (!osmBuildings) {
-        // Load OSM Buildings for the first time
         showStatus('Loading OSM Buildings...', 'loading');
         try {
           osmBuildings = await Cesium.createOsmBuildingsAsync();
@@ -481,7 +577,6 @@
           showStatus('Error loading OSM Buildings', 'error');
         }
       } else {
-        // Toggle visibility
         osmBuildings.show = !osmBuildings.show;
         document.getElementById('osmBuildingsBtn').style.background = osmBuildings.show ? '#4caf50' : '#666';
         document.getElementById('osmBuildingsBtn').textContent = (osmBuildings.show ? '✓' : '✗') + ' OSM Buildings';
@@ -491,7 +586,6 @@
 
     loadAssets();
 
-    // Keyboard shortcut to toggle Clear All button (X key for desktop)
     let clearButtonVisible = false;
     document.addEventListener('keydown', function(event) {
       if (event.key === 'x' || event.key === 'X') {
@@ -499,7 +593,6 @@
       }
     });
 
-    // Triple-tap on header to toggle Clear All button (for mobile)
     let tapCount = 0;
     let tapTimer = null;
     const panelHeader = panel.querySelector('h3');
@@ -510,7 +603,7 @@
       if (tapCount === 1) {
         tapTimer = setTimeout(function() {
           tapCount = 0;
-        }, 500); // Reset after 500ms
+        }, 500);
       }
       
       if (tapCount === 3) {
@@ -520,7 +613,6 @@
       }
     });
 
-    // Function to toggle Clear All button visibility
     function toggleClearButton() {
       clearButtonVisible = !clearButtonVisible;
       const clearBtn = document.getElementById('clearAllBtn');
@@ -531,7 +623,6 @@
       );
     }
 
-    // Button handlers
     document.getElementById('addCommentBtn').addEventListener('click', function() {
       isAddingComment = !isAddingComment;
       this.style.background = isAddingComment ? '#f60' : '#48b';
@@ -590,7 +681,6 @@
       }
     });
 
-    // Comment dialog buttons
     document.getElementById('saveCommentBtn').addEventListener('click', function() {
       const title = document.getElementById('commentTitle').value.trim();
       const text = document.getElementById('commentText').value.trim();
@@ -612,8 +702,8 @@
       };
       
       comments.push(comment);
-      removePreviewMarker(); // Remove preview
-      addCommentToViewer(comment); // Add permanent marker
+      removePreviewMarker();
+      addCommentToViewer(comment);
       updateCommentList();
       closeCommentDialog();
       
@@ -624,12 +714,11 @@
       closeCommentDialog();
     });
 
-    // Comment system
     function addCommentToViewer(comment) {
       const position = Cesium.Cartesian3.fromDegrees(
         comment.lon,
         comment.lat,
-        comment.height + 2  // Reduced offset for more precise placement
+        comment.height + 2
       );
       
       const color = comment.variant === 'variant1' ? '#4caf50' : 
@@ -671,21 +760,17 @@
       });
     }
 
-    // Click handler for adding comments with improved precision
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
     handler.setInputAction(function(click) {
       if (!isAddingComment) return;
       
-      // Try multiple picking methods for best accuracy
       let pickedPosition = null;
       let pickedFeature = viewer.scene.pick(click.position);
       
-      // Method 1: Try to pick from 3D Tiles/Objects with depth
       if (Cesium.defined(pickedFeature)) {
         pickedPosition = viewer.scene.pickPosition(click.position);
       }
       
-      // Method 2: Fallback to globe/terrain picking using ray
       if (!Cesium.defined(pickedPosition)) {
         const ray = viewer.camera.getPickRay(click.position);
         pickedPosition = viewer.scene.globe.pick(ray, viewer.scene);
@@ -698,11 +783,7 @@
         const height = cartographic.height;
         
         currentPosition = { lon, lat, height };
-        
-        // Create preview marker immediately
         createPreviewMarker(lon, lat, height);
-        
-        // Open dialog
         openCommentDialog(click.position);
         
       } else {
@@ -710,7 +791,7 @@
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    console.log('✅ Public Twin Comment System loaded');
+    console.log('✅ Public Twin Comment System loaded (Mobile-optimized)');
   </script>
 </body>
 </html>
