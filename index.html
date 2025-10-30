@@ -111,20 +111,126 @@
       touch-action: manipulation;
     }
     
-    /* Firebase connection status */
-    #connectionStatus {
+    /* Latest Comments Widget */
+    #latestCommentsWidget {
       position: absolute;
-      top: 10px;
+      bottom: 10px;
       right: 10px;
       background: rgba(42, 42, 42, 0.95);
       border-radius: 8px;
-      padding: 8px 12px;
+      padding: 12px;
       color: white;
       z-index: 100;
-      font-size: 11px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      max-width: 300px;
+      font-family: Arial, sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    #latestCommentsWidget.minimized {
+      width: auto;
+      padding: 8px 12px;
+    }
+    
+    #latestCommentsWidget.minimized .widget-content {
+      display: none;
+    }
+    
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .widget-header h4 {
+      margin: 0;
+      font-size: 13px;
+      color: #5ac;
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+    
+    .widget-toggle {
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      min-height: auto;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .widget-toggle.minimized {
+      transform: rotate(180deg);
+    }
+    
+    .latest-comment-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border-left: 3px solid #4caf50;
+      transition: all 0.2s ease;
+    }
+    
+    .latest-comment-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(-2px);
+    }
+    
+    .latest-comment-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .latest-comment-title {
+      font-weight: bold;
+      font-size: 12px;
+      color: #5ac;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .latest-comment-variant {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(0,0,0,0.3);
+    }
+    
+    .latest-comment-text {
+      font-size: 11px;
+      color: #ccc;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .latest-comment-time {
+      font-size: 9px;
+      color: #888;
+    }
+    
+    @media (max-width: 768px) {
+      #latestCommentsWidget {
+        bottom: 10px;
+        right: 10px;
+        left: auto;
+        max-width: calc(100vw - 20px);
+      }
     }
     
     .status-dot {
@@ -152,12 +258,6 @@
 <body>
   <div id="cesiumContainer"></div>
   
-  <!-- Connection Status -->
-  <div id="connectionStatus">
-    <div class="status-dot" id="statusDot"></div>
-    <span id="statusText">Connecting...</span>
-  </div>
-  
   <!-- Hamburger Menu Toggle Button -->
   <button id="menuToggle">
     <span></span>
@@ -173,13 +273,13 @@
     
     <div style="margin: 15px 0; padding: 10px; border-top: 1px solid #555; background: rgba(255,255,255,0.05); border-radius: 4px;">
       <h4 style="color: #5ac; margin: 0 0 10px 0; font-size: 13px;">🎨 Design Variants:</h4>
-      <button id="variant1Btn" style="background: #4caf50; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">● Variant 1 (Asset 3291876)</button>
-      <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Variant 2 (Asset 3658308)</button>
-      <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Variant 3 (Asset 3154873)</button>
+      <button id="variant1Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Malmö"</button>
+      <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Atlanta"</button>
+      <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "150"</button>
       
       <!-- Voting Widget -->
       <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
-        <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Vote for <span id="votingVariantName" style="color: #4caf50; font-weight: bold;">Variant 1</span>:</div>
+        <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Vote for <span id="votingVariantName" style="color: #888; font-weight: bold;">a design first</span>:</div>
         <div style="display: flex; gap: 10px;">
           <button id="thumbsUpBtn" style="flex: 1; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 18px;">👍</button>
           <button id="thumbsDownBtn" style="flex: 1; background: #d32f2f; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 18px;">👎</button>
@@ -191,15 +291,15 @@
         <div style="font-size: 11px; color: #888; margin-bottom: 8px; text-align: center;">📊 Voting Results (Live):</div>
         <div id="votingOverview" style="font-size: 11px;">
           <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
-            <span style="color: #4caf50;">Variant 1:</span>
+            <span style="color: #4caf50;">Design "Malmö":</span>
             <span><span style="color: #4caf50;">👍 <span id="v1up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v1down">0</span></span></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
-            <span style="color: #2196f3;">Variant 2:</span>
+            <span style="color: #2196f3;">Design "Atlanta":</span>
             <span><span style="color: #4caf50;">👍 <span id="v2up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v2down">0</span></span></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-            <span style="color: #ff9800;">Variant 3:</span>
+            <span style="color: #ff9800;">Design "150":</span>
             <span><span style="color: #4caf50;">👍 <span id="v3up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v3down">0</span></span></span>
           </div>
         </div>
@@ -237,6 +337,17 @@
     </div>
   </div>
   
+  <!-- Latest Comments Widget -->
+  <div id="latestCommentsWidget" class="minimized">
+    <div class="widget-header" onclick="toggleLatestCommentsWidget()">
+      <h4>💬 Latest Comments</h4>
+      <button class="widget-toggle minimized">▼</button>
+    </div>
+    <div class="widget-content" id="latestCommentsContent">
+      <div style="color: #666; font-size: 11px; text-align: center; padding: 10px;">No comments yet</div>
+    </div>
+  </div>
+  
   <script>
     // =====================================
     // FIREBASE CONFIGURATION
@@ -259,19 +370,10 @@
       firebase.initializeApp(firebaseConfig);
       db = firebase.firestore();
       firebaseInitialized = true;
-      updateConnectionStatus('connected', 'Connected ✓');
       console.log('✅ Firebase initialized successfully');
     } catch (error) {
       console.error('❌ Firebase initialization error:', error);
-      updateConnectionStatus('error', 'Config needed!');
       alert('⚠️ Firebase not configured!\n\nPlease add your Firebase credentials to the HTML file.\nSee README for instructions.');
-    }
-
-    function updateConnectionStatus(status, text) {
-      const dot = document.getElementById('statusDot');
-      const statusText = document.getElementById('statusText');
-      dot.className = 'status-dot ' + status;
-      statusText.textContent = text;
     }
 
     // =====================================
@@ -297,7 +399,7 @@
     let googleTileset = null;
     let osmBuildings = null;
     let googleImageryLayer = null;
-    let activeVariant = 'variant1';
+    let activeVariant = null; // No variant selected initially
     let basemapMode = 'google3d';
     let menuOpen = false;
     
@@ -328,6 +430,7 @@
           }
         });
         updateCommentList();
+        updateLatestCommentsWidget();
         console.log(`📝 Loaded ${comments.length} comments from Firebase`);
       }, (error) => {
         console.error('Error listening to comments:', error);
@@ -506,11 +609,17 @@
       const container = document.getElementById('commentItems');
       container.innerHTML = '';
       
+      if (!activeVariant) {
+        container.innerHTML = '<div style="color: #666; font-size: 12px; padding: 5px;">Please select a design first</div>';
+        document.getElementById('commentCount').textContent = '0';
+        return;
+      }
+      
       const filteredComments = comments.filter(c => c.variant === activeVariant);
       document.getElementById('commentCount').textContent = filteredComments.length;
       
       if (filteredComments.length === 0) {
-        container.innerHTML = '<div style="color: #666; font-size: 12px; padding: 5px;">No comments for this variant yet</div>';
+        container.innerHTML = '<div style="color: #666; font-size: 12px; padding: 5px;">No comments for this design yet</div>';
         return;
       }
       
@@ -544,7 +653,7 @@
       comments.forEach(comment => {
         const entity = viewer.entities.getById(comment.id);
         if (entity) {
-          entity.show = comment.variant === activeVariant;
+          entity.show = activeVariant ? comment.variant === activeVariant : false;
         }
       });
     }
@@ -566,9 +675,92 @@
       document.getElementById('v3down').textContent = votes.variant3.thumbsDown;
     }
 
+    function toggleLatestCommentsWidget() {
+      const widget = document.getElementById('latestCommentsWidget');
+      const toggle = widget.querySelector('.widget-toggle');
+      
+      if (widget.classList.contains('minimized')) {
+        widget.classList.remove('minimized');
+        toggle.classList.remove('minimized');
+      } else {
+        widget.classList.add('minimized');
+        toggle.classList.add('minimized');
+      }
+    }
+
+    function updateLatestCommentsWidget() {
+      const container = document.getElementById('latestCommentsContent');
+      
+      if (comments.length === 0) {
+        container.innerHTML = '<div style="color: #666; font-size: 11px; text-align: center; padding: 10px;">No comments yet</div>';
+        return;
+      }
+      
+      // Sort by timestamp (newest first) and take top 3
+      const latestComments = [...comments]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 3);
+      
+      container.innerHTML = '';
+      
+      latestComments.forEach(comment => {
+        const item = document.createElement('div');
+        item.className = 'latest-comment-item';
+        
+        const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
+                           comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+        item.style.borderLeftColor = borderColor;
+        
+        const variantColor = comment.variant === 'variant1' ? '#4caf50' : 
+                            comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+        const variantText = comment.variant === 'variant1' ? 'Malmö' : 
+                           comment.variant === 'variant2' ? 'Atlanta' : '150';
+        
+        const timeAgo = getTimeAgo(comment.timestamp);
+        
+        item.innerHTML = `
+          <div class="latest-comment-title">
+            <span>${comment.title}</span>
+            <span class="latest-comment-variant" style="background: ${variantColor};">${variantText}</span>
+          </div>
+          <div class="latest-comment-text">${comment.text}</div>
+          <div class="latest-comment-time">📍 ${timeAgo}</div>
+        `;
+        
+        item.onclick = function() {
+          const entity = viewer.entities.getById(comment.id);
+          if (entity) {
+            viewer.flyTo(entity, {
+              duration: 2.0,
+              offset: new Cesium.HeadingPitchRange(0, -0.5, 500)
+            });
+          }
+        };
+        
+        container.appendChild(item);
+      });
+    }
+
+    function getTimeAgo(timestamp) {
+      const now = new Date();
+      const commentDate = new Date(timestamp);
+      const diffMs = now - commentDate;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+      
+      if (diffMins < 1) return 'just now';
+      if (diffMins < 60) return `${diffMins} min ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays === 1) return 'yesterday';
+      if (diffDays < 7) return `${diffDays} days ago`;
+      return commentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
     function getVariantName(variant) {
-      return variant === 'variant1' ? 'Variant 1' : 
-             variant === 'variant2' ? 'Variant 2' : 'Variant 3';
+      return variant === 'variant1' ? 'Design "Malmö"' : 
+             variant === 'variant2' ? 'Design "Atlanta"' : 
+             variant === 'variant3' ? 'Design "150"' : 'a design';
     }
 
     function updateVotingWidget() {
@@ -583,38 +775,47 @@
       activeVariant = variant;
       
       if (variant === 'variant1') {
-        if (tileset1) tileset1.show = true;
+        if (tileset1) {
+          tileset1.show = true;
+          viewer.flyTo(tileset1);
+        }
         if (tileset2) tileset2.show = false;
         if (tileset3) tileset3.show = false;
         document.getElementById('variant1Btn').style.background = '#4caf50';
-        document.getElementById('variant1Btn').innerHTML = '● Variant 1 (Asset 3291876)';
+        document.getElementById('variant1Btn').innerHTML = '● Design "Malmö"';
         document.getElementById('variant2Btn').style.background = '#666';
-        document.getElementById('variant2Btn').innerHTML = '○ Variant 2 (Asset 3658308)';
+        document.getElementById('variant2Btn').innerHTML = '○ Design "Atlanta"';
         document.getElementById('variant3Btn').style.background = '#666';
-        document.getElementById('variant3Btn').innerHTML = '○ Variant 3 (Asset 3154873)';
-        showStatus('Variant 1 active', 'success');
+        document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
+        showStatus('Design "Malmö" active', 'success');
       } else if (variant === 'variant2') {
         if (tileset1) tileset1.show = false;
-        if (tileset2) tileset2.show = true;
+        if (tileset2) {
+          tileset2.show = true;
+          viewer.flyTo(tileset2);
+        }
         if (tileset3) tileset3.show = false;
         document.getElementById('variant1Btn').style.background = '#666';
-        document.getElementById('variant1Btn').innerHTML = '○ Variant 1 (Asset 3291876)';
+        document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
         document.getElementById('variant2Btn').style.background = '#2196f3';
-        document.getElementById('variant2Btn').innerHTML = '● Variant 2 (Asset 3658308)';
+        document.getElementById('variant2Btn').innerHTML = '● Design "Atlanta"';
         document.getElementById('variant3Btn').style.background = '#666';
-        document.getElementById('variant3Btn').innerHTML = '○ Variant 3 (Asset 3154873)';
-        showStatus('Variant 2 active', 'success');
+        document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
+        showStatus('Design "Atlanta" active', 'success');
       } else if (variant === 'variant3') {
         if (tileset1) tileset1.show = false;
         if (tileset2) tileset2.show = false;
-        if (tileset3) tileset3.show = true;
+        if (tileset3) {
+          tileset3.show = true;
+          viewer.flyTo(tileset3);
+        }
         document.getElementById('variant1Btn').style.background = '#666';
-        document.getElementById('variant1Btn').innerHTML = '○ Variant 1 (Asset 3291876)';
+        document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
         document.getElementById('variant2Btn').style.background = '#666';
-        document.getElementById('variant2Btn').innerHTML = '○ Variant 2 (Asset 3658308)';
+        document.getElementById('variant2Btn').innerHTML = '○ Design "Atlanta"';
         document.getElementById('variant3Btn').style.background = '#ff9800';
-        document.getElementById('variant3Btn').innerHTML = '● Variant 3 (Asset 3154873)';
-        showStatus('Variant 3 active', 'success');
+        document.getElementById('variant3Btn').innerHTML = '● Design "150"';
+        showStatus('Design "150" active', 'success');
       }
       
       updateCommentVisibility();
@@ -661,8 +862,9 @@
 
     function openCommentDialog(screenPosition) {
       const dialog = document.getElementById('commentDialog');
-      const variantText = activeVariant === 'variant1' ? 'Variant 1' : 
-                          activeVariant === 'variant2' ? 'Variant 2' : 'Variant 3';
+      const variantText = activeVariant === 'variant1' ? 'Design "Malmö"' : 
+                          activeVariant === 'variant2' ? 'Design "Atlanta"' : 
+                          activeVariant === 'variant3' ? 'Design "150"' : 'Unknown';
       
       document.getElementById('dialogVariant').textContent = variantText;
       document.getElementById('commentTitle').value = '';
@@ -695,20 +897,21 @@
         
         tileset1 = await Cesium.Cesium3DTileset.fromIonAssetId(3291876);
         viewer.scene.primitives.add(tileset1);
-        console.log('Asset 3291876 loaded');
+        tileset1.show = false; // Hide initially
+        console.log('Asset 3291876 (Malmö) loaded');
         
         tileset2 = await Cesium.Cesium3DTileset.fromIonAssetId(3658308);
         viewer.scene.primitives.add(tileset2);
-        tileset2.show = false;
-        console.log('Asset 3658308 loaded');
+        tileset2.show = false; // Hide initially
+        console.log('Asset 3658308 (Atlanta) loaded');
         
         tileset3 = await Cesium.Cesium3DTileset.fromIonAssetId(3154873);
         viewer.scene.primitives.add(tileset3);
-        tileset3.show = false;
-        console.log('Asset 3154873 loaded');
+        tileset3.show = false; // Hide initially
+        console.log('Asset 3154873 (150) loaded');
         
-        showStatus('All assets loaded!', 'success');
-        viewer.flyTo(tileset1);
+        showStatus('All assets loaded! Select a design to view.', 'success');
+        // No auto-flyTo - user must select a variant first
         
       } catch (error) {
         console.error('Error loading assets:', error);
@@ -848,6 +1051,11 @@
     // =====================================
 
     document.getElementById('addCommentBtn').addEventListener('click', function() {
+      if (!activeVariant) {
+        showStatus('⚠️ Please select a design first!', 'error');
+        return;
+      }
+      
       isAddingComment = !isAddingComment;
       this.style.background = isAddingComment ? '#f60' : '#48b';
       this.textContent = isAddingComment ? '✋ Cancel' : '➕ Add Comment';
@@ -890,13 +1098,18 @@
     });
 
     document.getElementById('clearAllBtn').addEventListener('click', async function() {
+      if (!activeVariant) {
+        showStatus('No design selected');
+        return;
+      }
+      
       const variantComments = comments.filter(c => c.variant === activeVariant);
       if (variantComments.length === 0) {
         showStatus('No comments to delete');
         return;
       }
-      const variantName = activeVariant === 'variant1' ? 'Variant 1' : 
-                         activeVariant === 'variant2' ? 'Variant 2' : 'Variant 3';
+      const variantName = activeVariant === 'variant1' ? 'Design "Malmö"' : 
+                         activeVariant === 'variant2' ? 'Design "Atlanta"' : 'Design "150"';
       if (confirm(`Do you really want to delete all ${variantComments.length} comments from ${variantName}?`)) {
         showStatus('Deleting comments...', 'loading');
         const success = await deleteVariantCommentsFromFirebase(activeVariant);
@@ -976,7 +1189,7 @@
         description: `<div style="padding:10px">
           <h3>${comment.title}</h3>
           <div style="background: ${comment.variant === 'variant1' ? '#4caf50' : comment.variant === 'variant2' ? '#2196f3' : '#ff9800'}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-            ${comment.variant === 'variant1' ? 'Variant 1' : comment.variant === 'variant2' ? 'Variant 2' : 'Variant 3'}
+            ${comment.variant === 'variant1' ? 'Design "Malmö"' : comment.variant === 'variant2' ? 'Design "Atlanta"' : 'Design "150"'}
           </div>
           <p>${comment.text}</p>
           <p style="font-size:11px;color:#888">
