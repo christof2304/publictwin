@@ -276,6 +276,7 @@
       <button id="variant1Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Malmö"</button>
       <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Atlanta"</button>
       <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "150"</button>
+      <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "iTwin"</button>
       
       <!-- Voting Widget -->
       <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
@@ -298,9 +299,13 @@
             <span style="color: #2196f3;">Design "Atlanta":</span>
             <span><span style="color: #4caf50;">👍 <span id="v2up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v2down">0</span></span></span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
             <span style="color: #ff9800;">Design "150":</span>
             <span><span style="color: #4caf50;">👍 <span id="v3up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v3down">0</span></span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+            <span style="color: #e91e63;">Design "iTwin":</span>
+            <span><span style="color: #4caf50;">👍 <span id="v4up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v4down">0</span></span></span>
           </div>
         </div>
       </div>
@@ -377,6 +382,13 @@
     }
 
     // =====================================
+    // iTWIN PLATFORM CONFIGURATION
+    // =====================================
+    // Set iTwin Platform Share Key for loading iModels
+    Cesium.ITwinPlatform.defaultShareKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpVHdpbklkIjoiNTM1YTI0YTMtOWIyOS00ZTIzLWJiNWQtOWNlZGI1MjRjNzQzIiwiaWQiOiI2NTEwMzUzMi02MmU3LTRmZGQtOWNlNy1iODIxYmEyMmI5NjMiLCJleHAiOjE3NzcwNTU4MTh9.Q9MgsWWkc6bb1zHUJ7ahZjxPtaTWEjpNvRln7NS3faM";
+    console.log('🏗️ iTwin Platform configured with share key');
+
+    // =====================================
     // CESIUM SETUP
     // =====================================
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNWFjNDYxZC0yN2U5LTQ0MGYtYWY1Ny1lN2VmNGJiNjVlYTQiLCJpZCI6MjYzNTkwLCJpYXQiOjE3NjE3MzIzOTh9.HsP4Aq5jS6OiRwUXc8uRv6nwbrTcx8ugaGSkLiTYhO8';
@@ -396,6 +408,7 @@
     let tileset1 = null;
     let tileset2 = null;
     let tileset3 = null;
+    let tileset4 = null; // iTwin tileset
     let googleTileset = null;
     let osmBuildings = null;
     let googleImageryLayer = null;
@@ -406,7 +419,8 @@
     let votes = {
       variant1: { thumbsUp: 0, thumbsDown: 0 },
       variant2: { thumbsUp: 0, thumbsDown: 0 },
-      variant3: { thumbsUp: 0, thumbsDown: 0 }
+      variant3: { thumbsUp: 0, thumbsDown: 0 },
+      variant4: { thumbsUp: 0, thumbsDown: 0 }
     };
 
     // =====================================
@@ -494,14 +508,16 @@
             transaction.set(voteRef, {
               variant1: { thumbsUp: 0, thumbsDown: 0 },
               variant2: { thumbsUp: 0, thumbsDown: 0 },
-              variant3: { thumbsUp: 0, thumbsDown: 0 }
+              variant3: { thumbsUp: 0, thumbsDown: 0 },
+              variant4: { thumbsUp: 0, thumbsDown: 0 }
             });
           }
           
           const currentVotes = doc.exists ? doc.data() : {
             variant1: { thumbsUp: 0, thumbsDown: 0 },
             variant2: { thumbsUp: 0, thumbsDown: 0 },
-            variant3: { thumbsUp: 0, thumbsDown: 0 }
+            variant3: { thumbsUp: 0, thumbsDown: 0 },
+            variant4: { thumbsUp: 0, thumbsDown: 0 }
           };
           
           if (voteType === 'up') {
@@ -629,7 +645,8 @@
       filteredComments.forEach(comment => {
         const item = document.createElement('div');
         const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
-                           comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+                           comment.variant === 'variant2' ? '#2196f3' : 
+                           comment.variant === 'variant3' ? '#ff9800' : '#e91e63';
         item.style.cssText = 'background: rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 10px; margin-bottom: 8px; cursor: pointer; border-left: 3px solid ' + borderColor + ';';
         item.innerHTML = `
           <div style="font-weight: bold; color: #5ac; margin-bottom: 5px;">${comment.title}</div>
@@ -673,6 +690,8 @@
       document.getElementById('v2down').textContent = votes.variant2.thumbsDown;
       document.getElementById('v3up').textContent = votes.variant3.thumbsUp;
       document.getElementById('v3down').textContent = votes.variant3.thumbsDown;
+      document.getElementById('v4up').textContent = votes.variant4.thumbsUp;
+      document.getElementById('v4down').textContent = votes.variant4.thumbsDown;
     }
 
     function toggleLatestCommentsWidget() {
@@ -708,13 +727,16 @@
         item.className = 'latest-comment-item';
         
         const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
-                           comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+                           comment.variant === 'variant2' ? '#2196f3' : 
+                           comment.variant === 'variant3' ? '#ff9800' : '#e91e63';
         item.style.borderLeftColor = borderColor;
         
         const variantColor = comment.variant === 'variant1' ? '#4caf50' : 
-                            comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+                            comment.variant === 'variant2' ? '#2196f3' : 
+                            comment.variant === 'variant3' ? '#ff9800' : '#e91e63';
         const variantText = comment.variant === 'variant1' ? 'Malmö' : 
-                           comment.variant === 'variant2' ? 'Atlanta' : '150';
+                           comment.variant === 'variant2' ? 'Atlanta' : 
+                           comment.variant === 'variant3' ? '150' : 'iTwin';
         
         const timeAgo = getTimeAgo(comment.timestamp);
         
@@ -760,7 +782,8 @@
     function getVariantName(variant) {
       return variant === 'variant1' ? 'Design "Malmö"' : 
              variant === 'variant2' ? 'Design "Atlanta"' : 
-             variant === 'variant3' ? 'Design "150"' : 'a design';
+             variant === 'variant3' ? 'Design "150"' :
+             variant === 'variant4' ? 'Design "iTwin"' : 'a design';
     }
 
     function updateVotingWidget() {
@@ -781,12 +804,15 @@
         }
         if (tileset2) tileset2.show = false;
         if (tileset3) tileset3.show = false;
+        if (tileset4) tileset4.show = false;
         document.getElementById('variant1Btn').style.background = '#4caf50';
         document.getElementById('variant1Btn').innerHTML = '● Design "Malmö"';
         document.getElementById('variant2Btn').style.background = '#666';
         document.getElementById('variant2Btn').innerHTML = '○ Design "Atlanta"';
         document.getElementById('variant3Btn').style.background = '#666';
         document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
+        document.getElementById('variant4Btn').style.background = '#666';
+        document.getElementById('variant4Btn').innerHTML = '○ Design "iTwin"';
         showStatus('Design "Malmö" active', 'success');
       } else if (variant === 'variant2') {
         if (tileset1) tileset1.show = false;
@@ -795,12 +821,15 @@
           viewer.flyTo(tileset2);
         }
         if (tileset3) tileset3.show = false;
+        if (tileset4) tileset4.show = false;
         document.getElementById('variant1Btn').style.background = '#666';
         document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
         document.getElementById('variant2Btn').style.background = '#2196f3';
         document.getElementById('variant2Btn').innerHTML = '● Design "Atlanta"';
         document.getElementById('variant3Btn').style.background = '#666';
         document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
+        document.getElementById('variant4Btn').style.background = '#666';
+        document.getElementById('variant4Btn').innerHTML = '○ Design "iTwin"';
         showStatus('Design "Atlanta" active', 'success');
       } else if (variant === 'variant3') {
         if (tileset1) tileset1.show = false;
@@ -809,13 +838,36 @@
           tileset3.show = true;
           viewer.flyTo(tileset3);
         }
+        if (tileset4) tileset4.show = false;
         document.getElementById('variant1Btn').style.background = '#666';
         document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
         document.getElementById('variant2Btn').style.background = '#666';
         document.getElementById('variant2Btn').innerHTML = '○ Design "Atlanta"';
         document.getElementById('variant3Btn').style.background = '#ff9800';
         document.getElementById('variant3Btn').innerHTML = '● Design "150"';
+        document.getElementById('variant4Btn').style.background = '#666';
+        document.getElementById('variant4Btn').innerHTML = '○ Design "iTwin"';
         showStatus('Design "150" active', 'success');
+      } else if (variant === 'variant4') {
+        if (tileset1) tileset1.show = false;
+        if (tileset2) tileset2.show = false;
+        if (tileset3) tileset3.show = false;
+        if (tileset4) {
+          tileset4.show = true;
+          viewer.flyTo(tileset4);
+        } else {
+          showStatus('iTwin model not available', 'error');
+          return;
+        }
+        document.getElementById('variant1Btn').style.background = '#666';
+        document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
+        document.getElementById('variant2Btn').style.background = '#666';
+        document.getElementById('variant2Btn').innerHTML = '○ Design "Atlanta"';
+        document.getElementById('variant3Btn').style.background = '#666';
+        document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
+        document.getElementById('variant4Btn').style.background = '#e91e63';
+        document.getElementById('variant4Btn').innerHTML = '● Design "iTwin"';
+        showStatus('Design "iTwin" active', 'success');
       }
       
       updateCommentVisibility();
@@ -828,7 +880,8 @@
       
       const position = Cesium.Cartesian3.fromDegrees(lon, lat, height + 2);
       const color = activeVariant === 'variant1' ? '#4caf50' : 
-                    activeVariant === 'variant2' ? '#2196f3' : '#ff9800';
+                    activeVariant === 'variant2' ? '#2196f3' : 
+                    activeVariant === 'variant3' ? '#ff9800' : '#e91e63';
       
       previewEntity = viewer.entities.add({
         id: 'preview_marker',
@@ -864,7 +917,8 @@
       const dialog = document.getElementById('commentDialog');
       const variantText = activeVariant === 'variant1' ? 'Design "Malmö"' : 
                           activeVariant === 'variant2' ? 'Design "Atlanta"' : 
-                          activeVariant === 'variant3' ? 'Design "150"' : 'Unknown';
+                          activeVariant === 'variant3' ? 'Design "150"' :
+                          activeVariant === 'variant4' ? 'Design "iTwin"' : 'Unknown';
       
       document.getElementById('dialogVariant').textContent = variantText;
       document.getElementById('commentTitle').value = '';
@@ -909,6 +963,21 @@
         viewer.scene.primitives.add(tileset3);
         tileset3.show = false; // Hide initially
         console.log('Asset 3154873 (150) loaded');
+        
+        // Load iTwin Model
+        try {
+          showStatus('Loading iTwin model...', 'loading');
+          tileset4 = await Cesium.ITwinData.createTilesetFromIModelId('50f1139c-0fdf-43c9-bbea-46542aa33e2d');
+          tileset4.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE;
+          tileset4.shadows = Cesium.ShadowMode.ENABLED;
+          viewer.scene.primitives.add(tileset4);
+          tileset4.show = false; // Hide initially
+          console.log('iTwin Model (50f1139c...) loaded');
+        } catch (iTwinError) {
+          console.error('iTwin Model loading failed:', iTwinError);
+          console.log('⚠️ iTwin model unavailable - continuing with other designs');
+          tileset4 = null;
+        }
         
         showStatus('All assets loaded! Select a design to view.', 'success');
         // No auto-flyTo - user must select a variant first
@@ -1077,6 +1146,10 @@
       switchVariant('variant3');
     });
 
+    document.getElementById('variant4Btn').addEventListener('click', function() {
+      switchVariant('variant4');
+    });
+
     document.getElementById('thumbsUpBtn').addEventListener('click', function() {
       vote('up');
     });
@@ -1109,7 +1182,8 @@
         return;
       }
       const variantName = activeVariant === 'variant1' ? 'Design "Malmö"' : 
-                         activeVariant === 'variant2' ? 'Design "Atlanta"' : 'Design "150"';
+                         activeVariant === 'variant2' ? 'Design "Atlanta"' : 
+                         activeVariant === 'variant3' ? 'Design "150"' : 'Design "iTwin"';
       if (confirm(`Do you really want to delete all ${variantComments.length} comments from ${variantName}?`)) {
         showStatus('Deleting comments...', 'loading');
         const success = await deleteVariantCommentsFromFirebase(activeVariant);
@@ -1163,7 +1237,8 @@
       );
       
       const color = comment.variant === 'variant1' ? '#4caf50' : 
-                    comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+                    comment.variant === 'variant2' ? '#2196f3' : 
+                    comment.variant === 'variant3' ? '#ff9800' : '#e91e63';
       
       viewer.entities.add({
         id: comment.id,
@@ -1188,8 +1263,8 @@
         },
         description: `<div style="padding:10px">
           <h3>${comment.title}</h3>
-          <div style="background: ${comment.variant === 'variant1' ? '#4caf50' : comment.variant === 'variant2' ? '#2196f3' : '#ff9800'}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-            ${comment.variant === 'variant1' ? 'Design "Malmö"' : comment.variant === 'variant2' ? 'Design "Atlanta"' : 'Design "150"'}
+          <div style="background: ${comment.variant === 'variant1' ? '#4caf50' : comment.variant === 'variant2' ? '#2196f3' : comment.variant === 'variant3' ? '#ff9800' : '#e91e63'}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
+            ${comment.variant === 'variant1' ? 'Design "Malmö"' : comment.variant === 'variant2' ? 'Design "Atlanta"' : comment.variant === 'variant3' ? 'Design "150"' : 'Design "iTwin"'}
           </div>
           <p>${comment.text}</p>
           <p style="font-size:11px;color:#888">
