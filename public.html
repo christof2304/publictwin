@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Public Twin - Citizen Comments with iTwin Integration</title>
+  <title>Public Twin - mit iTwin Share Key</title>
   
   <!-- Cesium -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Cesium.js"></script>
@@ -255,67 +255,6 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
-    
-    /* iTwin Config Dialog */
-    #itwinConfigDialog {
-      position: absolute;
-      display: none;
-      background: rgba(42, 42, 42, 0.98);
-      border-radius: 8px;
-      padding: 20px;
-      color: white;
-      z-index: 250;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-      width: 90%;
-      max-width: 500px;
-      font-family: Arial, sans-serif;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    
-    .config-input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #555;
-      border-radius: 4px;
-      background: #333;
-      color: white;
-      box-sizing: border-box;
-      font-family: monospace;
-      font-size: 12px;
-    }
-    
-    .config-label {
-      display: block;
-      margin-top: 12px;
-      margin-bottom: 4px;
-      color: #5ac;
-      font-size: 13px;
-      font-weight: bold;
-    }
-    
-    .config-help {
-      font-size: 11px;
-      color: #888;
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-    
-    .loading-spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #555;
-      border-top-color: #5ac;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
   </style>
 </head>
 <body>
@@ -341,9 +280,8 @@
       <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "150"</button>
       <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">
         <span id="variant4Icon">○</span> Design "iModel"
-        <span id="variant4Status" style="font-size: 10px; color: #888;"></span>
+        <span id="variant4Status" style="font-size: 10px; color: #888;">(Loading...)</span>
       </button>
-      <button id="configItwinBtn" style="background: #9c27b0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">⚙️ Configure iTwin Access</button>
       
       <!-- Voting Widget -->
       <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
@@ -409,50 +347,6 @@
     </div>
   </div>
   
-  <!-- iTwin Configuration Dialog -->
-  <div id="itwinConfigDialog">
-    <h3 style="margin-top: 0; color: #9c27b0; display: flex; align-items: center; gap: 8px;">
-      <span>🏗️</span> iTwin Platform Configuration
-    </h3>
-    
-    <div style="background: rgba(156, 39, 176, 0.2); padding: 12px; border-radius: 4px; margin-bottom: 15px; font-size: 12px; line-height: 1.6;">
-      <strong>ℹ️ Setup Instructions:</strong><br>
-      1. Get your credentials from <a href="https://developer.bentley.com/" target="_blank" style="color: #9c27b0;">developer.bentley.com</a><br>
-      2. Create an app and enable "iTwin Platform" APIs<br>
-      3. Add "Visualization" scope for 3D Tiles export<br>
-      4. Copy your Client ID and paste below
-    </div>
-    
-    <label class="config-label">iModel ID</label>
-    <input type="text" id="imodelIdInput" class="config-input" value="50f1139c-0fdf-43c9-bbea-46542aa33e2d" placeholder="e.g., 50f1139c-0fdf-43c9-bbea-46542aa33e2d">
-    <div class="config-help">The unique identifier for your iModel</div>
-    
-    <label class="config-label">iTwin Client ID</label>
-    <input type="text" id="clientIdInput" class="config-input" placeholder="e.g., native-xxxxx">
-    <div class="config-help">Your application client ID from the iTwin Developer Portal</div>
-    
-    <label class="config-label">Access Token (Optional - for testing)</label>
-    <input type="text" id="accessTokenInput" class="config-input" placeholder="Bearer token...">
-    <div class="config-help">If you have a valid access token, paste it here. Otherwise, OAuth flow will be used.</div>
-    
-    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #555;">
-      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
-        <input type="checkbox" id="rememberCredsCheckbox" style="width: 18px; height: 18px;">
-        <span style="font-size: 12px;">Remember credentials (stored locally)</span>
-      </label>
-    </div>
-    
-    <div style="margin-top: 20px; text-align: right;">
-      <button id="cancelConfigBtn" style="background: #666; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-right: 10px;">Cancel</button>
-      <button id="saveConfigBtn" style="background: #9c27b0; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
-        <span id="saveConfigText">Load iModel</span>
-        <span id="saveConfigSpinner" style="display: none;" class="loading-spinner"></span>
-      </button>
-    </div>
-    
-    <div id="itwinStatus" style="display: none; margin-top: 15px; padding: 10px; border-radius: 4px; font-size: 12px;"></div>
-  </div>
-  
   <!-- Latest Comments Widget -->
   <div id="latestCommentsWidget" class="minimized">
     <div class="widget-header" onclick="toggleLatestCommentsWidget()">
@@ -492,44 +386,23 @@
     }
 
     // =====================================
-    // iTwin CONFIGURATION
+    // iTwin SHARE KEY CONFIGURATION
     // =====================================
-    let itwinConfig = {
-      imodelId: '50f1139c-0fdf-43c9-bbea-46542aa33e2d',
-      clientId: '',
-      accessToken: '',
-      tileset3DUrl: null
+    
+    // 🔑 DEINE iTWIN DATEN HIER EINTRAGEN:
+    const ITWIN_CONFIG = {
+      // Der Share Key aus deinem Screenshot (läuft bis 2025-11-10 ab)
+      shareKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpd2lkIjoiYjc2MzNhMjAtNWRmMS00ZWFiLTgwYjgtYTg4MTY3Mjc1NTY3IiwiZXhwIjoxNzYyNzUwNjE0LCJpYXQiOjE3MjM2Njk4MTQsImF1ZCI6WyJodHRwczovL2FwaS5iZW50bGV5LmNvbS9tZXNoLWV4cG9ydC1zaGFyZXMvdjEvc2hhcmVzLzAzNzcxZWZhLTQxNTMtNDA2Mi1iZGIyLWQ1ZGNkNjBlN2ZhMyJdfQ.lGKYBpEbB0bUy_EBY1n0Ry7ciWhaHKCMrcAdis5IVT4",
+      
+      // Die iTwin ID aus deinem Screenshot
+      iTwinId: "b7633a20-5df1-4eab-80b8-a88167275567",
+      
+      // Die Share ID aus deinem Screenshot
+      shareId: "e66d9157-2190-4163-b8d0-c2fa544c4a56",
+      
+      // Expiration date (aus deinem Screenshot)
+      expiration: "2025-11-10T04:56:54.0284804Z"
     };
-    
-    // Load saved credentials from localStorage
-    function loadSavedCredentials() {
-      const saved = localStorage.getItem('itwinCredentials');
-      if (saved) {
-        try {
-          const creds = JSON.parse(saved);
-          itwinConfig.clientId = creds.clientId || '';
-          itwinConfig.accessToken = creds.accessToken || '';
-          document.getElementById('clientIdInput').value = itwinConfig.clientId;
-          document.getElementById('accessTokenInput').value = itwinConfig.accessToken;
-          document.getElementById('rememberCredsCheckbox').checked = true;
-          console.log('✅ Loaded saved iTwin credentials');
-        } catch (e) {
-          console.error('Error loading credentials:', e);
-        }
-      }
-    }
-    
-    function saveCredentials() {
-      if (document.getElementById('rememberCredsCheckbox').checked) {
-        localStorage.setItem('itwinCredentials', JSON.stringify({
-          clientId: itwinConfig.clientId,
-          accessToken: itwinConfig.accessToken
-        }));
-        console.log('💾 Credentials saved');
-      } else {
-        localStorage.removeItem('itwinCredentials');
-      }
-    }
 
     // =====================================
     // CESIUM SETUP
@@ -551,7 +424,7 @@
     let tileset1 = null;
     let tileset2 = null;
     let tileset3 = null;
-    let tileset4 = null; // iTwin iModel
+    let tileset4 = null; // iTwin iModel via Share Key
     let googleTileset = null;
     let osmBuildings = null;
     let googleImageryLayer = null;
@@ -567,182 +440,145 @@
     };
 
     // =====================================
-    // iTwin PLATFORM API INTEGRATION
+    // iTwin SHARE KEY LOADER
     // =====================================
     
-    async function loadIModelViaTileset() {
-      const imodelId = document.getElementById('imodelIdInput').value.trim();
-      const clientId = document.getElementById('clientIdInput').value.trim();
-      const accessToken = document.getElementById('accessTokenInput').value.trim();
-      
-      if (!imodelId) {
-        showItwinStatus('⚠️ Please provide an iModel ID', 'error');
-        return false;
-      }
-      
-      // Update config
-      itwinConfig.imodelId = imodelId;
-      itwinConfig.clientId = clientId;
-      itwinConfig.accessToken = accessToken;
-      
+    async function loadIModelViaShareKey() {
       try {
-        showItwinStatus('🔍 Checking iModel access...', 'loading');
-        document.getElementById('saveConfigSpinner').style.display = 'inline-block';
-        document.getElementById('saveConfigText').textContent = 'Loading...';
+        console.log('🔑 Loading iModel with Share Key...');
+        showStatus('Loading iModel via Share Key...', 'loading');
+        updateVariant4Status('Loading...', false);
         
-        // Method 1: Try to get 3D Tiles export URL from iTwin Platform API
-        if (accessToken) {
-          const tilesUrl = await getIModel3DTilesUrl(imodelId, accessToken);
-          if (tilesUrl) {
-            itwinConfig.tileset3DUrl = tilesUrl;
-            await loadIModelTileset(tilesUrl);
-            saveCredentials();
-            closeItwinConfigDialog();
-            showStatus('✅ iModel loaded successfully!', 'success');
-            updateVariant4Status('Ready', true);
-            return true;
-          }
+        // Prüfe ob Share Key abgelaufen ist
+        const expirationDate = new Date(ITWIN_CONFIG.expiration);
+        const now = new Date();
+        
+        if (now > expirationDate) {
+          throw new Error(`Share Key expired on ${expirationDate.toLocaleDateString()}`);
         }
         
-        // Method 2: Try Cesium ion integration (if iModel was exported to ion)
-        // Check if user might have exported the iModel to Cesium ion
-        showItwinStatus('💡 Tip: Export your iModel to Cesium ion for best results', 'info');
+        console.log(`✓ Share Key valid until ${expirationDate.toLocaleDateString()}`);
         
-        // Method 3: Show instructions for proper setup
-        showItwinStatus(
-          '⚠️ Could not load iModel directly. Please:\n' +
-          '1. Export your iModel to Cesium ion, OR\n' +
-          '2. Provide a valid access token with "Visualization" scope\n' +
-          '3. Ensure your app has proper permissions',
-          'error'
-        );
+        // Schritt 1: Hole die Export-Information mit dem Share Key
+        const meshExportUrl = `https://api.bentley.com/mesh-export`;
         
-        return false;
+        // Erstelle die URL für den Mesh Export via Share
+        // Der Share Key authentifiziert uns automatisch
+        const exportInfoUrl = `https://api.bentley.com/mesh-export?iTwinId=${ITWIN_CONFIG.iTwinId}`;
         
-      } catch (error) {
-        console.error('❌ Error loading iModel:', error);
-        showItwinStatus('❌ Error: ' + error.message, 'error');
-        return false;
-      } finally {
-        document.getElementById('saveConfigSpinner').style.display = 'none';
-        document.getElementById('saveConfigText').textContent = 'Load iModel';
-      }
-    }
-    
-    async function getIModel3DTilesUrl(imodelId, accessToken) {
-      // This is a simplified example. The actual iTwin Platform API
-      // requires proper authentication and may need multiple API calls
-      
-      try {
-        // Step 1: Get iModel info
-        const imodelResponse = await fetch(
-          `https://api.bentley.com/imodels/${imodelId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Accept': 'application/vnd.bentley.itwin-platform.v1+json'
-            }
+        console.log('📡 Fetching mesh export info...');
+        
+        const response = await fetch(exportInfoUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${ITWIN_CONFIG.shareKey}`,
+            'Accept': 'application/vnd.bentley.itwin-platform.v1+json'
           }
-        );
+        });
         
-        if (!imodelResponse.ok) {
-          throw new Error(`Failed to get iModel info: ${imodelResponse.statusText}`);
-        }
-        
-        const imodelData = await imodelResponse.json();
-        console.log('📦 iModel data:', imodelData);
-        
-        // Step 2: Check for existing 3D Tiles export
-        // Note: This endpoint is illustrative - check iTwin Platform API docs for actual endpoints
-        const exportsResponse = await fetch(
-          `https://api.bentley.com/mesh-export?iModelId=${imodelId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Accept': 'application/vnd.bentley.itwin-platform.v1+json'
-            }
-          }
-        );
-        
-        if (exportsResponse.ok) {
-          const exportsData = await exportsResponse.json();
+        if (!response.ok) {
+          // Falls direkte API nicht funktioniert, versuche alternative Methode
+          console.log('⚠️ Direct API failed, trying alternative...');
           
-          // Look for a 3D Tiles export
-          if (exportsData.exports && exportsData.exports.length > 0) {
-            const tilesExport = exportsData.exports.find(e => e.exportType === '3DTILES');
-            if (tilesExport && tilesExport.url) {
-              console.log('✅ Found 3D Tiles export URL');
-              return tilesExport.url;
-            }
+          // Alternative: Lade direkt als 3D Tiles wenn URL bekannt ist
+          // iTwin Platform exportiert oft zu einem Standard-Pfad
+          const tilesBaseUrl = `https://api.bentley.com/mesh-export/exports/${ITWIN_CONFIG.shareId}/3dtiles`;
+          
+          console.log('🔄 Trying direct 3D Tiles URL:', tilesBaseUrl);
+          
+          await loadIModelTileset(tilesBaseUrl, ITWIN_CONFIG.shareKey);
+          return;
+        }
+        
+        const data = await response.json();
+        console.log('📦 Export data:', data);
+        
+        // Finde die 3D Tiles URL in der Response
+        let tilesUrl = null;
+        
+        if (data.exports && data.exports.length > 0) {
+          const tilesExport = data.exports.find(e => 
+            e.exportType === 'CESIUM' || 
+            e.exportType === '3DTILES' ||
+            e.status === 'Complete'
+          );
+          
+          if (tilesExport) {
+            tilesUrl = tilesExport._links?.mesh?.href || tilesExport.url;
           }
         }
         
-        // Step 3: If no export exists, we would need to create one
-        // This typically requires triggering an export job and waiting for completion
-        console.log('⚠️ No existing 3D Tiles export found');
+        if (!tilesUrl) {
+          throw new Error('No 3D Tiles export found. The iModel might need to be exported first.');
+        }
         
-        // Alternative: Check if iModel has been exported to Cesium ion
-        // In that case, we'd need the ion asset ID
+        console.log('✅ Found 3D Tiles URL:', tilesUrl);
         
-        return null;
+        // Schritt 2: Lade das Tileset
+        await loadIModelTileset(tilesUrl, ITWIN_CONFIG.shareKey);
         
       } catch (error) {
-        console.error('Error getting 3D Tiles URL:', error);
+        console.error('❌ Error loading iModel via Share Key:', error);
+        updateVariant4Status('Error', false);
+        showStatus('Error loading iModel: ' + error.message, 'error');
+        
+        // Zeige hilfreichen Fehlerhinweis
+        if (error.message.includes('expired')) {
+          console.log('💡 Tip: Generate a new Share Key from iTwin Platform');
+        } else if (error.message.includes('export')) {
+          console.log('💡 Tip: Ensure the iModel has a Mesh Export in iTwin Platform');
+        }
+        
         throw error;
       }
     }
     
-    async function loadIModelTileset(tilesUrl) {
+    async function loadIModelTileset(tilesUrl, authToken) {
       try {
-        showStatus('Loading iModel as 3D Tiles...', 'loading');
+        console.log('🎯 Loading 3D Tileset from:', tilesUrl);
         
-        // Load as Cesium 3D Tileset
+        // Option 1: Lade mit Authorization Header
         tileset4 = await Cesium.Cesium3DTileset.fromUrl(tilesUrl, {
-          // Optional: Add authentication if needed
-          headers: itwinConfig.accessToken ? {
-            'Authorization': `Bearer ${itwinConfig.accessToken}`
-          } : undefined
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
         });
         
         viewer.scene.primitives.add(tileset4);
         tileset4.show = false;
         
-        console.log('✅ iModel tileset loaded successfully');
+        // Optimierungen für Performance
+        tileset4.maximumScreenSpaceError = 16;
+        tileset4.cullWithChildrenBounds = true;
+        
+        console.log('✅ iModel tileset loaded successfully via Share Key!');
+        updateVariant4Status('Ready', true);
+        showStatus('✅ iModel loaded successfully!', 'success');
+        
         return true;
         
       } catch (error) {
         console.error('❌ Error loading iModel tileset:', error);
-        showStatus('Error loading iModel: ' + error.message, 'error');
-        throw error;
+        
+        // Fallback: Wenn Authorization Header nicht funktioniert, versuche ohne
+        console.log('🔄 Trying without auth header...');
+        
+        try {
+          // Manche Share Keys ermöglichen öffentlichen Zugriff
+          tileset4 = await Cesium.Cesium3DTileset.fromUrl(tilesUrl);
+          viewer.scene.primitives.add(tileset4);
+          tileset4.show = false;
+          
+          console.log('✅ iModel loaded (public access)');
+          updateVariant4Status('Ready', true);
+          showStatus('✅ iModel loaded!', 'success');
+          
+          return true;
+        } catch (fallbackError) {
+          console.error('❌ Fallback also failed:', fallbackError);
+          throw error;
+        }
       }
-    }
-    
-    function showItwinConfigDialog() {
-      document.getElementById('itwinConfigDialog').style.display = 'block';
-      loadSavedCredentials();
-    }
-    
-    function closeItwinConfigDialog() {
-      document.getElementById('itwinConfigDialog').style.display = 'none';
-      document.getElementById('itwinStatus').style.display = 'none';
-    }
-    
-    function showItwinStatus(message, type = 'info') {
-      const statusEl = document.getElementById('itwinStatus');
-      statusEl.textContent = message;
-      statusEl.style.display = 'block';
-      statusEl.style.background = 
-        type === 'error' ? 'rgba(211, 47, 47, 0.3)' :
-        type === 'success' ? 'rgba(76, 175, 80, 0.3)' :
-        type === 'loading' ? 'rgba(255, 152, 0, 0.3)' :
-        'rgba(156, 39, 176, 0.3)';
-      statusEl.style.color = 'white';
-      statusEl.style.border = '1px solid ' + (
-        type === 'error' ? '#d32f2f' :
-        type === 'success' ? '#4caf50' :
-        type === 'loading' ? '#ff9800' :
-        '#9c27b0'
-      );
     }
     
     function updateVariant4Status(text, isReady = false) {
@@ -754,6 +590,9 @@
       if (isReady) {
         iconEl.textContent = '✓';
         iconEl.style.color = '#4caf50';
+      } else if (text === 'Error') {
+        iconEl.textContent = '⚠';
+        iconEl.style.color = '#ff9800';
       }
     }
 
@@ -1149,8 +988,7 @@
         showStatus('Design "150" active', 'success');
       } else if (variant === 'variant4') {
         if (!tileset4) {
-          showStatus('⚠️ Please configure iTwin access first!', 'error');
-          showItwinConfigDialog();
+          showStatus('⚠️ iModel not loaded yet. Please wait...', 'error');
           return;
         }
         if (tileset4) {
@@ -1261,19 +1099,14 @@
         tileset3.show = false;
         console.log('Asset 3154873 (150) loaded');
         
-        showStatus('All assets loaded! Select a design to view.', 'success');
+        showStatus('All Cesium ion assets loaded!', 'success');
         
-        // Auto-load iModel if credentials are saved
-        loadSavedCredentials();
-        if (itwinConfig.clientId && itwinConfig.accessToken) {
-          console.log('🔄 Auto-loading iModel with saved credentials...');
-          updateVariant4Status('Loading...', false);
-          // Note: Auto-load is commented out to avoid automatic API calls
-          // Uncomment if you want to auto-load on page refresh:
-          // await loadIModelViaTileset();
-        } else {
-          updateVariant4Status('Not configured', false);
-        }
+        // 🔑 LADE iMODEL VIA SHARE KEY
+        console.log('🏗️ Loading iModel via Share Key...');
+        loadIModelViaShareKey().catch(error => {
+          console.error('Failed to load iModel:', error);
+          // Fehler wird bereits in loadIModelViaShareKey() behandelt
+        });
         
       } catch (error) {
         console.error('Error loading assets:', error);
@@ -1443,18 +1276,6 @@
       switchVariant('variant4');
     });
 
-    document.getElementById('configItwinBtn').addEventListener('click', function() {
-      showItwinConfigDialog();
-    });
-
-    document.getElementById('saveConfigBtn').addEventListener('click', async function() {
-      await loadIModelViaTileset();
-    });
-
-    document.getElementById('cancelConfigBtn').addEventListener('click', function() {
-      closeItwinConfigDialog();
-    });
-
     document.getElementById('thumbsUpBtn').addEventListener('click', function() {
       vote('up');
     });
@@ -1609,8 +1430,8 @@
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    console.log('✅ Public Twin with iTwin Integration loaded');
-    console.log('🏗️ iTwin Platform integration ready - click "Configure iTwin Access" to set up');
+    console.log('✅ Public Twin with iTwin Share Key loaded');
+    console.log('🔑 Using Share Key (valid until ' + new Date(ITWIN_CONFIG.expiration).toLocaleDateString() + ')');
   </script>
 </body>
 </html>
