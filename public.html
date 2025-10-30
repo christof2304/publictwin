@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Public Twin - mit iTwin Share Key</title>
-  
-  <!-- Cesium -->
+  <title>Public Twin - Citizen Comments on Design Variants</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   
@@ -278,10 +276,7 @@
       <button id="variant1Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Malmö"</button>
       <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Atlanta"</button>
       <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "150"</button>
-      <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">
-        <span id="variant4Icon">○</span> Design "iModel"
-        <span id="variant4Status" style="font-size: 10px; color: #888;">(Loading...)</span>
-      </button>
+      <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Station" (iModel)</button>
       
       <!-- Voting Widget -->
       <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
@@ -309,7 +304,7 @@
             <span><span style="color: #4caf50;">👍 <span id="v3up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v3down">0</span></span></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-            <span style="color: #9c27b0;">Design "iModel":</span>
+            <span style="color: #9c27b0;">Design "Station":</span>
             <span><span style="color: #4caf50;">👍 <span id="v4up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v4down">0</span></span></span>
           </div>
         </div>
@@ -383,31 +378,16 @@
       console.log('✅ Firebase initialized successfully');
     } catch (error) {
       console.error('❌ Firebase initialization error:', error);
+      alert('⚠️ Firebase not configured!\n\nPlease add your Firebase credentials to the HTML file.\nSee README for instructions.');
     }
 
     // =====================================
-    // iTwin SHARE KEY CONFIGURATION
-    // =====================================
-    
-    // 🔑 DEINE iTWIN DATEN HIER EINTRAGEN:
-    const ITWIN_CONFIG = {
-      // Der Share Key aus deinem Screenshot (läuft bis 2025-11-10 ab)
-      shareKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpd2lkIjoiYjc2MzNhMjAtNWRmMS00ZWFiLTgwYjgtYTg4MTY3Mjc1NTY3IiwiZXhwIjoxNzYyNzUwNjE0LCJpYXQiOjE3MjM2Njk4MTQsImF1ZCI6WyJodHRwczovL2FwaS5iZW50bGV5LmNvbS9tZXNoLWV4cG9ydC1zaGFyZXMvdjEvc2hhcmVzLzAzNzcxZWZhLTQxNTMtNDA2Mi1iZGIyLWQ1ZGNkNjBlN2ZhMyJdfQ.lGKYBpEbB0bUy_EBY1n0Ry7ciWhaHKCMrcAdis5IVT4",
-      
-      // Die iTwin ID aus deinem Screenshot
-      iTwinId: "b7633a20-5df1-4eab-80b8-a88167275567",
-      
-      // Die Share ID aus deinem Screenshot
-      shareId: "e66d9157-2190-4163-b8d0-c2fa544c4a56",
-      
-      // Expiration date (aus deinem Screenshot)
-      expiration: "2025-11-10T04:56:54.0284804Z"
-    };
-
-    // =====================================
-    // CESIUM SETUP
+    // CESIUM & iTWIN SETUP
     // =====================================
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNWFjNDYxZC0yN2U5LTQ0MGYtYWY1Ny1lN2VmNGJiNjVlYTQiLCJpZCI6MjYzNTkwLCJpYXQiOjE3NjE3MzIzOTh9.HsP4Aq5jS6OiRwUXc8uRv6nwbrTcx8ugaGSkLiTYhO8';
+
+    // iTwin Platform Authentication
+    Cesium.ITwinPlatform.defaultShareKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpVHdpbklkIjoiNTM1YTI0YTMtOWIyOS00ZTIzLWJiNWQtOWNlZGI1MjRjNzQzIiwiaWQiOiI2NTEwMzUzMi02MmU3LTRmZGQtOWNlNy1iODIxYmEyMmI5NjMiLCJleHAiOjE3NzcwNTU4MTh9.Q9MgsWWkc6bb1zHUJ7ahZjxPtaTWEjpNvRln7NS3faM";
 
     const viewer = new Cesium.Viewer("cesiumContainer", {
       timeline: false,
@@ -424,11 +404,13 @@
     let tileset1 = null;
     let tileset2 = null;
     let tileset3 = null;
-    let tileset4 = null; // iTwin iModel via Share Key
+    let iModelStation = null;
+    let iModelSurrounding = null;
+    let iModelRealityMesh = null;
     let googleTileset = null;
     let osmBuildings = null;
     let googleImageryLayer = null;
-    let activeVariant = null;
+    let activeVariant = null; // No variant selected initially
     let basemapMode = 'google3d';
     let menuOpen = false;
     
@@ -440,175 +422,21 @@
     };
 
     // =====================================
-    // iTwin SHARE KEY LOADER
-    // =====================================
-    
-    async function loadIModelViaShareKey() {
-      try {
-        console.log('🔑 Loading iModel with Share Key...');
-        showStatus('Loading iModel via Share Key...', 'loading');
-        updateVariant4Status('Loading...', false);
-        
-        // Prüfe ob Share Key abgelaufen ist
-        const expirationDate = new Date(ITWIN_CONFIG.expiration);
-        const now = new Date();
-        
-        if (now > expirationDate) {
-          throw new Error(`Share Key expired on ${expirationDate.toLocaleDateString()}`);
-        }
-        
-        console.log(`✓ Share Key valid until ${expirationDate.toLocaleDateString()}`);
-        
-        // Schritt 1: Hole die Export-Information mit dem Share Key
-        const meshExportUrl = `https://api.bentley.com/mesh-export`;
-        
-        // Erstelle die URL für den Mesh Export via Share
-        // Der Share Key authentifiziert uns automatisch
-        const exportInfoUrl = `https://api.bentley.com/mesh-export?iTwinId=${ITWIN_CONFIG.iTwinId}`;
-        
-        console.log('📡 Fetching mesh export info...');
-        
-        const response = await fetch(exportInfoUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${ITWIN_CONFIG.shareKey}`,
-            'Accept': 'application/vnd.bentley.itwin-platform.v1+json'
-          }
-        });
-        
-        if (!response.ok) {
-          // Falls direkte API nicht funktioniert, versuche alternative Methode
-          console.log('⚠️ Direct API failed, trying alternative...');
-          
-          // Alternative: Lade direkt als 3D Tiles wenn URL bekannt ist
-          // iTwin Platform exportiert oft zu einem Standard-Pfad
-          const tilesBaseUrl = `https://api.bentley.com/mesh-export/exports/${ITWIN_CONFIG.shareId}/3dtiles`;
-          
-          console.log('🔄 Trying direct 3D Tiles URL:', tilesBaseUrl);
-          
-          await loadIModelTileset(tilesBaseUrl, ITWIN_CONFIG.shareKey);
-          return;
-        }
-        
-        const data = await response.json();
-        console.log('📦 Export data:', data);
-        
-        // Finde die 3D Tiles URL in der Response
-        let tilesUrl = null;
-        
-        if (data.exports && data.exports.length > 0) {
-          const tilesExport = data.exports.find(e => 
-            e.exportType === 'CESIUM' || 
-            e.exportType === '3DTILES' ||
-            e.status === 'Complete'
-          );
-          
-          if (tilesExport) {
-            tilesUrl = tilesExport._links?.mesh?.href || tilesExport.url;
-          }
-        }
-        
-        if (!tilesUrl) {
-          throw new Error('No 3D Tiles export found. The iModel might need to be exported first.');
-        }
-        
-        console.log('✅ Found 3D Tiles URL:', tilesUrl);
-        
-        // Schritt 2: Lade das Tileset
-        await loadIModelTileset(tilesUrl, ITWIN_CONFIG.shareKey);
-        
-      } catch (error) {
-        console.error('❌ Error loading iModel via Share Key:', error);
-        updateVariant4Status('Error', false);
-        showStatus('Error loading iModel: ' + error.message, 'error');
-        
-        // Zeige hilfreichen Fehlerhinweis
-        if (error.message.includes('expired')) {
-          console.log('💡 Tip: Generate a new Share Key from iTwin Platform');
-        } else if (error.message.includes('export')) {
-          console.log('💡 Tip: Ensure the iModel has a Mesh Export in iTwin Platform');
-        }
-        
-        throw error;
-      }
-    }
-    
-    async function loadIModelTileset(tilesUrl, authToken) {
-      try {
-        console.log('🎯 Loading 3D Tileset from:', tilesUrl);
-        
-        // Option 1: Lade mit Authorization Header
-        tileset4 = await Cesium.Cesium3DTileset.fromUrl(tilesUrl, {
-          headers: {
-            'Authorization': `Bearer ${authToken}`
-          }
-        });
-        
-        viewer.scene.primitives.add(tileset4);
-        tileset4.show = false;
-        
-        // Optimierungen für Performance
-        tileset4.maximumScreenSpaceError = 16;
-        tileset4.cullWithChildrenBounds = true;
-        
-        console.log('✅ iModel tileset loaded successfully via Share Key!');
-        updateVariant4Status('Ready', true);
-        showStatus('✅ iModel loaded successfully!', 'success');
-        
-        return true;
-        
-      } catch (error) {
-        console.error('❌ Error loading iModel tileset:', error);
-        
-        // Fallback: Wenn Authorization Header nicht funktioniert, versuche ohne
-        console.log('🔄 Trying without auth header...');
-        
-        try {
-          // Manche Share Keys ermöglichen öffentlichen Zugriff
-          tileset4 = await Cesium.Cesium3DTileset.fromUrl(tilesUrl);
-          viewer.scene.primitives.add(tileset4);
-          tileset4.show = false;
-          
-          console.log('✅ iModel loaded (public access)');
-          updateVariant4Status('Ready', true);
-          showStatus('✅ iModel loaded!', 'success');
-          
-          return true;
-        } catch (fallbackError) {
-          console.error('❌ Fallback also failed:', fallbackError);
-          throw error;
-        }
-      }
-    }
-    
-    function updateVariant4Status(text, isReady = false) {
-      const statusEl = document.getElementById('variant4Status');
-      statusEl.textContent = text ? `(${text})` : '';
-      statusEl.style.color = isReady ? '#4caf50' : '#888';
-      
-      const iconEl = document.getElementById('variant4Icon');
-      if (isReady) {
-        iconEl.textContent = '✓';
-        iconEl.style.color = '#4caf50';
-      } else if (text === 'Error') {
-        iconEl.textContent = '⚠';
-        iconEl.style.color = '#ff9800';
-      }
-    }
-
-    // =====================================
     // FIREBASE REALTIME LISTENERS
     // =====================================
     
+    // Listen to comments in real-time
     function setupFirebaseListeners() {
       if (!firebaseInitialized) return;
       
+      // Listen to comments
       db.collection('comments').onSnapshot((snapshot) => {
         comments = [];
         snapshot.forEach((doc) => {
           const comment = { id: doc.id, ...doc.data() };
           comments.push(comment);
           
+          // Add to viewer if not already there
           if (!viewer.entities.getById(comment.id)) {
             addCommentToViewer(comment);
           }
@@ -621,6 +449,7 @@
         showStatus('Error loading comments', 'error');
       });
       
+      // Listen to votes in real-time
       db.collection('votes').doc('aggregated').onSnapshot((doc) => {
         if (doc.exists) {
           votes = doc.data();
@@ -632,6 +461,7 @@
       });
     }
 
+    // Save comment to Firebase
     async function saveCommentToFirebase(comment) {
       if (!firebaseInitialized) {
         showStatus('Firebase not configured', 'error');
@@ -657,6 +487,7 @@
       }
     }
 
+    // Save vote to Firebase
     async function saveVoteToFirebase(variant, voteType) {
       if (!firebaseInitialized) {
         showStatus('Firebase not configured', 'error');
@@ -666,14 +497,26 @@
       try {
         const voteRef = db.collection('votes').doc('aggregated');
         
+        // Use transaction to ensure atomic increment
         await db.runTransaction(async (transaction) => {
           const doc = await transaction.get(voteRef);
           
           if (!doc.exists) {
-            transaction.set(voteRef, votes);
+            // Initialize votes if document doesn't exist
+            transaction.set(voteRef, {
+              variant1: { thumbsUp: 0, thumbsDown: 0 },
+              variant2: { thumbsUp: 0, thumbsDown: 0 },
+              variant3: { thumbsUp: 0, thumbsDown: 0 },
+              variant4: { thumbsUp: 0, thumbsDown: 0 }
+            });
           }
           
-          const currentVotes = doc.exists ? doc.data() : votes;
+          const currentVotes = doc.exists ? doc.data() : {
+            variant1: { thumbsUp: 0, thumbsDown: 0 },
+            variant2: { thumbsUp: 0, thumbsDown: 0 },
+            variant3: { thumbsUp: 0, thumbsDown: 0 },
+            variant4: { thumbsUp: 0, thumbsDown: 0 }
+          };
           
           if (voteType === 'up') {
             currentVotes[variant].thumbsUp++;
@@ -693,6 +536,7 @@
       }
     }
 
+    // Delete all comments for a variant from Firebase
     async function deleteVariantCommentsFromFirebase(variant) {
       if (!firebaseInitialized) {
         showStatus('Firebase not configured', 'error');
@@ -722,6 +566,7 @@
     // UI FUNCTIONS
     // =====================================
 
+    // Menu Toggle Functionality
     const menuToggle = document.getElementById('menuToggle');
     const panel = document.getElementById('panel');
     
@@ -738,6 +583,7 @@
     
     menuToggle.addEventListener('click', toggleMenu);
     
+    // Touch gesture: Swipe from left to open menu
     let touchStartX = 0;
     let touchStartY = 0;
     
@@ -761,6 +607,7 @@
       }
     });
 
+    // Status messages
     function showStatus(message, type = '') {
       const statusEl = document.getElementById('statusMessage');
       statusEl.textContent = message;
@@ -790,6 +637,7 @@
         return;
       }
       
+      // Sort by timestamp (newest first)
       filteredComments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       filteredComments.forEach(comment => {
@@ -865,6 +713,7 @@
         return;
       }
       
+      // Sort by timestamp (newest first) and take top 3
       const latestComments = [...comments]
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
         .slice(0, 3);
@@ -885,7 +734,7 @@
                             comment.variant === 'variant3' ? '#ff9800' : '#9c27b0';
         const variantText = comment.variant === 'variant1' ? 'Malmö' : 
                            comment.variant === 'variant2' ? 'Atlanta' : 
-                           comment.variant === 'variant3' ? '150' : 'iModel';
+                           comment.variant === 'variant3' ? '150' : 'Station';
         
         const timeAgo = getTimeAgo(comment.timestamp);
         
@@ -932,8 +781,7 @@
       return variant === 'variant1' ? 'Design "Malmö"' : 
              variant === 'variant2' ? 'Design "Atlanta"' : 
              variant === 'variant3' ? 'Design "150"' : 
-             variant === 'variant4' ? 'Design "iModel"' :
-             'a design';
+             variant === 'variant4' ? 'Design "Station"' : 'a design';
     }
 
     function updateVotingWidget() {
@@ -948,11 +796,15 @@
     function switchVariant(variant) {
       activeVariant = variant;
       
+      // Hide all tilesets first
       if (tileset1) tileset1.show = false;
       if (tileset2) tileset2.show = false;
       if (tileset3) tileset3.show = false;
-      if (tileset4) tileset4.show = false;
+      if (iModelStation) iModelStation.show = false;
+      if (iModelSurrounding) iModelSurrounding.show = false;
+      if (iModelRealityMesh) iModelRealityMesh.show = false;
       
+      // Reset all buttons
       document.getElementById('variant1Btn').style.background = '#666';
       document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
       document.getElementById('variant2Btn').style.background = '#666';
@@ -960,7 +812,7 @@
       document.getElementById('variant3Btn').style.background = '#666';
       document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
       document.getElementById('variant4Btn').style.background = '#666';
-      document.getElementById('variant4Btn').innerHTML = '<span id="variant4Icon">○</span> Design "iModel"<span id="variant4Status" style="font-size: 10px; color: #888;"></span>';
+      document.getElementById('variant4Btn').innerHTML = '○ Design "Station" (iModel)';
       
       if (variant === 'variant1') {
         if (tileset1) {
@@ -987,27 +839,20 @@
         document.getElementById('variant3Btn').innerHTML = '● Design "150"';
         showStatus('Design "150" active', 'success');
       } else if (variant === 'variant4') {
-        if (!tileset4) {
-          showStatus('⚠️ iModel not loaded yet. Please wait...', 'error');
-          return;
-        }
-        if (tileset4) {
-          tileset4.show = true;
-          viewer.flyTo(tileset4);
+        if (iModelStation) {
+          iModelStation.show = true;
+          if (iModelSurrounding) iModelSurrounding.show = true;
+          if (iModelRealityMesh) iModelRealityMesh.show = true;
+          viewer.flyTo(iModelStation);
         }
         document.getElementById('variant4Btn').style.background = '#9c27b0';
-        document.getElementById('variant4Btn').innerHTML = '<span id="variant4Icon">●</span> Design "iModel"';
-        showStatus('Design "iModel" active', 'success');
+        document.getElementById('variant4Btn').innerHTML = '● Design "Station" (iModel)';
+        showStatus('Design "Station" (iModel) active', 'success');
       }
       
       updateCommentVisibility();
       updateCommentList();
       updateVotingWidget();
-      
-      // Restore status after variant switch
-      if (variant === 'variant4' && tileset4) {
-        updateVariant4Status('Ready', true);
-      }
     }
 
     function createPreviewMarker(lon, lat, height) {
@@ -1051,387 +896,4 @@
     function openCommentDialog(screenPosition) {
       const dialog = document.getElementById('commentDialog');
       const variantText = activeVariant === 'variant1' ? 'Design "Malmö"' : 
-                          activeVariant === 'variant2' ? 'Design "Atlanta"' : 
-                          activeVariant === 'variant3' ? 'Design "150"' : 
-                          activeVariant === 'variant4' ? 'Design "iModel"' : 'Unknown';
-      
-      document.getElementById('dialogVariant').textContent = variantText;
-      document.getElementById('commentTitle').value = '';
-      document.getElementById('commentText').value = '';
-      
-      dialog.style.display = 'block';
-      dialog.style.left = Math.min(screenPosition.x + 20, window.innerWidth - 360) + 'px';
-      dialog.style.top = Math.min(screenPosition.y - 50, window.innerHeight - 300) + 'px';
-      
-      setTimeout(() => document.getElementById('commentTitle').focus(), 100);
-    }
-
-    function closeCommentDialog() {
-      document.getElementById('commentDialog').style.display = 'none';
-      document.getElementById('commentTitle').value = '';
-      document.getElementById('commentText').value = '';
-      removePreviewMarker();
-      isAddingComment = false;
-      document.getElementById('addCommentBtn').style.background = '#48b';
-      document.getElementById('addCommentBtn').textContent = '➕ Add Comment';
-    }
-
-    async function loadAssets() {
-      try {
-        showStatus('Loading 3D models...', 'loading');
-        
-        googleTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2275207);
-        viewer.scene.primitives.add(googleTileset);
-        console.log('Google 3D Tiles loaded');
-        
-        tileset1 = await Cesium.Cesium3DTileset.fromIonAssetId(3291876);
-        viewer.scene.primitives.add(tileset1);
-        tileset1.show = false;
-        console.log('Asset 3291876 (Malmö) loaded');
-        
-        tileset2 = await Cesium.Cesium3DTileset.fromIonAssetId(3658308);
-        viewer.scene.primitives.add(tileset2);
-        tileset2.show = false;
-        console.log('Asset 3658308 (Atlanta) loaded');
-        
-        tileset3 = await Cesium.Cesium3DTileset.fromIonAssetId(3154873);
-        viewer.scene.primitives.add(tileset3);
-        tileset3.show = false;
-        console.log('Asset 3154873 (150) loaded');
-        
-        showStatus('All Cesium ion assets loaded!', 'success');
-        
-        // 🔑 LADE iMODEL VIA SHARE KEY
-        console.log('🏗️ Loading iModel via Share Key...');
-        loadIModelViaShareKey().catch(error => {
-          console.error('Failed to load iModel:', error);
-          // Fehler wird bereits in loadIModelViaShareKey() behandelt
-        });
-        
-      } catch (error) {
-        console.error('Error loading assets:', error);
-        showStatus('Loading error: ' + error.message, 'error');
-      }
-    }
-
-    async function switchToTerrainMode() {
-      showStatus('Switching to Terrain + Satellite...', 'loading');
-      
-      if (googleTileset) {
-        googleTileset.show = false;
-      }
-      
-      if (!googleImageryLayer) {
-        try {
-          googleImageryLayer = viewer.imageryLayers.addImageryProvider(
-            await Cesium.IonImageryProvider.fromAssetId(3845)
-          );
-          console.log('Google Satellite imagery loaded');
-        } catch (error) {
-          console.error('Error loading Google Satellite:', error);
-        }
-      } else {
-        googleImageryLayer.show = true;
-      }
-      
-      viewer.terrainProvider = await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
-      
-      basemapMode = 'terrain';
-      document.getElementById('basemapBtn').textContent = 'Cesium Terrain + Satellite';
-      document.getElementById('basemapBtn').style.background = '#2196f3';
-      document.getElementById('osmBuildingsBtn').style.display = 'block';
-      
-      showStatus('Terrain mode active', 'success');
-    }
-
-    async function switchToGoogle3DMode() {
-      showStatus('Switching to Google 3D Tiles...', 'loading');
-      
-      if (!googleTileset) {
-        try {
-          googleTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2275207);
-          viewer.scene.primitives.add(googleTileset);
-          console.log('Google 3D Tiles loaded');
-        } catch (error) {
-          console.error('Error loading Google 3D Tiles:', error);
-          showStatus('Error loading Google 3D Tiles', 'error');
-          return;
-        }
-      } else {
-        googleTileset.show = true;
-      }
-      
-      if (googleImageryLayer) {
-        googleImageryLayer.show = false;
-      }
-      
-      if (osmBuildings) {
-        osmBuildings.show = false;
-      }
-      
-      viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
-      
-      basemapMode = 'google3d';
-      document.getElementById('basemapBtn').textContent = 'Google 3D Tiles';
-      document.getElementById('basemapBtn').style.background = '#4caf50';
-      document.getElementById('osmBuildingsBtn').style.display = 'none';
-      
-      showStatus('Google 3D mode active', 'success');
-    }
-
-    async function toggleOSMBuildings() {
-      if (!osmBuildings) {
-        showStatus('Loading OSM Buildings...', 'loading');
-        try {
-          osmBuildings = await Cesium.createOsmBuildingsAsync();
-          viewer.scene.primitives.add(osmBuildings);
-          console.log('OSM Buildings loaded');
-          document.getElementById('osmBuildingsBtn').style.background = '#4caf50';
-          document.getElementById('osmBuildingsBtn').textContent = '✓ OSM Buildings';
-          showStatus('OSM Buildings loaded', 'success');
-        } catch (error) {
-          console.error('Error loading OSM Buildings:', error);
-          showStatus('Error loading OSM Buildings', 'error');
-        }
-      } else {
-        osmBuildings.show = !osmBuildings.show;
-        document.getElementById('osmBuildingsBtn').style.background = osmBuildings.show ? '#4caf50' : '#666';
-        document.getElementById('osmBuildingsBtn').textContent = (osmBuildings.show ? '✓' : '✗') + ' OSM Buildings';
-        showStatus('OSM Buildings ' + (osmBuildings.show ? 'visible' : 'hidden'), 'success');
-      }
-    }
-
-    loadAssets();
-    setupFirebaseListeners();
-
-    let clearButtonVisible = false;
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'x' || event.key === 'X') {
-        toggleClearButton();
-      }
-    });
-
-    let tapCount = 0;
-    let tapTimer = null;
-    const panelHeader = panel.querySelector('h3');
-    
-    panelHeader.addEventListener('click', function() {
-      tapCount++;
-      
-      if (tapCount === 1) {
-        tapTimer = setTimeout(function() {
-          tapCount = 0;
-        }, 500);
-      }
-      
-      if (tapCount === 3) {
-        clearTimeout(tapTimer);
-        tapCount = 0;
-        toggleClearButton();
-      }
-    });
-
-    function toggleClearButton() {
-      clearButtonVisible = !clearButtonVisible;
-      const clearBtn = document.getElementById('clearAllBtn');
-      clearBtn.style.display = clearButtonVisible ? 'block' : 'none';
-      showStatus(
-        clearButtonVisible ? '🔓 Delete mode enabled (X or 3x tap to hide)' : '🔒 Delete mode disabled', 
-        clearButtonVisible ? 'error' : 'success'
-      );
-    }
-
-    // =====================================
-    // EVENT LISTENERS
-    // =====================================
-
-    document.getElementById('addCommentBtn').addEventListener('click', function() {
-      if (!activeVariant) {
-        showStatus('⚠️ Please select a design first!', 'error');
-        return;
-      }
-      
-      isAddingComment = !isAddingComment;
-      this.style.background = isAddingComment ? '#f60' : '#48b';
-      this.textContent = isAddingComment ? '✋ Cancel' : '➕ Add Comment';
-      if (!isAddingComment) {
-        closeCommentDialog();
-      }
-      showStatus(isAddingComment ? 'Click on a 3D building...' : '');
-    });
-
-    document.getElementById('variant1Btn').addEventListener('click', function() {
-      switchVariant('variant1');
-    });
-
-    document.getElementById('variant2Btn').addEventListener('click', function() {
-      switchVariant('variant2');
-    });
-
-    document.getElementById('variant3Btn').addEventListener('click', function() {
-      switchVariant('variant3');
-    });
-
-    document.getElementById('variant4Btn').addEventListener('click', function() {
-      switchVariant('variant4');
-    });
-
-    document.getElementById('thumbsUpBtn').addEventListener('click', function() {
-      vote('up');
-    });
-
-    document.getElementById('thumbsDownBtn').addEventListener('click', function() {
-      vote('down');
-    });
-
-    document.getElementById('basemapBtn').addEventListener('click', function() {
-      if (basemapMode === 'google3d') {
-        switchToTerrainMode();
-      } else {
-        switchToGoogle3DMode();
-      }
-    });
-
-    document.getElementById('osmBuildingsBtn').addEventListener('click', function() {
-      toggleOSMBuildings();
-    });
-
-    document.getElementById('clearAllBtn').addEventListener('click', async function() {
-      if (!activeVariant) {
-        showStatus('No design selected');
-        return;
-      }
-      
-      const variantComments = comments.filter(c => c.variant === activeVariant);
-      if (variantComments.length === 0) {
-        showStatus('No comments to delete');
-        return;
-      }
-      const variantName = getVariantName(activeVariant);
-      if (confirm(`Do you really want to delete all ${variantComments.length} comments from ${variantName}?`)) {
-        showStatus('Deleting comments...', 'loading');
-        const success = await deleteVariantCommentsFromFirebase(activeVariant);
-        if (success) {
-          variantComments.forEach(comment => viewer.entities.removeById(comment.id));
-          showStatus('All comments deleted', 'success');
-        }
-      }
-    });
-
-    document.getElementById('saveCommentBtn').addEventListener('click', async function() {
-      const title = document.getElementById('commentTitle').value.trim();
-      const text = document.getElementById('commentText').value.trim();
-      
-      if (!title || !text) {
-        alert('Please fill in both title and comment!');
-        return;
-      }
-      
-      const comment = {
-        id: 'comment_' + Date.now(),
-        title: title,
-        text: text,
-        lon: currentPosition.lon,
-        lat: currentPosition.lat,
-        height: currentPosition.height,
-        timestamp: new Date().toISOString(),
-        variant: activeVariant
-      };
-      
-      showStatus('Saving comment...', 'loading');
-      const success = await saveCommentToFirebase(comment);
-      
-      if (success) {
-        removePreviewMarker();
-        closeCommentDialog();
-        showStatus(`Comment "${title}" saved!`, 'success');
-      }
-    });
-
-    document.getElementById('cancelCommentBtn').addEventListener('click', function() {
-      closeCommentDialog();
-    });
-
-    function addCommentToViewer(comment) {
-      const position = Cesium.Cartesian3.fromDegrees(
-        comment.lon,
-        comment.lat,
-        comment.height + 2
-      );
-      
-      const color = comment.variant === 'variant1' ? '#4caf50' : 
-                    comment.variant === 'variant2' ? '#2196f3' : 
-                    comment.variant === 'variant3' ? '#ff9800' : '#9c27b0';
-      
-      viewer.entities.add({
-        id: comment.id,
-        position: position,
-        show: comment.variant === activeVariant,
-        billboard: {
-          image: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"><circle cx="20" cy="20" r="18" fill="${color}" stroke="white" stroke-width="3"/><circle cx="20" cy="20" r="8" fill="white"/></svg>`),
-          scale: 0.8,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
-        },
-        label: {
-          text: comment.title,
-          font: '14px sans-serif',
-          fillColor: Cesium.Color.WHITE,
-          outlineColor: Cesium.Color.BLACK,
-          outlineWidth: 2,
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -40),
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
-        },
-        description: `<div style="padding:10px">
-          <h3>${comment.title}</h3>
-          <div style="background: ${color}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-            ${getVariantName(comment.variant)}
-          </div>
-          <p>${comment.text}</p>
-          <p style="font-size:11px;color:#888">
-            Coordinates: ${comment.lat.toFixed(5)}°, ${comment.lon.toFixed(5)}°<br>
-            Height: ${comment.height.toFixed(1)}m<br>
-            Created: ${new Date(comment.timestamp).toLocaleString('en-US')}
-          </p>
-        </div>`
-      });
-    }
-
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-    handler.setInputAction(function(click) {
-      if (!isAddingComment) return;
-      
-      let pickedPosition = null;
-      let pickedFeature = viewer.scene.pick(click.position);
-      
-      if (Cesium.defined(pickedFeature)) {
-        pickedPosition = viewer.scene.pickPosition(click.position);
-      }
-      
-      if (!Cesium.defined(pickedPosition)) {
-        const ray = viewer.camera.getPickRay(click.position);
-        pickedPosition = viewer.scene.globe.pick(ray, viewer.scene);
-      }
-      
-      if (Cesium.defined(pickedPosition)) {
-        const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
-        const lon = Cesium.Math.toDegrees(cartographic.longitude);
-        const lat = Cesium.Math.toDegrees(cartographic.latitude);
-        const height = cartographic.height;
-        
-        currentPosition = { lon, lat, height };
-        createPreviewMarker(lon, lat, height);
-        openCommentDialog(click.position);
-        
-      } else {
-        showStatus('⚠️ Please click on a 3D building or terrain!', 'error');
-      }
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-    console.log('✅ Public Twin with iTwin Share Key loaded');
-    console.log('🔑 Using Share Key (valid until ' + new Date(ITWIN_CONFIG.expiration).toLocaleDateString() + ')');
-  </script>
-</body>
-</html>
+                          activeVariant
