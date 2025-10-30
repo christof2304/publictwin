@@ -6,6 +6,11 @@
   <title>Public Twin - Citizen Comments on Design Variants</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  
   <style>
     html, body, #cesiumContainer {
       width: 100%;
@@ -105,10 +110,53 @@
       min-height: 44px;
       touch-action: manipulation;
     }
+    
+    /* Firebase connection status */
+    #connectionStatus {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(42, 42, 42, 0.95);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: white;
+      z-index: 100;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #666;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-dot.connected {
+      background: #4caf50;
+    }
+    
+    .status-dot.error {
+      background: #d32f2f;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
   </style>
 </head>
 <body>
   <div id="cesiumContainer"></div>
+  
+  <!-- Connection Status -->
+  <div id="connectionStatus">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Connecting...</span>
+  </div>
   
   <!-- Hamburger Menu Toggle Button -->
   <button id="menuToggle">
@@ -140,19 +188,19 @@
       
       <!-- Voting Overview -->
       <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 4px;">
-        <div style="font-size: 11px; color: #888; margin-bottom: 8px; text-align: center;">📊 Voting Results:</div>
+        <div style="font-size: 11px; color: #888; margin-bottom: 8px; text-align: center;">📊 Voting Results (Live):</div>
         <div id="votingOverview" style="font-size: 11px;">
           <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
             <span style="color: #4caf50;">Variant 1:</span>
-            <span><span style="color: #4caf50;">👍 0</span> | <span style="color: #d32f2f;">👎 0</span></span>
+            <span><span style="color: #4caf50;">👍 <span id="v1up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v1down">0</span></span></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
             <span style="color: #2196f3;">Variant 2:</span>
-            <span><span style="color: #4caf50;">👍 0</span> | <span style="color: #d32f2f;">👎 0</span></span>
+            <span><span style="color: #4caf50;">👍 <span id="v2up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v2down">0</span></span></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 4px 0;">
             <span style="color: #ff9800;">Variant 3:</span>
-            <span><span style="color: #4caf50;">👍 0</span> | <span style="color: #d32f2f;">👎 0</span></span>
+            <span><span style="color: #4caf50;">👍 <span id="v3up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v3down">0</span></span></span>
           </div>
         </div>
       </div>
@@ -169,7 +217,7 @@
         <h4 style="margin: 0; color: #888; font-size: 13px;">📋 Comments (<span id="commentCount">0</span>):</h4>
         <button id="clearAllBtn" style="display: none; background: #d32f2f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Clear All</button>
       </div>
-      <div id="commentItems" style="max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 5px;"><div style="color: #666; font-size: 12px; padding: 5px;">No comments yet</div></div>
+      <div id="commentItems" style="max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 5px;"><div style="color: #666; font-size: 12px; padding: 5px;">Loading comments...</div></div>
     </div>
     
     <div id="statusMessage" style="display: none; background: rgba(72, 136, 187, 0.9); padding: 8px 12px; border-radius: 4px; margin-top: 10px; font-size: 12px;"></div>
@@ -190,6 +238,45 @@
   </div>
   
   <script>
+    // =====================================
+    // FIREBASE CONFIGURATION
+    // =====================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAL40gcoGn10I8af11zaae5vuvog_qVWZA",
+      authDomain: "publictwin-ad6c7.firebaseapp.com",
+      projectId: "publictwin-ad6c7",
+      storageBucket: "publictwin-ad6c7.firebasestorage.app",
+      messagingSenderId: "151464184627",
+      appId: "1:151464184627:web:4de0397346ef510eecc46",
+      measurementId: "G-FWHRLCGJ4G"
+    };
+
+    // Initialize Firebase
+    let db;
+    let firebaseInitialized = false;
+    
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      firebaseInitialized = true;
+      updateConnectionStatus('connected', 'Connected ✓');
+      console.log('✅ Firebase initialized successfully');
+    } catch (error) {
+      console.error('❌ Firebase initialization error:', error);
+      updateConnectionStatus('error', 'Config needed!');
+      alert('⚠️ Firebase not configured!\n\nPlease add your Firebase credentials to the HTML file.\nSee README for instructions.');
+    }
+
+    function updateConnectionStatus(status, text) {
+      const dot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      dot.className = 'status-dot ' + status;
+      statusText.textContent = text;
+    }
+
+    // =====================================
+    // CESIUM SETUP
+    // =====================================
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNWFjNDYxZC0yN2U5LTQ0MGYtYWY1Ny1lN2VmNGJiNjVlYTQiLCJpZCI6MjYzNTkwLCJpYXQiOjE3NjE3MzIzOTh9.HsP4Aq5jS6OiRwUXc8uRv6nwbrTcx8ugaGSkLiTYhO8';
 
     const viewer = new Cesium.Viewer("cesiumContainer", {
@@ -219,6 +306,148 @@
       variant2: { thumbsUp: 0, thumbsDown: 0 },
       variant3: { thumbsUp: 0, thumbsDown: 0 }
     };
+
+    // =====================================
+    // FIREBASE REALTIME LISTENERS
+    // =====================================
+    
+    // Listen to comments in real-time
+    function setupFirebaseListeners() {
+      if (!firebaseInitialized) return;
+      
+      // Listen to comments
+      db.collection('comments').onSnapshot((snapshot) => {
+        comments = [];
+        snapshot.forEach((doc) => {
+          const comment = { id: doc.id, ...doc.data() };
+          comments.push(comment);
+          
+          // Add to viewer if not already there
+          if (!viewer.entities.getById(comment.id)) {
+            addCommentToViewer(comment);
+          }
+        });
+        updateCommentList();
+        console.log(`📝 Loaded ${comments.length} comments from Firebase`);
+      }, (error) => {
+        console.error('Error listening to comments:', error);
+        showStatus('Error loading comments', 'error');
+      });
+      
+      // Listen to votes in real-time
+      db.collection('votes').doc('aggregated').onSnapshot((doc) => {
+        if (doc.exists) {
+          votes = doc.data();
+          updateVotingOverview();
+          console.log('📊 Votes updated:', votes);
+        }
+      }, (error) => {
+        console.error('Error listening to votes:', error);
+      });
+    }
+
+    // Save comment to Firebase
+    async function saveCommentToFirebase(comment) {
+      if (!firebaseInitialized) {
+        showStatus('Firebase not configured', 'error');
+        return false;
+      }
+      
+      try {
+        await db.collection('comments').doc(comment.id).set({
+          title: comment.title,
+          text: comment.text,
+          lon: comment.lon,
+          lat: comment.lat,
+          height: comment.height,
+          timestamp: comment.timestamp,
+          variant: comment.variant
+        });
+        console.log('✅ Comment saved to Firebase:', comment.id);
+        return true;
+      } catch (error) {
+        console.error('❌ Error saving comment:', error);
+        showStatus('Error saving comment: ' + error.message, 'error');
+        return false;
+      }
+    }
+
+    // Save vote to Firebase
+    async function saveVoteToFirebase(variant, voteType) {
+      if (!firebaseInitialized) {
+        showStatus('Firebase not configured', 'error');
+        return false;
+      }
+      
+      try {
+        const voteRef = db.collection('votes').doc('aggregated');
+        
+        // Use transaction to ensure atomic increment
+        await db.runTransaction(async (transaction) => {
+          const doc = await transaction.get(voteRef);
+          
+          if (!doc.exists) {
+            // Initialize votes if document doesn't exist
+            transaction.set(voteRef, {
+              variant1: { thumbsUp: 0, thumbsDown: 0 },
+              variant2: { thumbsUp: 0, thumbsDown: 0 },
+              variant3: { thumbsUp: 0, thumbsDown: 0 }
+            });
+          }
+          
+          const currentVotes = doc.exists ? doc.data() : {
+            variant1: { thumbsUp: 0, thumbsDown: 0 },
+            variant2: { thumbsUp: 0, thumbsDown: 0 },
+            variant3: { thumbsUp: 0, thumbsDown: 0 }
+          };
+          
+          if (voteType === 'up') {
+            currentVotes[variant].thumbsUp++;
+          } else {
+            currentVotes[variant].thumbsDown++;
+          }
+          
+          transaction.set(voteRef, currentVotes);
+        });
+        
+        console.log('✅ Vote saved to Firebase');
+        return true;
+      } catch (error) {
+        console.error('❌ Error saving vote:', error);
+        showStatus('Error saving vote: ' + error.message, 'error');
+        return false;
+      }
+    }
+
+    // Delete all comments for a variant from Firebase
+    async function deleteVariantCommentsFromFirebase(variant) {
+      if (!firebaseInitialized) {
+        showStatus('Firebase not configured', 'error');
+        return false;
+      }
+      
+      try {
+        const batch = db.batch();
+        const variantComments = comments.filter(c => c.variant === variant);
+        
+        variantComments.forEach(comment => {
+          const docRef = db.collection('comments').doc(comment.id);
+          batch.delete(docRef);
+        });
+        
+        await batch.commit();
+        console.log(`✅ Deleted ${variantComments.length} comments from Firebase`);
+        return true;
+      } catch (error) {
+        console.error('❌ Error deleting comments:', error);
+        showStatus('Error deleting comments: ' + error.message, 'error');
+        return false;
+      }
+    }
+
+    // =====================================
+    // UI FUNCTIONS
+    // =====================================
 
     // Menu Toggle Functionality
     const menuToggle = document.getElementById('menuToggle');
@@ -252,12 +481,10 @@
       const diffX = touchEndX - touchStartX;
       const diffY = Math.abs(touchEndY - touchStartY);
       
-      // Swipe from left edge (first 50px) to the right (at least 100px)
       if (touchStartX < 50 && diffX > 100 && diffY < 50 && !menuOpen) {
         toggleMenu();
       }
       
-      // Swipe from right to left on open menu to close
       if (menuOpen && diffX < -100 && diffY < 50) {
         toggleMenu();
       }
@@ -286,6 +513,9 @@
         container.innerHTML = '<div style="color: #666; font-size: 12px; padding: 5px;">No comments for this variant yet</div>';
         return;
       }
+      
+      // Sort by timestamp (newest first)
+      filteredComments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       filteredComments.forEach(comment => {
         const item = document.createElement('div');
@@ -319,32 +549,21 @@
       });
     }
 
-    function vote(voteType) {
-      if (voteType === 'up') {
-        votes[activeVariant].thumbsUp++;
-        showStatus('👍 Thumbs up for ' + getVariantName(activeVariant), 'success');
-      } else {
-        votes[activeVariant].thumbsDown++;
-        showStatus('👎 Thumbs down for ' + getVariantName(activeVariant), 'error');
+    async function vote(voteType) {
+      const success = await saveVoteToFirebase(activeVariant, voteType);
+      if (success) {
+        const emoji = voteType === 'up' ? '👍' : '👎';
+        showStatus(`${emoji} Vote recorded for ${getVariantName(activeVariant)}`, 'success');
       }
-      updateVotingOverview();
     }
 
     function updateVotingOverview() {
-      document.getElementById('votingOverview').innerHTML = `
-        <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
-          <span style="color: #4caf50;">Variant 1:</span>
-          <span><span style="color: #4caf50;">👍 ${votes.variant1.thumbsUp}</span> | <span style="color: #d32f2f;">👎 ${votes.variant1.thumbsDown}</span></span>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
-          <span style="color: #2196f3;">Variant 2:</span>
-          <span><span style="color: #4caf50;">👍 ${votes.variant2.thumbsUp}</span> | <span style="color: #d32f2f;">👎 ${votes.variant2.thumbsDown}</span></span>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-          <span style="color: #ff9800;">Variant 3:</span>
-          <span><span style="color: #4caf50;">👍 ${votes.variant3.thumbsUp}</span> | <span style="color: #d32f2f;">👎 ${votes.variant3.thumbsDown}</span></span>
-        </div>
-      `;
+      document.getElementById('v1up').textContent = votes.variant1.thumbsUp;
+      document.getElementById('v1down').textContent = votes.variant1.thumbsDown;
+      document.getElementById('v2up').textContent = votes.variant2.thumbsUp;
+      document.getElementById('v2down').textContent = votes.variant2.thumbsDown;
+      document.getElementById('v3up').textContent = votes.variant3.thumbsUp;
+      document.getElementById('v3down').textContent = votes.variant3.thumbsDown;
     }
 
     function getVariantName(variant) {
@@ -585,6 +804,7 @@
     }
 
     loadAssets();
+    setupFirebaseListeners();
 
     let clearButtonVisible = false;
     document.addEventListener('keydown', function(event) {
@@ -622,6 +842,10 @@
         clearButtonVisible ? 'error' : 'success'
       );
     }
+
+    // =====================================
+    // EVENT LISTENERS
+    // =====================================
 
     document.getElementById('addCommentBtn').addEventListener('click', function() {
       isAddingComment = !isAddingComment;
@@ -665,7 +889,7 @@
       toggleOSMBuildings();
     });
 
-    document.getElementById('clearAllBtn').addEventListener('click', function() {
+    document.getElementById('clearAllBtn').addEventListener('click', async function() {
       const variantComments = comments.filter(c => c.variant === activeVariant);
       if (variantComments.length === 0) {
         showStatus('No comments to delete');
@@ -674,14 +898,17 @@
       const variantName = activeVariant === 'variant1' ? 'Variant 1' : 
                          activeVariant === 'variant2' ? 'Variant 2' : 'Variant 3';
       if (confirm(`Do you really want to delete all ${variantComments.length} comments from ${variantName}?`)) {
-        variantComments.forEach(comment => viewer.entities.removeById(comment.id));
-        comments = comments.filter(c => c.variant !== activeVariant);
-        updateCommentList();
-        showStatus('All comments deleted', 'success');
+        showStatus('Deleting comments...', 'loading');
+        const success = await deleteVariantCommentsFromFirebase(activeVariant);
+        if (success) {
+          // Remove from viewer
+          variantComments.forEach(comment => viewer.entities.removeById(comment.id));
+          showStatus('All comments deleted', 'success');
+        }
       }
     });
 
-    document.getElementById('saveCommentBtn').addEventListener('click', function() {
+    document.getElementById('saveCommentBtn').addEventListener('click', async function() {
       const title = document.getElementById('commentTitle').value.trim();
       const text = document.getElementById('commentText').value.trim();
       
@@ -701,13 +928,14 @@
         variant: activeVariant
       };
       
-      comments.push(comment);
-      removePreviewMarker();
-      addCommentToViewer(comment);
-      updateCommentList();
-      closeCommentDialog();
+      showStatus('Saving comment...', 'loading');
+      const success = await saveCommentToFirebase(comment);
       
-      showStatus(`Comment "${title}" saved!`, 'success');
+      if (success) {
+        removePreviewMarker();
+        closeCommentDialog();
+        showStatus(`Comment "${title}" saved!`, 'success');
+      }
     });
 
     document.getElementById('cancelCommentBtn').addEventListener('click', function() {
@@ -791,7 +1019,7 @@
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    console.log('✅ Public Twin Comment System loaded (Mobile-optimized)');
+    console.log('✅ Public Twin Comment System with Firebase loaded');
   </script>
 </body>
 </html>
