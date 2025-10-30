@@ -276,7 +276,8 @@
       <button id="variant1Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Malmö"</button>
       <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Atlanta"</button>
       <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "150"</button>
-      <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Station" (iModel)</button>
+      <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "iTwin A"</button>
+      <button id="variant5Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "iTwin B"</button>
       
       <!-- Voting Widget -->
       <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
@@ -303,9 +304,13 @@
             <span style="color: #ff9800;">Design "150":</span>
             <span><span style="color: #4caf50;">👍 <span id="v3up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v3down">0</span></span></span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-            <span style="color: #9c27b0;">Design "Station":</span>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
+            <span style="color: #9c27b0;">Design "iTwin A":</span>
             <span><span style="color: #4caf50;">👍 <span id="v4up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v4down">0</span></span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+            <span style="color: #e91e63;">Design "iTwin B":</span>
+            <span><span style="color: #4caf50;">👍 <span id="v5up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v5down">0</span></span></span>
           </div>
         </div>
       </div>
@@ -382,12 +387,24 @@
     }
 
     // =====================================
-    // CESIUM & iTWIN SETUP
+    // CESIUM SETUP
     // =====================================
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNWFjNDYxZC0yN2U5LTQ0MGYtYWY1Ny1lN2VmNGJiNjVlYTQiLCJpZCI6MjYzNTkwLCJpYXQiOjE3NjE3MzIzOTh9.HsP4Aq5jS6OiRwUXc8uRv6nwbrTcx8ugaGSkLiTYhO8';
 
-    // iTwin Platform Authentication
-    Cesium.ITwinPlatform.defaultShareKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpVHdpbklkIjoiNTM1YTI0YTMtOWIyOS00ZTIzLWJiNWQtOWNlZGI1MjRjNzQzIiwiaWQiOiI2NTEwMzUzMi02MmU3LTRmZGQtOWNlNy1iODIxYmEyMmI5NjMiLCJleHAiOjE3NzcwNTU4MTh9.Q9MgsWWkc6bb1zHUJ7ahZjxPtaTWEjpNvRln7NS3faM";
+    // iTwin Platform Share Keys
+    const iTwinShareKeys = {
+      // First iModel (expires 2025-02-22)
+      iTwinA: {
+        shareKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpVHdpbklkIjoiNTM1YTI0YTMtOWIyOS00ZTIzLWJiNWQtOWNlZGI1MjRjNzQzIiwiaWQiOiI2NTEwMzUzMi02MmU3LTRmZGQtOWNlNy1iODIxYmEyMmI5NjMiLCJleHAiOjE3NzcwNTU4MTh9.Q9MgsWWkc6bb1zHUJ7ahZjxPtaTWEjpNvRln7NS3faM",
+        iTwinId: "535a24a3-9b29-4e23-bb5d-9cedb524c743"
+      },
+      // Second iModel (expires 2026-01-28)
+      iTwinB: {
+        shareKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpVHdpbklkIjoiZDkyZjJmNDMtYzExYi00YTA2LThhMjEtNmFjZDQ3NWFmOGMxIiwiaWQiOiIwMDMxYjQ5My04NTY5LTQ0YzQtYTAyNS1mNGM2Y2RmNDRhNWEiLCJleHAiOjE3Njk2MDI3MTR9.j3yvy7rcneyhhfnGq81sVUaVGL_V7ROeafwbKONpaFw",
+        iTwinId: "d92f2f43-c11b-4a06-8a21-6acd475af8c1",
+        iModelId: "25bcda49-594d-45ad-8eb9-64ac925d11b5"
+      }
+    };
 
     const viewer = new Cesium.Viewer("cesiumContainer", {
       timeline: false,
@@ -404,9 +421,8 @@
     let tileset1 = null;
     let tileset2 = null;
     let tileset3 = null;
-    let iModelStation = null;
-    let iModelSurrounding = null;
-    let iModelRealityMesh = null;
+    let tileset4 = null; // iTwin A
+    let tileset5 = null; // iTwin B
     let googleTileset = null;
     let osmBuildings = null;
     let googleImageryLayer = null;
@@ -418,7 +434,8 @@
       variant1: { thumbsUp: 0, thumbsDown: 0 },
       variant2: { thumbsUp: 0, thumbsDown: 0 },
       variant3: { thumbsUp: 0, thumbsDown: 0 },
-      variant4: { thumbsUp: 0, thumbsDown: 0 }
+      variant4: { thumbsUp: 0, thumbsDown: 0 },
+      variant5: { thumbsUp: 0, thumbsDown: 0 }
     };
 
     // =====================================
@@ -507,7 +524,8 @@
               variant1: { thumbsUp: 0, thumbsDown: 0 },
               variant2: { thumbsUp: 0, thumbsDown: 0 },
               variant3: { thumbsUp: 0, thumbsDown: 0 },
-              variant4: { thumbsUp: 0, thumbsDown: 0 }
+              variant4: { thumbsUp: 0, thumbsDown: 0 },
+              variant5: { thumbsUp: 0, thumbsDown: 0 }
             });
           }
           
@@ -515,7 +533,8 @@
             variant1: { thumbsUp: 0, thumbsDown: 0 },
             variant2: { thumbsUp: 0, thumbsDown: 0 },
             variant3: { thumbsUp: 0, thumbsDown: 0 },
-            variant4: { thumbsUp: 0, thumbsDown: 0 }
+            variant4: { thumbsUp: 0, thumbsDown: 0 },
+            variant5: { thumbsUp: 0, thumbsDown: 0 }
           };
           
           if (voteType === 'up') {
@@ -642,9 +661,7 @@
       
       filteredComments.forEach(comment => {
         const item = document.createElement('div');
-        const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
-                           comment.variant === 'variant2' ? '#2196f3' : 
-                           comment.variant === 'variant3' ? '#ff9800' : '#9c27b0';
+        const borderColor = getVariantColor(comment.variant);
         item.style.cssText = 'background: rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 10px; margin-bottom: 8px; cursor: pointer; border-left: 3px solid ' + borderColor + ';';
         item.innerHTML = `
           <div style="font-weight: bold; color: #5ac; margin-bottom: 5px;">${comment.title}</div>
@@ -690,6 +707,8 @@
       document.getElementById('v3down').textContent = votes.variant3.thumbsDown;
       document.getElementById('v4up').textContent = votes.variant4.thumbsUp;
       document.getElementById('v4down').textContent = votes.variant4.thumbsDown;
+      document.getElementById('v5up').textContent = votes.variant5.thumbsUp;
+      document.getElementById('v5down').textContent = votes.variant5.thumbsDown;
     }
 
     function toggleLatestCommentsWidget() {
@@ -724,24 +743,17 @@
         const item = document.createElement('div');
         item.className = 'latest-comment-item';
         
-        const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
-                           comment.variant === 'variant2' ? '#2196f3' : 
-                           comment.variant === 'variant3' ? '#ff9800' : '#9c27b0';
+        const borderColor = getVariantColor(comment.variant);
         item.style.borderLeftColor = borderColor;
         
-        const variantColor = comment.variant === 'variant1' ? '#4caf50' : 
-                            comment.variant === 'variant2' ? '#2196f3' : 
-                            comment.variant === 'variant3' ? '#ff9800' : '#9c27b0';
-        const variantText = comment.variant === 'variant1' ? 'Malmö' : 
-                           comment.variant === 'variant2' ? 'Atlanta' : 
-                           comment.variant === 'variant3' ? '150' : 'Station';
+        const variantText = getVariantName(comment.variant).replace('Design "', '').replace('"', '');
         
         const timeAgo = getTimeAgo(comment.timestamp);
         
         item.innerHTML = `
           <div class="latest-comment-title">
             <span>${comment.title}</span>
-            <span class="latest-comment-variant" style="background: ${variantColor};">${variantText}</span>
+            <span class="latest-comment-variant" style="background: ${borderColor};">${variantText}</span>
           </div>
           <div class="latest-comment-text">${comment.text}</div>
           <div class="latest-comment-time">📍 ${timeAgo}</div>
@@ -781,14 +793,22 @@
       return variant === 'variant1' ? 'Design "Malmö"' : 
              variant === 'variant2' ? 'Design "Atlanta"' : 
              variant === 'variant3' ? 'Design "150"' : 
-             variant === 'variant4' ? 'Design "Station"' : 'a design';
+             variant === 'variant4' ? 'Design "iTwin A"' : 
+             variant === 'variant5' ? 'Design "iTwin B"' : 
+             'a design';
+    }
+
+    function getVariantColor(variant) {
+      return variant === 'variant1' ? '#4caf50' : 
+             variant === 'variant2' ? '#2196f3' : 
+             variant === 'variant3' ? '#ff9800' :
+             variant === 'variant4' ? '#9c27b0' :
+             variant === 'variant5' ? '#e91e63' : '#888';
     }
 
     function updateVotingWidget() {
       const variantName = getVariantName(activeVariant);
-      const color = activeVariant === 'variant1' ? '#4caf50' : 
-                   activeVariant === 'variant2' ? '#2196f3' : 
-                   activeVariant === 'variant3' ? '#ff9800' : '#9c27b0';
+      const color = getVariantColor(activeVariant);
       document.getElementById('votingVariantName').textContent = variantName;
       document.getElementById('votingVariantName').style.color = color;
     }
@@ -800,9 +820,8 @@
       if (tileset1) tileset1.show = false;
       if (tileset2) tileset2.show = false;
       if (tileset3) tileset3.show = false;
-      if (iModelStation) iModelStation.show = false;
-      if (iModelSurrounding) iModelSurrounding.show = false;
-      if (iModelRealityMesh) iModelRealityMesh.show = false;
+      if (tileset4) tileset4.show = false;
+      if (tileset5) tileset5.show = false;
       
       // Reset all buttons
       document.getElementById('variant1Btn').style.background = '#666';
@@ -812,8 +831,11 @@
       document.getElementById('variant3Btn').style.background = '#666';
       document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
       document.getElementById('variant4Btn').style.background = '#666';
-      document.getElementById('variant4Btn').innerHTML = '○ Design "Station" (iModel)';
+      document.getElementById('variant4Btn').innerHTML = '○ Design "iTwin A"';
+      document.getElementById('variant5Btn').style.background = '#666';
+      document.getElementById('variant5Btn').innerHTML = '○ Design "iTwin B"';
       
+      // Show selected variant
       if (variant === 'variant1') {
         if (tileset1) {
           tileset1.show = true;
@@ -839,15 +861,21 @@
         document.getElementById('variant3Btn').innerHTML = '● Design "150"';
         showStatus('Design "150" active', 'success');
       } else if (variant === 'variant4') {
-        if (iModelStation) {
-          iModelStation.show = true;
-          if (iModelSurrounding) iModelSurrounding.show = true;
-          if (iModelRealityMesh) iModelRealityMesh.show = true;
-          viewer.flyTo(iModelStation);
+        if (tileset4) {
+          tileset4.show = true;
+          viewer.flyTo(tileset4);
         }
         document.getElementById('variant4Btn').style.background = '#9c27b0';
-        document.getElementById('variant4Btn').innerHTML = '● Design "Station" (iModel)';
-        showStatus('Design "Station" (iModel) active', 'success');
+        document.getElementById('variant4Btn').innerHTML = '● Design "iTwin A"';
+        showStatus('Design "iTwin A" active', 'success');
+      } else if (variant === 'variant5') {
+        if (tileset5) {
+          tileset5.show = true;
+          viewer.flyTo(tileset5);
+        }
+        document.getElementById('variant5Btn').style.background = '#e91e63';
+        document.getElementById('variant5Btn').innerHTML = '● Design "iTwin B"';
+        showStatus('Design "iTwin B" active', 'success');
       }
       
       updateCommentVisibility();
@@ -859,9 +887,7 @@
       removePreviewMarker();
       
       const position = Cesium.Cartesian3.fromDegrees(lon, lat, height + 2);
-      const color = activeVariant === 'variant1' ? '#4caf50' : 
-                    activeVariant === 'variant2' ? '#2196f3' : 
-                    activeVariant === 'variant3' ? '#ff9800' : '#9c27b0';
+      const color = getVariantColor(activeVariant);
       
       previewEntity = viewer.entities.add({
         id: 'preview_marker',
@@ -895,5 +921,420 @@
 
     function openCommentDialog(screenPosition) {
       const dialog = document.getElementById('commentDialog');
-      const variantText = activeVariant === 'variant1' ? 'Design "Malmö"' : 
-                          activeVariant
+      const variantText = getVariantName(activeVariant);
+      
+      document.getElementById('dialogVariant').textContent = variantText;
+      document.getElementById('commentTitle').value = '';
+      document.getElementById('commentText').value = '';
+      
+      dialog.style.display = 'block';
+      dialog.style.left = Math.min(screenPosition.x + 20, window.innerWidth - 360) + 'px';
+      dialog.style.top = Math.min(screenPosition.y - 50, window.innerHeight - 300) + 'px';
+      
+      setTimeout(() => document.getElementById('commentTitle').focus(), 100);
+    }
+
+    function closeCommentDialog() {
+      document.getElementById('commentDialog').style.display = 'none';
+      document.getElementById('commentTitle').value = '';
+      document.getElementById('commentText').value = '';
+      removePreviewMarker();
+      isAddingComment = false;
+      document.getElementById('addCommentBtn').style.background = '#48b';
+      document.getElementById('addCommentBtn').textContent = '➕ Add Comment';
+    }
+
+    async function loadAssets() {
+      try {
+        showStatus('Loading 3D models...', 'loading');
+        
+        // Load Google 3D Tiles
+        googleTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2275207);
+        viewer.scene.primitives.add(googleTileset);
+        console.log('Google 3D Tiles loaded');
+        
+        // Load Cesium Ion assets
+        tileset1 = await Cesium.Cesium3DTileset.fromIonAssetId(3291876);
+        viewer.scene.primitives.add(tileset1);
+        tileset1.show = false;
+        console.log('Asset 3291876 (Malmö) loaded');
+        
+        tileset2 = await Cesium.Cesium3DTileset.fromIonAssetId(3658308);
+        viewer.scene.primitives.add(tileset2);
+        tileset2.show = false;
+        console.log('Asset 3658308 (Atlanta) loaded');
+        
+        tileset3 = await Cesium.Cesium3DTileset.fromIonAssetId(3154873);
+        viewer.scene.primitives.add(tileset3);
+        tileset3.show = false;
+        console.log('Asset 3154873 (150) loaded');
+        
+        // Load iTwin A
+        try {
+          const iTwinA = await Cesium.Cesium3DTileset.fromUrl(
+            `https://api.bentley.com/reality-management/reality-data/${iTwinShareKeys.iTwinA.iTwinId}/tileset.json`,
+            {
+              headers: {
+                'Authorization': iTwinShareKeys.iTwinA.shareKey
+              }
+            }
+          );
+          tileset4 = iTwinA;
+          viewer.scene.primitives.add(tileset4);
+          tileset4.show = false;
+          console.log('iTwin A loaded');
+        } catch (error) {
+          console.error('Error loading iTwin A:', error);
+          showStatus('Warning: iTwin A could not be loaded', 'error');
+        }
+        
+        // Load iTwin B
+        try {
+          const iTwinB = await Cesium.Cesium3DTileset.fromUrl(
+            `https://api.bentley.com/reality-management/reality-data/${iTwinShareKeys.iTwinB.iModelId}/tileset.json`,
+            {
+              headers: {
+                'Authorization': iTwinShareKeys.iTwinB.shareKey
+              }
+            }
+          );
+          tileset5 = iTwinB;
+          viewer.scene.primitives.add(tileset5);
+          tileset5.show = false;
+          console.log('iTwin B loaded');
+        } catch (error) {
+          console.error('Error loading iTwin B:', error);
+          showStatus('Warning: iTwin B could not be loaded', 'error');
+        }
+        
+        showStatus('All assets loaded! Select a design to view.', 'success');
+        
+      } catch (error) {
+        console.error('Error loading assets:', error);
+        showStatus('Loading error: ' + error.message, 'error');
+      }
+    }
+
+    async function switchToTerrainMode() {
+      showStatus('Switching to Terrain + Satellite...', 'loading');
+      
+      if (googleTileset) {
+        googleTileset.show = false;
+      }
+      
+      if (!googleImageryLayer) {
+        try {
+          googleImageryLayer = viewer.imageryLayers.addImageryProvider(
+            await Cesium.IonImageryProvider.fromAssetId(3845)
+          );
+          console.log('Google Satellite imagery loaded');
+        } catch (error) {
+          console.error('Error loading Google Satellite:', error);
+        }
+      } else {
+        googleImageryLayer.show = true;
+      }
+      
+      viewer.terrainProvider = await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
+      
+      basemapMode = 'terrain';
+      document.getElementById('basemapBtn').textContent = 'Cesium Terrain + Satellite';
+      document.getElementById('basemapBtn').style.background = '#2196f3';
+      document.getElementById('osmBuildingsBtn').style.display = 'block';
+      
+      showStatus('Terrain mode active', 'success');
+    }
+
+    async function switchToGoogle3DMode() {
+      showStatus('Switching to Google 3D Tiles...', 'loading');
+      
+      if (!googleTileset) {
+        try {
+          googleTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2275207);
+          viewer.scene.primitives.add(googleTileset);
+          console.log('Google 3D Tiles loaded');
+        } catch (error) {
+          console.error('Error loading Google 3D Tiles:', error);
+          showStatus('Error loading Google 3D Tiles', 'error');
+          return;
+        }
+      } else {
+        googleTileset.show = true;
+      }
+      
+      if (googleImageryLayer) {
+        googleImageryLayer.show = false;
+      }
+      
+      if (osmBuildings) {
+        osmBuildings.show = false;
+      }
+      
+      viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
+      
+      basemapMode = 'google3d';
+      document.getElementById('basemapBtn').textContent = 'Google 3D Tiles';
+      document.getElementById('basemapBtn').style.background = '#4caf50';
+      document.getElementById('osmBuildingsBtn').style.display = 'none';
+      
+      showStatus('Google 3D mode active', 'success');
+    }
+
+    async function toggleOSMBuildings() {
+      if (!osmBuildings) {
+        showStatus('Loading OSM Buildings...', 'loading');
+        try {
+          osmBuildings = await Cesium.createOsmBuildingsAsync();
+          viewer.scene.primitives.add(osmBuildings);
+          console.log('OSM Buildings loaded');
+          document.getElementById('osmBuildingsBtn').style.background = '#4caf50';
+          document.getElementById('osmBuildingsBtn').textContent = '✓ OSM Buildings';
+          showStatus('OSM Buildings loaded', 'success');
+        } catch (error) {
+          console.error('Error loading OSM Buildings:', error);
+          showStatus('Error loading OSM Buildings', 'error');
+        }
+      } else {
+        osmBuildings.show = !osmBuildings.show;
+        document.getElementById('osmBuildingsBtn').style.background = osmBuildings.show ? '#4caf50' : '#666';
+        document.getElementById('osmBuildingsBtn').textContent = (osmBuildings.show ? '✓' : '✗') + ' OSM Buildings';
+        showStatus('OSM Buildings ' + (osmBuildings.show ? 'visible' : 'hidden'), 'success');
+      }
+    }
+
+    loadAssets();
+    setupFirebaseListeners();
+
+    let clearButtonVisible = false;
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'x' || event.key === 'X') {
+        toggleClearButton();
+      }
+    });
+
+    let tapCount = 0;
+    let tapTimer = null;
+    const panelHeader = panel.querySelector('h3');
+    
+    panelHeader.addEventListener('click', function() {
+      tapCount++;
+      
+      if (tapCount === 1) {
+        tapTimer = setTimeout(function() {
+          tapCount = 0;
+        }, 500);
+      }
+      
+      if (tapCount === 3) {
+        clearTimeout(tapTimer);
+        tapCount = 0;
+        toggleClearButton();
+      }
+    });
+
+    function toggleClearButton() {
+      clearButtonVisible = !clearButtonVisible;
+      const clearBtn = document.getElementById('clearAllBtn');
+      clearBtn.style.display = clearButtonVisible ? 'block' : 'none';
+      showStatus(
+        clearButtonVisible ? '🔓 Delete mode enabled (X or 3x tap to hide)' : '🔒 Delete mode disabled', 
+        clearButtonVisible ? 'error' : 'success'
+      );
+    }
+
+    // =====================================
+    // EVENT LISTENERS
+    // =====================================
+
+    document.getElementById('addCommentBtn').addEventListener('click', function() {
+      if (!activeVariant) {
+        showStatus('⚠️ Please select a design first!', 'error');
+        return;
+      }
+      
+      isAddingComment = !isAddingComment;
+      this.style.background = isAddingComment ? '#f60' : '#48b';
+      this.textContent = isAddingComment ? '✋ Cancel' : '➕ Add Comment';
+      if (!isAddingComment) {
+        closeCommentDialog();
+      }
+      showStatus(isAddingComment ? 'Click on a 3D building...' : '');
+    });
+
+    document.getElementById('variant1Btn').addEventListener('click', function() {
+      switchVariant('variant1');
+    });
+
+    document.getElementById('variant2Btn').addEventListener('click', function() {
+      switchVariant('variant2');
+    });
+
+    document.getElementById('variant3Btn').addEventListener('click', function() {
+      switchVariant('variant3');
+    });
+
+    document.getElementById('variant4Btn').addEventListener('click', function() {
+      switchVariant('variant4');
+    });
+
+    document.getElementById('variant5Btn').addEventListener('click', function() {
+      switchVariant('variant5');
+    });
+
+    document.getElementById('thumbsUpBtn').addEventListener('click', function() {
+      vote('up');
+    });
+
+    document.getElementById('thumbsDownBtn').addEventListener('click', function() {
+      vote('down');
+    });
+
+    document.getElementById('basemapBtn').addEventListener('click', function() {
+      if (basemapMode === 'google3d') {
+        switchToTerrainMode();
+      } else {
+        switchToGoogle3DMode();
+      }
+    });
+
+    document.getElementById('osmBuildingsBtn').addEventListener('click', function() {
+      toggleOSMBuildings();
+    });
+
+    document.getElementById('clearAllBtn').addEventListener('click', async function() {
+      if (!activeVariant) {
+        showStatus('No design selected');
+        return;
+      }
+      
+      const variantComments = comments.filter(c => c.variant === activeVariant);
+      if (variantComments.length === 0) {
+        showStatus('No comments to delete');
+        return;
+      }
+      const variantName = getVariantName(activeVariant);
+      if (confirm(`Do you really want to delete all ${variantComments.length} comments from ${variantName}?`)) {
+        showStatus('Deleting comments...', 'loading');
+        const success = await deleteVariantCommentsFromFirebase(activeVariant);
+        if (success) {
+          // Remove from viewer
+          variantComments.forEach(comment => viewer.entities.removeById(comment.id));
+          showStatus('All comments deleted', 'success');
+        }
+      }
+    });
+
+    document.getElementById('saveCommentBtn').addEventListener('click', async function() {
+      const title = document.getElementById('commentTitle').value.trim();
+      const text = document.getElementById('commentText').value.trim();
+      
+      if (!title || !text) {
+        alert('Please fill in both title and comment!');
+        return;
+      }
+      
+      const comment = {
+        id: 'comment_' + Date.now(),
+        title: title,
+        text: text,
+        lon: currentPosition.lon,
+        lat: currentPosition.lat,
+        height: currentPosition.height,
+        timestamp: new Date().toISOString(),
+        variant: activeVariant
+      };
+      
+      showStatus('Saving comment...', 'loading');
+      const success = await saveCommentToFirebase(comment);
+      
+      if (success) {
+        removePreviewMarker();
+        closeCommentDialog();
+        showStatus(`Comment "${title}" saved!`, 'success');
+      }
+    });
+
+    document.getElementById('cancelCommentBtn').addEventListener('click', function() {
+      closeCommentDialog();
+    });
+
+    function addCommentToViewer(comment) {
+      const position = Cesium.Cartesian3.fromDegrees(
+        comment.lon,
+        comment.lat,
+        comment.height + 2
+      );
+      
+      const color = getVariantColor(comment.variant);
+      
+      viewer.entities.add({
+        id: comment.id,
+        position: position,
+        show: comment.variant === activeVariant,
+        billboard: {
+          image: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"><circle cx="20" cy="20" r="18" fill="${color}" stroke="white" stroke-width="3"/><circle cx="20" cy="20" r="8" fill="white"/></svg>`),
+          scale: 0.8,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
+        },
+        label: {
+          text: comment.title,
+          font: '14px sans-serif',
+          fillColor: Cesium.Color.WHITE,
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 2,
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, -40),
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
+        },
+        description: `<div style="padding:10px">
+          <h3>${comment.title}</h3>
+          <div style="background: ${color}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
+            ${getVariantName(comment.variant)}
+          </div>
+          <p>${comment.text}</p>
+          <p style="font-size:11px;color:#888">
+            Coordinates: ${comment.lat.toFixed(5)}°, ${comment.lon.toFixed(5)}°<br>
+            Height: ${comment.height.toFixed(1)}m<br>
+            Created: ${new Date(comment.timestamp).toLocaleString('en-US')}
+          </p>
+        </div>`
+      });
+    }
+
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+    handler.setInputAction(function(click) {
+      if (!isAddingComment) return;
+      
+      let pickedPosition = null;
+      let pickedFeature = viewer.scene.pick(click.position);
+      
+      if (Cesium.defined(pickedFeature)) {
+        pickedPosition = viewer.scene.pickPosition(click.position);
+      }
+      
+      if (!Cesium.defined(pickedPosition)) {
+        const ray = viewer.camera.getPickRay(click.position);
+        pickedPosition = viewer.scene.globe.pick(ray, viewer.scene);
+      }
+      
+      if (Cesium.defined(pickedPosition)) {
+        const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
+        const lon = Cesium.Math.toDegrees(cartographic.longitude);
+        const lat = Cesium.Math.toDegrees(cartographic.latitude);
+        const height = cartographic.height;
+        
+        currentPosition = { lon, lat, height };
+        createPreviewMarker(lon, lat, height);
+        openCommentDialog(click.position);
+        
+      } else {
+        showStatus('⚠️ Please click on a 3D building or terrain!', 'error');
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    console.log('✅ Public Twin Comment System with iTwin models loaded');
+  </script>
+</body>
+</html>
