@@ -454,7 +454,14 @@
       // Listen to votes in real-time
       db.collection('votes').doc('aggregated').onSnapshot((doc) => {
         if (doc.exists) {
-          votes = doc.data();
+          const data = doc.data();
+          // Ensure variant4 exists (backwards compatibility)
+          votes = {
+            variant1: data.variant1 || { thumbsUp: 0, thumbsDown: 0 },
+            variant2: data.variant2 || { thumbsUp: 0, thumbsDown: 0 },
+            variant3: data.variant3 || { thumbsUp: 0, thumbsDown: 0 },
+            variant4: data.variant4 || { thumbsUp: 0, thumbsDown: 0 }
+          };
           updateVotingOverview();
           console.log('📊 Votes updated:', votes);
         }
@@ -684,14 +691,14 @@
     }
 
     function updateVotingOverview() {
-      document.getElementById('v1up').textContent = votes.variant1.thumbsUp;
-      document.getElementById('v1down').textContent = votes.variant1.thumbsDown;
-      document.getElementById('v2up').textContent = votes.variant2.thumbsUp;
-      document.getElementById('v2down').textContent = votes.variant2.thumbsDown;
-      document.getElementById('v3up').textContent = votes.variant3.thumbsUp;
-      document.getElementById('v3down').textContent = votes.variant3.thumbsDown;
-      document.getElementById('v4up').textContent = votes.variant4.thumbsUp;
-      document.getElementById('v4down').textContent = votes.variant4.thumbsDown;
+      document.getElementById('v1up').textContent = votes.variant1?.thumbsUp || 0;
+      document.getElementById('v1down').textContent = votes.variant1?.thumbsDown || 0;
+      document.getElementById('v2up').textContent = votes.variant2?.thumbsUp || 0;
+      document.getElementById('v2down').textContent = votes.variant2?.thumbsDown || 0;
+      document.getElementById('v3up').textContent = votes.variant3?.thumbsUp || 0;
+      document.getElementById('v3down').textContent = votes.variant3?.thumbsDown || 0;
+      document.getElementById('v4up').textContent = votes.variant4?.thumbsUp || 0;
+      document.getElementById('v4down').textContent = votes.variant4?.thumbsDown || 0;
     }
 
     function toggleLatestCommentsWidget() {
@@ -967,14 +974,27 @@
         // Load iTwin Model
         try {
           showStatus('Loading iTwin model...', 'loading');
-          tileset4 = await Cesium.ITwinData.createTilesetFromIModelId('50f1139c-0fdf-43c9-bbea-46542aa33e2d');
+          const iModelId = '50f1139c-0fdf-43c9-bbea-46542aa33e2d';
+          console.log(`🏗️ Loading iTwin Model: ${iModelId}`);
+          console.log(`🔑 Share Key available: ${Cesium.ITwinPlatform.defaultShareKey ? 'YES' : 'NO'}`);
+          
+          tileset4 = await Cesium.ITwinData.createTilesetFromIModelId(iModelId);
+          
+          if (!tileset4) {
+            throw new Error('Tileset could not be created - check Model ID and permissions');
+          }
+          
           tileset4.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE;
           tileset4.shadows = Cesium.ShadowMode.ENABLED;
           viewer.scene.primitives.add(tileset4);
           tileset4.show = false; // Hide initially
-          console.log('iTwin Model (50f1139c...) loaded');
+          console.log('✅ iTwin Model loaded successfully');
         } catch (iTwinError) {
-          console.error('iTwin Model loading failed:', iTwinError);
+          console.error('❌ iTwin Model loading failed:', iTwinError);
+          console.log(`🔍 Debug Info:
+            - Model ID: 50f1139c-0fdf-43c9-bbea-46542aa33e2d
+            - Share Key Available: ${Cesium.ITwinPlatform.defaultShareKey ? 'YES' : 'NO'}
+            - Error: ${iTwinError.message}`);
           console.log('⚠️ iTwin model unavailable - continuing with other designs');
           tileset4 = null;
         }
