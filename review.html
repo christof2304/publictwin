@@ -501,7 +501,7 @@
     function setupFirebaseListeners() {
       if (!firebaseInitialized) return;
       
-      db.collection('comments').onSnapshot((snapshot) => {
+      db.collection('review_comments').onSnapshot((snapshot) => {
         comments = [];
         snapshot.forEach((doc) => {
           const comment = { id: doc.id, ...doc.data() };
@@ -527,7 +527,7 @@
       }
       
       try {
-        await db.collection('comments').doc(comment.id).set({
+        await db.collection('review_comments').doc(comment.id).set({
           title: comment.title,
           text: comment.text,
           lon: comment.lon,
@@ -553,7 +553,7 @@
       }
       
       try {
-        await db.collection('comments').doc(commentId).delete();
+        await db.collection('review_comments').doc(commentId).delete();
         console.log('✅ Comment deleted from Firebase:', commentId);
         return true;
       } catch (error) {
@@ -770,17 +770,25 @@
       container.innerHTML = '<div style="color: #5ac; font-size: 12px; text-align: center; padding: 20px;">🔄 Loading assets from Ion...</div>';
       
       try {
+        console.log('🔑 Using token:', YOUR_ION_TOKEN.substring(0, 20) + '...');
+        
         const response = await fetch('https://api.cesium.com/v1/assets', {
           headers: {
             'Authorization': `Bearer ${YOUR_ION_TOKEN}`
           }
         });
         
+        console.log('📡 Response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch assets. Check your token.');
+          const errorText = await response.text();
+          console.error('❌ API Error:', errorText);
+          throw new Error(`API returned ${response.status}: ${errorText || 'Check token permissions'}`);
         }
         
         const data = await response.json();
+        console.log('📦 API Response:', data);
+        
         const assets = data.items || [];
         
         if (assets.length === 0) {
@@ -804,10 +812,27 @@
         updateAvailableAssetsList();
         
         console.log(`✅ Found ${tilesets.length} asset(s) in Ion`);
+        showStatus(`Found ${tilesets.length} asset(s)`, 'success');
         
       } catch (error) {
-        console.error('Error loading Ion assets:', error);
-        container.innerHTML = `<div style="color: #d32f2f; font-size: 12px; text-align: center; padding: 20px;">❌ Error: ${error.message}<br><span style="font-size: 11px;">Check YOUR_ION_TOKEN in code</span></div>`;
+        console.error('❌ Error loading Ion assets:', error);
+        container.innerHTML = `
+          <div style="color: #d32f2f; font-size: 11px; padding: 15px;">
+            <div style="font-size: 13px; margin-bottom: 10px;">❌ Error loading assets</div>
+            <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; margin-bottom: 10px; font-family: monospace;">
+              ${error.message}
+            </div>
+            <div style="color: #888; font-size: 10px;">
+              <strong>Possible causes:</strong><br>
+              • Token doesn't have 'assets:list' permission<br>
+              • Token is expired<br>
+              • Network/CORS issue<br>
+              <br>
+              Check console (F12) for details
+            </div>
+          </div>
+        `;
+        showStatus('Error loading assets from Ion', 'error');
       }
     }
 
