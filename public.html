@@ -276,7 +276,7 @@
       <button id="variant1Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Malmö"</button>
       <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Atlanta"</button>
       <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "150"</button>
-      <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "iTwin"</button>
+      <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Station"</button>
       
       <!-- Voting Widget -->
       <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
@@ -304,7 +304,7 @@
             <span><span style="color: #4caf50;">👍 <span id="v3up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v3down">0</span></span></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-            <span style="color: #9c27b0;">Design "iTwin":</span>
+            <span style="color: #9c27b0;">Design "Station":</span>
             <span><span style="color: #4caf50;">👍 <span id="v4up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v4down">0</span></span></span>
           </div>
         </div>
@@ -386,13 +386,20 @@
     // =====================================
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNWFjNDYxZC0yN2U5LTQ0MGYtYWY1Ny1lN2VmNGJiNjVlYTQiLCJpZCI6MjYzNTkwLCJpYXQiOjE3NjE3MzIzOTh9.HsP4Aq5jS6OiRwUXc8uRv6nwbrTcx8ugaGSkLiTYhO8';
 
-    // iTwin Platform Share Key
-    // Set the share key BEFORE creating the viewer or loading tilesets
+    // iTwin Platform Share Key (Model A from Sandcastle)
     // Documentation: https://cesium.com/learn/itwin/itwin-design-data-cesiumjs/
-    const iTwinShareKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpVHdpbklkIjoiZDkyZjJmNDMtYzExYi00YTA2LThhMjEtNmFjZDQ3NWFmOGMxIiwiaWQiOiIwMDMxYjQ5My04NTY5LTQ0YzQtYTAyNS1mNGM2Y2RmNDRhNWEiLCJleHAiOjE3Njk2MDI3MTR9.j3yvy7rcneyhhfnGq81sVUaVGL_V7ROeafwbKONpaFw";
-    const iModelId = "25bcda49-594d-45ad-8eb9-64ac925d11b5";
-    const iTwinId = "d92f2f43-c11b-4a06-8a21-6acd475af8c1";
-    // Expires: January 28, 2026
+    const iTwinShareKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpVHdpbklkIjoiNTM1YTI0YTMtOWIyOS00ZTIzLWJiNWQtOWNlZGI1MjRjNzQzIiwiaWQiOiI2NTEwMzUzMi02MmU3LTRmZGQtOWNlNy1iODIxYmEyMmI5NjMiLCJleHAiOjE3NzcwNTU4MTh9.Q9MgsWWkc6bb1zHUJ7ahZjxPtaTWEjpNvRln7NS3faM";
+    
+    // iTwin Model A - Station and Surrounding Area
+    const iTwinData = {
+      iTwinId: "535a24a3-9b29-4e23-bb5d-9cedb524c743",
+      iModels: {
+        surroundingArea: "f856f57d-3d28-4265-9c4f-5e60c0662c15",
+        station: "669dde67-eb69-4e0b-bcf2-f722eee94746"
+      },
+      realityData: "85897090-3bcc-470b-bec7-20bb639cc1b9"
+    };
+    // Share Key expires: February 22, 2025
     
     // Set default share key for iTwin Platform (used by Cesium.ITwinData)
     Cesium.ITwinPlatform.defaultShareKey = iTwinShareKey;
@@ -778,7 +785,7 @@
       return variant === 'variant1' ? 'Design "Malmö"' : 
              variant === 'variant2' ? 'Design "Atlanta"' : 
              variant === 'variant3' ? 'Design "150"' : 
-             variant === 'variant4' ? 'Design "iTwin"' : 
+             variant === 'variant4' ? 'Design "Station"' : 
              'a design';
     }
 
@@ -813,7 +820,7 @@
       document.getElementById('variant3Btn').style.background = '#666';
       document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
       document.getElementById('variant4Btn').style.background = '#666';
-      document.getElementById('variant4Btn').innerHTML = '○ Design "iTwin"';
+      document.getElementById('variant4Btn').innerHTML = '○ Design "Station"';
       
       // Show selected variant
       if (variant === 'variant1') {
@@ -841,13 +848,26 @@
         document.getElementById('variant3Btn').innerHTML = '● Design "150"';
         showStatus('Design "150" active', 'success');
       } else if (variant === 'variant4') {
-        if (tileset4) {
+        if (tileset4 && tileset4.station) {
           tileset4.show = true;
-          viewer.flyTo(tileset4);
+          // Fly to station view (from Sandcastle code)
+          viewer.scene.camera.flyTo({
+            destination: new Cesium.Cartesian3(
+              1255783.605894154,
+              -4732864.394472763,
+              4073433.975291202
+            ),
+            orientation: new Cesium.HeadingPitchRoll(
+              5.646321670432638,
+              -0.4736439399770642,
+              0.00001691713303575426
+            ),
+            duration: 2.0
+          });
         }
         document.getElementById('variant4Btn').style.background = '#9c27b0';
-        document.getElementById('variant4Btn').innerHTML = '● Design "iTwin"';
-        showStatus('Design "iTwin" active', 'success');
+        document.getElementById('variant4Btn').innerHTML = '● Design "Station"';
+        showStatus('Design "Station" active (Station + Area)', 'success');
       }
       
       updateCommentVisibility();
@@ -941,25 +961,67 @@
         tileset3.show = false;
         console.log('Asset 3154873 (150) loaded');
         
-        // Load iTwin iModel using Cesium.ITwinData API
+        // Load iTwin Model A - Station and Surrounding Area
         try {
-          console.log('🔄 Loading iTwin iModel...');
-          console.log('📋 iModelId:', iModelId);
-          console.log('📋 iTwinId:', iTwinId);
+          console.log('🔄 Loading iTwin Model A (Station + Surrounding Area)...');
+          console.log('📋 iTwinId:', iTwinData.iTwinId);
+          console.log('📋 Surrounding Area iModelId:', iTwinData.iModels.surroundingArea);
+          console.log('📋 Station iModelId:', iTwinData.iModels.station);
           
-          tileset4 = await Cesium.ITwinData.createTilesetFromIModelId({
-            iModelId: iModelId
+          // Load Surrounding Area
+          const surroundingArea = await Cesium.ITwinData.createTilesetFromIModelId({
+            iModelId: iTwinData.iModels.surroundingArea
           });
+          surroundingArea.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE;
+          viewer.scene.primitives.add(surroundingArea);
+          surroundingArea.show = false;
+          console.log('✅ Surrounding Area loaded');
           
-          viewer.scene.primitives.add(tileset4);
-          tileset4.show = false;
-          console.log('✅ iTwin iModel loaded successfully');
+          // Load Station
+          const station = await Cesium.ITwinData.createTilesetFromIModelId({
+            iModelId: iTwinData.iModels.station
+          });
+          station.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE;
+          viewer.scene.primitives.add(station);
+          station.show = false;
+          console.log('✅ Station loaded');
+          
+          // Store both as tileset4 (we'll manage them together)
+          tileset4 = {
+            surroundingArea: surroundingArea,
+            station: station,
+            show: false,
+            set show(value) {
+              this.surroundingArea.show = value;
+              this.station.show = value;
+            },
+            get show() {
+              return this.surroundingArea.show;
+            }
+          };
+          
+          console.log('✅ iTwin Model A loaded successfully (Station + Surrounding Area)');
+          
+          // Optional: Load Reality Mesh
+          try {
+            const realityMesh = await Cesium.ITwinData.createTilesetForRealityDataId({
+              iTwinId: iTwinData.iTwinId,
+              realityDataId: iTwinData.realityData
+            });
+            viewer.scene.primitives.add(realityMesh);
+            realityMesh.show = false;
+            tileset4.realityMesh = realityMesh;
+            console.log('✅ Reality Mesh loaded (optional)');
+          } catch (error) {
+            console.warn('⚠️ Reality Mesh could not be loaded (optional):', error.message);
+          }
+          
         } catch (error) {
-          console.error('❌ Error loading iTwin iModel:', error);
+          console.error('❌ Error loading iTwin Model A:', error);
           console.error('💡 Error details:', error.message);
-          console.error('💡 Check if share key is valid (expires Jan 28, 2026)');
+          console.error('💡 Share key expires: February 22, 2025');
           console.error('💡 Visit https://cesium.com/learn/itwin/itwin-design-data-cesiumjs/ for help');
-          showStatus('iTwin: Could not load. See console for details.', 'error');
+          showStatus('iTwin Model A: Could not load. See console for details.', 'error');
         }
         
         showStatus('All assets loaded! Select a design to view.', 'success');
@@ -1285,7 +1347,7 @@
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    console.log('✅ Public Twin Comment System with iTwin iModel loaded');
+    console.log('✅ Public Twin Comment System with iTwin Model A (Station) loaded');
   </script>
 </body>
 </html>
