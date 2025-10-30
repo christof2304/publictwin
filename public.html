@@ -392,6 +392,20 @@
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNWFjNDYxZC0yN2U5LTQ0MGYtYWY1Ny1lN2VmNGJiNjVlYTQiLCJpZCI6MjYzNTkwLCJpYXQiOjE3NjE3MzIzOTh9.HsP4Aq5jS6OiRwUXc8uRv6nwbrTcx8ugaGSkLiTYhO8';
 
     // iTwin Platform Share Keys
+    // IMPORTANT: To get the correct tileset URL for your iTwin/iModel:
+    // 1. Visit https://developer.bentley.com/apis/reality-management/operations/get-reality-data-details/
+    // 2. Use your iTwinId and shareKey to get the Reality Data details
+    // 3. Look for the "tileset" or "3dtiles" URL in the response
+    // 4. Alternative: Use Bentley's iTwin Viewer SDK: https://www.npmjs.com/package/@itwin/web-viewer-react
+    //
+    // Common iTwin URL patterns:
+    // - https://api.bentley.com/reality-management/reality-data/{realityDataId}
+    // - https://connect-realitydataservices.bentley.com/v2.9/Repositories/S3MXECPlugin--{guid}/S3MX/RealityData/{realityDataId}
+    //
+    // Share keys may need to be passed as:
+    // - Query parameter: ?key={shareKey}
+    // - Authorization header: Authorization: Bearer {shareKey}
+    // - X-Authorization header: X-Authorization: {shareKey}
     const iTwinShareKeys = {
       // First iModel (expires 2025-02-22)
       iTwinA: {
@@ -699,16 +713,16 @@
     }
 
     function updateVotingOverview() {
-      document.getElementById('v1up').textContent = votes.variant1.thumbsUp;
-      document.getElementById('v1down').textContent = votes.variant1.thumbsDown;
-      document.getElementById('v2up').textContent = votes.variant2.thumbsUp;
-      document.getElementById('v2down').textContent = votes.variant2.thumbsDown;
-      document.getElementById('v3up').textContent = votes.variant3.thumbsUp;
-      document.getElementById('v3down').textContent = votes.variant3.thumbsDown;
-      document.getElementById('v4up').textContent = votes.variant4.thumbsUp;
-      document.getElementById('v4down').textContent = votes.variant4.thumbsDown;
-      document.getElementById('v5up').textContent = votes.variant5.thumbsUp;
-      document.getElementById('v5down').textContent = votes.variant5.thumbsDown;
+      document.getElementById('v1up').textContent = votes.variant1?.thumbsUp || 0;
+      document.getElementById('v1down').textContent = votes.variant1?.thumbsDown || 0;
+      document.getElementById('v2up').textContent = votes.variant2?.thumbsUp || 0;
+      document.getElementById('v2down').textContent = votes.variant2?.thumbsDown || 0;
+      document.getElementById('v3up').textContent = votes.variant3?.thumbsUp || 0;
+      document.getElementById('v3down').textContent = votes.variant3?.thumbsDown || 0;
+      document.getElementById('v4up').textContent = votes.variant4?.thumbsUp || 0;
+      document.getElementById('v4down').textContent = votes.variant4?.thumbsDown || 0;
+      document.getElementById('v5up').textContent = votes.variant5?.thumbsUp || 0;
+      document.getElementById('v5down').textContent = votes.variant5?.thumbsDown || 0;
     }
 
     function toggleLatestCommentsWidget() {
@@ -944,6 +958,44 @@
       document.getElementById('addCommentBtn').textContent = '➕ Add Comment';
     }
 
+    // Helper function to fetch iTwin Reality Data details
+    async function fetchiTwinTilesetUrl(iTwinId, shareKey) {
+      try {
+        const response = await fetch(
+          `https://api.bentley.com/reality-management/reality-data/${iTwinId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${shareKey}`,
+              'Accept': 'application/vnd.bentley.itwin-platform.v1+json'
+            }
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Reality Data response:', data);
+        
+        // Look for tileset URL in the response
+        // The structure varies, but common paths are:
+        // - data.realityData._links.containerUrl
+        // - data.realityData._links.tileset
+        
+        if (data.realityData?._links?.tileset?.href) {
+          return data.realityData._links.tileset.href;
+        } else if (data.realityData?._links?.containerUrl?.href) {
+          return data.realityData._links.containerUrl.href + '/tileset.json';
+        }
+        
+        throw new Error('Tileset URL not found in Reality Data response');
+      } catch (error) {
+        console.error('Error fetching iTwin tileset URL:', error);
+        throw error;
+      }
+    }
+
     async function loadAssets() {
       try {
         showStatus('Loading 3D models...', 'loading');
@@ -969,42 +1021,120 @@
         tileset3.show = false;
         console.log('Asset 3154873 (150) loaded');
         
-        // Load iTwin A
+        // Load iTwin A - Using share key as query parameter
         try {
-          const iTwinA = await Cesium.Cesium3DTileset.fromUrl(
-            `https://api.bentley.com/reality-management/reality-data/${iTwinShareKeys.iTwinA.iTwinId}/tileset.json`,
-            {
-              headers: {
-                'Authorization': iTwinShareKeys.iTwinA.shareKey
-              }
-            }
-          );
+          // Method 1: Try with query parameter
+          const iTwinAUrl = `https://api.bentley.com/reality-management/reality-data/${iTwinShareKeys.iTwinA.iTwinId}?key=${iTwinShareKeys.iTwinA.shareKey}`;
+          
+          const iTwinA = await Cesium.Cesium3DTileset.fromUrl(iTwinAUrl);
           tileset4 = iTwinA;
           viewer.scene.primitives.add(tileset4);
           tileset4.show = false;
-          console.log('iTwin A loaded');
+          console.log('✅ iTwin A loaded (Method 1)');
         } catch (error) {
-          console.error('Error loading iTwin A:', error);
-          showStatus('Warning: iTwin A could not be loaded', 'error');
+          console.error('❌ Error loading iTwin A (Method 1):', error);
+          
+          // Method 2: Try alternative endpoint with Authorization header
+          try {
+            const iTwinA = await Cesium.Cesium3DTileset.fromUrl(
+              `https://api.bentley.com/reality-management/reality-data/${iTwinShareKeys.iTwinA.iTwinId}`,
+              {
+                headers: {
+                  'Authorization': `Bearer ${iTwinShareKeys.iTwinA.shareKey}`,
+                  'Accept': 'application/json'
+                }
+              }
+            );
+            tileset4 = iTwinA;
+            viewer.scene.primitives.add(tileset4);
+            tileset4.show = false;
+            console.log('✅ iTwin A loaded (Method 2)');
+          } catch (error2) {
+            console.error('❌ Error loading iTwin A (Method 2):', error2);
+            
+            // Method 3: Try fetching tileset URL from Reality Data API
+            try {
+              console.log('🔄 Trying Method 3: Fetching tileset URL from Reality Data API...');
+              const tilesetUrl = await fetchiTwinTilesetUrl(
+                iTwinShareKeys.iTwinA.iTwinId,
+                iTwinShareKeys.iTwinA.shareKey
+              );
+              console.log('📍 Retrieved tileset URL:', tilesetUrl);
+              
+              const iTwinA = await Cesium.Cesium3DTileset.fromUrl(tilesetUrl, {
+                headers: {
+                  'Authorization': `Bearer ${iTwinShareKeys.iTwinA.shareKey}`
+                }
+              });
+              tileset4 = iTwinA;
+              viewer.scene.primitives.add(tileset4);
+              tileset4.show = false;
+              console.log('✅ iTwin A loaded (Method 3)');
+            } catch (error3) {
+              console.error('❌ Error loading iTwin A (Method 3):', error3);
+              console.error('💡 Tip: Check if share key is valid and not expired (expires Feb 2025)');
+              console.error('💡 Visit https://developer.bentley.com/apis/reality-management/ for more info');
+              showStatus('iTwin A: Could not load. See console for details.', 'error');
+            }
+          }
         }
         
-        // Load iTwin B
+        // Load iTwin B - Using share key as query parameter
         try {
-          const iTwinB = await Cesium.Cesium3DTileset.fromUrl(
-            `https://api.bentley.com/reality-management/reality-data/${iTwinShareKeys.iTwinB.iModelId}/tileset.json`,
-            {
-              headers: {
-                'Authorization': iTwinShareKeys.iTwinB.shareKey
-              }
-            }
-          );
+          // Method 1: Try with query parameter
+          const iTwinBUrl = `https://api.bentley.com/reality-management/reality-data/${iTwinShareKeys.iTwinB.iModelId}?key=${iTwinShareKeys.iTwinB.shareKey}`;
+          
+          const iTwinB = await Cesium.Cesium3DTileset.fromUrl(iTwinBUrl);
           tileset5 = iTwinB;
           viewer.scene.primitives.add(tileset5);
           tileset5.show = false;
-          console.log('iTwin B loaded');
+          console.log('✅ iTwin B loaded (Method 1)');
         } catch (error) {
-          console.error('Error loading iTwin B:', error);
-          showStatus('Warning: iTwin B could not be loaded', 'error');
+          console.error('❌ Error loading iTwin B (Method 1):', error);
+          
+          // Method 2: Try alternative endpoint
+          try {
+            const iTwinB = await Cesium.Cesium3DTileset.fromUrl(
+              `https://api.bentley.com/reality-management/reality-data/${iTwinShareKeys.iTwinB.iModelId}`,
+              {
+                headers: {
+                  'Authorization': `Bearer ${iTwinShareKeys.iTwinB.shareKey}`,
+                  'Accept': 'application/json'
+                }
+              }
+            );
+            tileset5 = iTwinB;
+            viewer.scene.primitives.add(tileset5);
+            tileset5.show = false;
+            console.log('✅ iTwin B loaded (Method 2)');
+          } catch (error2) {
+            console.error('❌ Error loading iTwin B (Method 2):', error2);
+            
+            // Method 3: Try fetching tileset URL from Reality Data API
+            try {
+              console.log('🔄 Trying Method 3: Fetching tileset URL from Reality Data API...');
+              const tilesetUrl = await fetchiTwinTilesetUrl(
+                iTwinShareKeys.iTwinB.iModelId,
+                iTwinShareKeys.iTwinB.shareKey
+              );
+              console.log('📍 Retrieved tileset URL:', tilesetUrl);
+              
+              const iTwinB = await Cesium.Cesium3DTileset.fromUrl(tilesetUrl, {
+                headers: {
+                  'Authorization': `Bearer ${iTwinShareKeys.iTwinB.shareKey}`
+                }
+              });
+              tileset5 = iTwinB;
+              viewer.scene.primitives.add(tileset5);
+              tileset5.show = false;
+              console.log('✅ iTwin B loaded (Method 3)');
+            } catch (error3) {
+              console.error('❌ Error loading iTwin B (Method 3):', error3);
+              console.error('💡 Tip: Check if share key is valid and not expired (expires Jan 2026)');
+              console.error('💡 Visit https://developer.bentley.com/apis/reality-management/ for more info');
+              showStatus('iTwin B: Could not load. See console for details.', 'error');
+            }
+          }
         }
         
         showStatus('All assets loaded! Select a design to view.', 'success');
