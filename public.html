@@ -127,6 +127,128 @@
       gap: 6px;
     }
     
+    /* Latest Comments Widget */
+    #latestCommentsWidget {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(42, 42, 42, 0.95);
+      border-radius: 8px;
+      padding: 12px;
+      color: white;
+      z-index: 100;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      max-width: 300px;
+      font-family: Arial, sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    #latestCommentsWidget.minimized {
+      width: auto;
+      padding: 8px 12px;
+    }
+    
+    #latestCommentsWidget.minimized .widget-content {
+      display: none;
+    }
+    
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .widget-header h4 {
+      margin: 0;
+      font-size: 13px;
+      color: #5ac;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .widget-toggle {
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      min-height: auto;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .widget-toggle.minimized {
+      transform: rotate(180deg);
+    }
+    
+    .latest-comment-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border-left: 3px solid #4caf50;
+      transition: all 0.2s ease;
+    }
+    
+    .latest-comment-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(-2px);
+    }
+    
+    .latest-comment-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .latest-comment-title {
+      font-weight: bold;
+      font-size: 12px;
+      color: #5ac;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .latest-comment-variant {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(0,0,0,0.3);
+    }
+    
+    .latest-comment-text {
+      font-size: 11px;
+      color: #ccc;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .latest-comment-time {
+      font-size: 9px;
+      color: #888;
+    }
+    
+    @media (max-width: 768px) {
+      #latestCommentsWidget {
+        bottom: 10px;
+        right: 10px;
+        left: auto;
+        max-width: calc(100vw - 20px);
+      }
+    }
+    
     .status-dot {
       width: 8px;
       height: 8px;
@@ -237,6 +359,17 @@
     </div>
   </div>
   
+  <!-- Latest Comments Widget -->
+  <div id="latestCommentsWidget" class="minimized">
+    <div class="widget-header" onclick="toggleLatestCommentsWidget()">
+      <h4>💬 Latest Comments</h4>
+      <button class="widget-toggle minimized">▼</button>
+    </div>
+    <div class="widget-content" id="latestCommentsContent">
+      <div style="color: #666; font-size: 11px; text-align: center; padding: 10px;">No comments yet</div>
+    </div>
+  </div>
+  
   <script>
     // =====================================
     // FIREBASE CONFIGURATION
@@ -328,6 +461,7 @@
           }
         });
         updateCommentList();
+        updateLatestCommentsWidget();
         console.log(`📝 Loaded ${comments.length} comments from Firebase`);
       }, (error) => {
         console.error('Error listening to comments:', error);
@@ -564,6 +698,88 @@
       document.getElementById('v2down').textContent = votes.variant2.thumbsDown;
       document.getElementById('v3up').textContent = votes.variant3.thumbsUp;
       document.getElementById('v3down').textContent = votes.variant3.thumbsDown;
+    }
+
+    function toggleLatestCommentsWidget() {
+      const widget = document.getElementById('latestCommentsWidget');
+      const toggle = widget.querySelector('.widget-toggle');
+      
+      if (widget.classList.contains('minimized')) {
+        widget.classList.remove('minimized');
+        toggle.classList.remove('minimized');
+      } else {
+        widget.classList.add('minimized');
+        toggle.classList.add('minimized');
+      }
+    }
+
+    function updateLatestCommentsWidget() {
+      const container = document.getElementById('latestCommentsContent');
+      
+      if (comments.length === 0) {
+        container.innerHTML = '<div style="color: #666; font-size: 11px; text-align: center; padding: 10px;">No comments yet</div>';
+        return;
+      }
+      
+      // Sort by timestamp (newest first) and take top 3
+      const latestComments = [...comments]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 3);
+      
+      container.innerHTML = '';
+      
+      latestComments.forEach(comment => {
+        const item = document.createElement('div');
+        item.className = 'latest-comment-item';
+        
+        const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
+                           comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+        item.style.borderLeftColor = borderColor;
+        
+        const variantColor = comment.variant === 'variant1' ? '#4caf50' : 
+                            comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+        const variantText = comment.variant === 'variant1' ? 'V1' : 
+                           comment.variant === 'variant2' ? 'V2' : 'V3';
+        
+        const timeAgo = getTimeAgo(comment.timestamp);
+        
+        item.innerHTML = `
+          <div class="latest-comment-title">
+            <span>${comment.title}</span>
+            <span class="latest-comment-variant" style="background: ${variantColor};">${variantText}</span>
+          </div>
+          <div class="latest-comment-text">${comment.text}</div>
+          <div class="latest-comment-time">📍 ${timeAgo}</div>
+        `;
+        
+        item.onclick = function() {
+          const entity = viewer.entities.getById(comment.id);
+          if (entity) {
+            viewer.flyTo(entity, {
+              duration: 2.0,
+              offset: new Cesium.HeadingPitchRange(0, -0.5, 500)
+            });
+          }
+        };
+        
+        container.appendChild(item);
+      });
+    }
+
+    function getTimeAgo(timestamp) {
+      const now = new Date();
+      const commentDate = new Date(timestamp);
+      const diffMs = now - commentDate;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+      
+      if (diffMins < 1) return 'just now';
+      if (diffMins < 60) return `${diffMins} min ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays === 1) return 'yesterday';
+      if (diffDays < 7) return `${diffDays} days ago`;
+      return commentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
     function getVariantName(variant) {
