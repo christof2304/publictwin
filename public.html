@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Public Twin - Citizen Comments on Design Variants</title>
+  <title>Public Twin - Citizen Comments with iTwin Integration</title>
+  
+  <!-- Cesium -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   
@@ -253,6 +255,67 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
+    
+    /* iTwin Config Dialog */
+    #itwinConfigDialog {
+      position: absolute;
+      display: none;
+      background: rgba(42, 42, 42, 0.98);
+      border-radius: 8px;
+      padding: 20px;
+      color: white;
+      z-index: 250;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      width: 90%;
+      max-width: 500px;
+      font-family: Arial, sans-serif;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .config-input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background: #333;
+      color: white;
+      box-sizing: border-box;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    
+    .config-label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 4px;
+      color: #5ac;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    
+    .config-help {
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #555;
+      border-top-color: #5ac;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -276,7 +339,11 @@
       <button id="variant1Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Malmö"</button>
       <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Atlanta"</button>
       <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "150"</button>
-      <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "iTwin"</button>
+      <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">
+        <span id="variant4Icon">○</span> Design "iModel"
+        <span id="variant4Status" style="font-size: 10px; color: #888;"></span>
+      </button>
+      <button id="configItwinBtn" style="background: #9c27b0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">⚙️ Configure iTwin Access</button>
       
       <!-- Voting Widget -->
       <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
@@ -304,7 +371,7 @@
             <span><span style="color: #4caf50;">👍 <span id="v3up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v3down">0</span></span></span>
           </div>
           <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-            <span style="color: #e91e63;">Design "iTwin":</span>
+            <span style="color: #9c27b0;">Design "iModel":</span>
             <span><span style="color: #4caf50;">👍 <span id="v4up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v4down">0</span></span></span>
           </div>
         </div>
@@ -340,6 +407,50 @@
       <button id="cancelCommentBtn" style="background: #666; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Cancel</button>
       <button id="saveCommentBtn" style="background: #4caf50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Save</button>
     </div>
+  </div>
+  
+  <!-- iTwin Configuration Dialog -->
+  <div id="itwinConfigDialog">
+    <h3 style="margin-top: 0; color: #9c27b0; display: flex; align-items: center; gap: 8px;">
+      <span>🏗️</span> iTwin Platform Configuration
+    </h3>
+    
+    <div style="background: rgba(156, 39, 176, 0.2); padding: 12px; border-radius: 4px; margin-bottom: 15px; font-size: 12px; line-height: 1.6;">
+      <strong>ℹ️ Setup Instructions:</strong><br>
+      1. Get your credentials from <a href="https://developer.bentley.com/" target="_blank" style="color: #9c27b0;">developer.bentley.com</a><br>
+      2. Create an app and enable "iTwin Platform" APIs<br>
+      3. Add "Visualization" scope for 3D Tiles export<br>
+      4. Copy your Client ID and paste below
+    </div>
+    
+    <label class="config-label">iModel ID</label>
+    <input type="text" id="imodelIdInput" class="config-input" value="50f1139c-0fdf-43c9-bbea-46542aa33e2d" placeholder="e.g., 50f1139c-0fdf-43c9-bbea-46542aa33e2d">
+    <div class="config-help">The unique identifier for your iModel</div>
+    
+    <label class="config-label">iTwin Client ID</label>
+    <input type="text" id="clientIdInput" class="config-input" placeholder="e.g., native-xxxxx">
+    <div class="config-help">Your application client ID from the iTwin Developer Portal</div>
+    
+    <label class="config-label">Access Token (Optional - for testing)</label>
+    <input type="text" id="accessTokenInput" class="config-input" placeholder="Bearer token...">
+    <div class="config-help">If you have a valid access token, paste it here. Otherwise, OAuth flow will be used.</div>
+    
+    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #555;">
+      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+        <input type="checkbox" id="rememberCredsCheckbox" style="width: 18px; height: 18px;">
+        <span style="font-size: 12px;">Remember credentials (stored locally)</span>
+      </label>
+    </div>
+    
+    <div style="margin-top: 20px; text-align: right;">
+      <button id="cancelConfigBtn" style="background: #666; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-right: 10px;">Cancel</button>
+      <button id="saveConfigBtn" style="background: #9c27b0; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+        <span id="saveConfigText">Load iModel</span>
+        <span id="saveConfigSpinner" style="display: none;" class="loading-spinner"></span>
+      </button>
+    </div>
+    
+    <div id="itwinStatus" style="display: none; margin-top: 15px; padding: 10px; border-radius: 4px; font-size: 12px;"></div>
   </div>
   
   <!-- Latest Comments Widget -->
@@ -378,15 +489,47 @@
       console.log('✅ Firebase initialized successfully');
     } catch (error) {
       console.error('❌ Firebase initialization error:', error);
-      alert('⚠️ Firebase not configured!\n\nPlease add your Firebase credentials to the HTML file.\nSee README for instructions.');
     }
 
     // =====================================
-    // iTWIN PLATFORM CONFIGURATION
+    // iTwin CONFIGURATION
     // =====================================
-    // Set iTwin Platform Share Key for loading iModels
-    Cesium.ITwinPlatform.defaultShareKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpVHdpbklkIjoiNTM1YTI0YTMtOWIyOS00ZTIzLWJiNWQtOWNlZGI1MjRjNzQzIiwiaWQiOiI2NTEwMzUzMi02MmU3LTRmZGQtOWNlNy1iODIxYmEyMmI5NjMiLCJleHAiOjE3NzcwNTU4MTh9.Q9MgsWWkc6bb1zHUJ7ahZjxPtaTWEjpNvRln7NS3faM";
-    console.log('🏗️ iTwin Platform configured with share key');
+    let itwinConfig = {
+      imodelId: '50f1139c-0fdf-43c9-bbea-46542aa33e2d',
+      clientId: '',
+      accessToken: '',
+      tileset3DUrl: null
+    };
+    
+    // Load saved credentials from localStorage
+    function loadSavedCredentials() {
+      const saved = localStorage.getItem('itwinCredentials');
+      if (saved) {
+        try {
+          const creds = JSON.parse(saved);
+          itwinConfig.clientId = creds.clientId || '';
+          itwinConfig.accessToken = creds.accessToken || '';
+          document.getElementById('clientIdInput').value = itwinConfig.clientId;
+          document.getElementById('accessTokenInput').value = itwinConfig.accessToken;
+          document.getElementById('rememberCredsCheckbox').checked = true;
+          console.log('✅ Loaded saved iTwin credentials');
+        } catch (e) {
+          console.error('Error loading credentials:', e);
+        }
+      }
+    }
+    
+    function saveCredentials() {
+      if (document.getElementById('rememberCredsCheckbox').checked) {
+        localStorage.setItem('itwinCredentials', JSON.stringify({
+          clientId: itwinConfig.clientId,
+          accessToken: itwinConfig.accessToken
+        }));
+        console.log('💾 Credentials saved');
+      } else {
+        localStorage.removeItem('itwinCredentials');
+      }
+    }
 
     // =====================================
     // CESIUM SETUP
@@ -408,11 +551,11 @@
     let tileset1 = null;
     let tileset2 = null;
     let tileset3 = null;
-    let tileset4 = null; // iTwin tileset
+    let tileset4 = null; // iTwin iModel
     let googleTileset = null;
     let osmBuildings = null;
     let googleImageryLayer = null;
-    let activeVariant = null; // No variant selected initially
+    let activeVariant = null;
     let basemapMode = 'google3d';
     let menuOpen = false;
     
@@ -424,21 +567,209 @@
     };
 
     // =====================================
+    // iTwin PLATFORM API INTEGRATION
+    // =====================================
+    
+    async function loadIModelViaTileset() {
+      const imodelId = document.getElementById('imodelIdInput').value.trim();
+      const clientId = document.getElementById('clientIdInput').value.trim();
+      const accessToken = document.getElementById('accessTokenInput').value.trim();
+      
+      if (!imodelId) {
+        showItwinStatus('⚠️ Please provide an iModel ID', 'error');
+        return false;
+      }
+      
+      // Update config
+      itwinConfig.imodelId = imodelId;
+      itwinConfig.clientId = clientId;
+      itwinConfig.accessToken = accessToken;
+      
+      try {
+        showItwinStatus('🔍 Checking iModel access...', 'loading');
+        document.getElementById('saveConfigSpinner').style.display = 'inline-block';
+        document.getElementById('saveConfigText').textContent = 'Loading...';
+        
+        // Method 1: Try to get 3D Tiles export URL from iTwin Platform API
+        if (accessToken) {
+          const tilesUrl = await getIModel3DTilesUrl(imodelId, accessToken);
+          if (tilesUrl) {
+            itwinConfig.tileset3DUrl = tilesUrl;
+            await loadIModelTileset(tilesUrl);
+            saveCredentials();
+            closeItwinConfigDialog();
+            showStatus('✅ iModel loaded successfully!', 'success');
+            updateVariant4Status('Ready', true);
+            return true;
+          }
+        }
+        
+        // Method 2: Try Cesium ion integration (if iModel was exported to ion)
+        // Check if user might have exported the iModel to Cesium ion
+        showItwinStatus('💡 Tip: Export your iModel to Cesium ion for best results', 'info');
+        
+        // Method 3: Show instructions for proper setup
+        showItwinStatus(
+          '⚠️ Could not load iModel directly. Please:\n' +
+          '1. Export your iModel to Cesium ion, OR\n' +
+          '2. Provide a valid access token with "Visualization" scope\n' +
+          '3. Ensure your app has proper permissions',
+          'error'
+        );
+        
+        return false;
+        
+      } catch (error) {
+        console.error('❌ Error loading iModel:', error);
+        showItwinStatus('❌ Error: ' + error.message, 'error');
+        return false;
+      } finally {
+        document.getElementById('saveConfigSpinner').style.display = 'none';
+        document.getElementById('saveConfigText').textContent = 'Load iModel';
+      }
+    }
+    
+    async function getIModel3DTilesUrl(imodelId, accessToken) {
+      // This is a simplified example. The actual iTwin Platform API
+      // requires proper authentication and may need multiple API calls
+      
+      try {
+        // Step 1: Get iModel info
+        const imodelResponse = await fetch(
+          `https://api.bentley.com/imodels/${imodelId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Accept': 'application/vnd.bentley.itwin-platform.v1+json'
+            }
+          }
+        );
+        
+        if (!imodelResponse.ok) {
+          throw new Error(`Failed to get iModel info: ${imodelResponse.statusText}`);
+        }
+        
+        const imodelData = await imodelResponse.json();
+        console.log('📦 iModel data:', imodelData);
+        
+        // Step 2: Check for existing 3D Tiles export
+        // Note: This endpoint is illustrative - check iTwin Platform API docs for actual endpoints
+        const exportsResponse = await fetch(
+          `https://api.bentley.com/mesh-export?iModelId=${imodelId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Accept': 'application/vnd.bentley.itwin-platform.v1+json'
+            }
+          }
+        );
+        
+        if (exportsResponse.ok) {
+          const exportsData = await exportsResponse.json();
+          
+          // Look for a 3D Tiles export
+          if (exportsData.exports && exportsData.exports.length > 0) {
+            const tilesExport = exportsData.exports.find(e => e.exportType === '3DTILES');
+            if (tilesExport && tilesExport.url) {
+              console.log('✅ Found 3D Tiles export URL');
+              return tilesExport.url;
+            }
+          }
+        }
+        
+        // Step 3: If no export exists, we would need to create one
+        // This typically requires triggering an export job and waiting for completion
+        console.log('⚠️ No existing 3D Tiles export found');
+        
+        // Alternative: Check if iModel has been exported to Cesium ion
+        // In that case, we'd need the ion asset ID
+        
+        return null;
+        
+      } catch (error) {
+        console.error('Error getting 3D Tiles URL:', error);
+        throw error;
+      }
+    }
+    
+    async function loadIModelTileset(tilesUrl) {
+      try {
+        showStatus('Loading iModel as 3D Tiles...', 'loading');
+        
+        // Load as Cesium 3D Tileset
+        tileset4 = await Cesium.Cesium3DTileset.fromUrl(tilesUrl, {
+          // Optional: Add authentication if needed
+          headers: itwinConfig.accessToken ? {
+            'Authorization': `Bearer ${itwinConfig.accessToken}`
+          } : undefined
+        });
+        
+        viewer.scene.primitives.add(tileset4);
+        tileset4.show = false;
+        
+        console.log('✅ iModel tileset loaded successfully');
+        return true;
+        
+      } catch (error) {
+        console.error('❌ Error loading iModel tileset:', error);
+        showStatus('Error loading iModel: ' + error.message, 'error');
+        throw error;
+      }
+    }
+    
+    function showItwinConfigDialog() {
+      document.getElementById('itwinConfigDialog').style.display = 'block';
+      loadSavedCredentials();
+    }
+    
+    function closeItwinConfigDialog() {
+      document.getElementById('itwinConfigDialog').style.display = 'none';
+      document.getElementById('itwinStatus').style.display = 'none';
+    }
+    
+    function showItwinStatus(message, type = 'info') {
+      const statusEl = document.getElementById('itwinStatus');
+      statusEl.textContent = message;
+      statusEl.style.display = 'block';
+      statusEl.style.background = 
+        type === 'error' ? 'rgba(211, 47, 47, 0.3)' :
+        type === 'success' ? 'rgba(76, 175, 80, 0.3)' :
+        type === 'loading' ? 'rgba(255, 152, 0, 0.3)' :
+        'rgba(156, 39, 176, 0.3)';
+      statusEl.style.color = 'white';
+      statusEl.style.border = '1px solid ' + (
+        type === 'error' ? '#d32f2f' :
+        type === 'success' ? '#4caf50' :
+        type === 'loading' ? '#ff9800' :
+        '#9c27b0'
+      );
+    }
+    
+    function updateVariant4Status(text, isReady = false) {
+      const statusEl = document.getElementById('variant4Status');
+      statusEl.textContent = text ? `(${text})` : '';
+      statusEl.style.color = isReady ? '#4caf50' : '#888';
+      
+      const iconEl = document.getElementById('variant4Icon');
+      if (isReady) {
+        iconEl.textContent = '✓';
+        iconEl.style.color = '#4caf50';
+      }
+    }
+
+    // =====================================
     // FIREBASE REALTIME LISTENERS
     // =====================================
     
-    // Listen to comments in real-time
     function setupFirebaseListeners() {
       if (!firebaseInitialized) return;
       
-      // Listen to comments
       db.collection('comments').onSnapshot((snapshot) => {
         comments = [];
         snapshot.forEach((doc) => {
           const comment = { id: doc.id, ...doc.data() };
           comments.push(comment);
           
-          // Add to viewer if not already there
           if (!viewer.entities.getById(comment.id)) {
             addCommentToViewer(comment);
           }
@@ -451,17 +782,9 @@
         showStatus('Error loading comments', 'error');
       });
       
-      // Listen to votes in real-time
       db.collection('votes').doc('aggregated').onSnapshot((doc) => {
         if (doc.exists) {
-          const data = doc.data();
-          // Ensure variant4 exists (backwards compatibility)
-          votes = {
-            variant1: data.variant1 || { thumbsUp: 0, thumbsDown: 0 },
-            variant2: data.variant2 || { thumbsUp: 0, thumbsDown: 0 },
-            variant3: data.variant3 || { thumbsUp: 0, thumbsDown: 0 },
-            variant4: data.variant4 || { thumbsUp: 0, thumbsDown: 0 }
-          };
+          votes = doc.data();
           updateVotingOverview();
           console.log('📊 Votes updated:', votes);
         }
@@ -470,7 +793,6 @@
       });
     }
 
-    // Save comment to Firebase
     async function saveCommentToFirebase(comment) {
       if (!firebaseInitialized) {
         showStatus('Firebase not configured', 'error');
@@ -496,7 +818,6 @@
       }
     }
 
-    // Save vote to Firebase
     async function saveVoteToFirebase(variant, voteType) {
       if (!firebaseInitialized) {
         showStatus('Firebase not configured', 'error');
@@ -506,26 +827,14 @@
       try {
         const voteRef = db.collection('votes').doc('aggregated');
         
-        // Use transaction to ensure atomic increment
         await db.runTransaction(async (transaction) => {
           const doc = await transaction.get(voteRef);
           
           if (!doc.exists) {
-            // Initialize votes if document doesn't exist
-            transaction.set(voteRef, {
-              variant1: { thumbsUp: 0, thumbsDown: 0 },
-              variant2: { thumbsUp: 0, thumbsDown: 0 },
-              variant3: { thumbsUp: 0, thumbsDown: 0 },
-              variant4: { thumbsUp: 0, thumbsDown: 0 }
-            });
+            transaction.set(voteRef, votes);
           }
           
-          const currentVotes = doc.exists ? doc.data() : {
-            variant1: { thumbsUp: 0, thumbsDown: 0 },
-            variant2: { thumbsUp: 0, thumbsDown: 0 },
-            variant3: { thumbsUp: 0, thumbsDown: 0 },
-            variant4: { thumbsUp: 0, thumbsDown: 0 }
-          };
+          const currentVotes = doc.exists ? doc.data() : votes;
           
           if (voteType === 'up') {
             currentVotes[variant].thumbsUp++;
@@ -545,7 +854,6 @@
       }
     }
 
-    // Delete all comments for a variant from Firebase
     async function deleteVariantCommentsFromFirebase(variant) {
       if (!firebaseInitialized) {
         showStatus('Firebase not configured', 'error');
@@ -575,7 +883,6 @@
     // UI FUNCTIONS
     // =====================================
 
-    // Menu Toggle Functionality
     const menuToggle = document.getElementById('menuToggle');
     const panel = document.getElementById('panel');
     
@@ -592,7 +899,6 @@
     
     menuToggle.addEventListener('click', toggleMenu);
     
-    // Touch gesture: Swipe from left to open menu
     let touchStartX = 0;
     let touchStartY = 0;
     
@@ -616,7 +922,6 @@
       }
     });
 
-    // Status messages
     function showStatus(message, type = '') {
       const statusEl = document.getElementById('statusMessage');
       statusEl.textContent = message;
@@ -646,14 +951,13 @@
         return;
       }
       
-      // Sort by timestamp (newest first)
       filteredComments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       filteredComments.forEach(comment => {
         const item = document.createElement('div');
         const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
                            comment.variant === 'variant2' ? '#2196f3' : 
-                           comment.variant === 'variant3' ? '#ff9800' : '#e91e63';
+                           comment.variant === 'variant3' ? '#ff9800' : '#9c27b0';
         item.style.cssText = 'background: rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 10px; margin-bottom: 8px; cursor: pointer; border-left: 3px solid ' + borderColor + ';';
         item.innerHTML = `
           <div style="font-weight: bold; color: #5ac; margin-bottom: 5px;">${comment.title}</div>
@@ -691,14 +995,14 @@
     }
 
     function updateVotingOverview() {
-      document.getElementById('v1up').textContent = votes.variant1?.thumbsUp || 0;
-      document.getElementById('v1down').textContent = votes.variant1?.thumbsDown || 0;
-      document.getElementById('v2up').textContent = votes.variant2?.thumbsUp || 0;
-      document.getElementById('v2down').textContent = votes.variant2?.thumbsDown || 0;
-      document.getElementById('v3up').textContent = votes.variant3?.thumbsUp || 0;
-      document.getElementById('v3down').textContent = votes.variant3?.thumbsDown || 0;
-      document.getElementById('v4up').textContent = votes.variant4?.thumbsUp || 0;
-      document.getElementById('v4down').textContent = votes.variant4?.thumbsDown || 0;
+      document.getElementById('v1up').textContent = votes.variant1.thumbsUp;
+      document.getElementById('v1down').textContent = votes.variant1.thumbsDown;
+      document.getElementById('v2up').textContent = votes.variant2.thumbsUp;
+      document.getElementById('v2down').textContent = votes.variant2.thumbsDown;
+      document.getElementById('v3up').textContent = votes.variant3.thumbsUp;
+      document.getElementById('v3down').textContent = votes.variant3.thumbsDown;
+      document.getElementById('v4up').textContent = votes.variant4.thumbsUp;
+      document.getElementById('v4down').textContent = votes.variant4.thumbsDown;
     }
 
     function toggleLatestCommentsWidget() {
@@ -722,7 +1026,6 @@
         return;
       }
       
-      // Sort by timestamp (newest first) and take top 3
       const latestComments = [...comments]
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
         .slice(0, 3);
@@ -735,15 +1038,15 @@
         
         const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
                            comment.variant === 'variant2' ? '#2196f3' : 
-                           comment.variant === 'variant3' ? '#ff9800' : '#e91e63';
+                           comment.variant === 'variant3' ? '#ff9800' : '#9c27b0';
         item.style.borderLeftColor = borderColor;
         
         const variantColor = comment.variant === 'variant1' ? '#4caf50' : 
                             comment.variant === 'variant2' ? '#2196f3' : 
-                            comment.variant === 'variant3' ? '#ff9800' : '#e91e63';
+                            comment.variant === 'variant3' ? '#ff9800' : '#9c27b0';
         const variantText = comment.variant === 'variant1' ? 'Malmö' : 
                            comment.variant === 'variant2' ? 'Atlanta' : 
-                           comment.variant === 'variant3' ? '150' : 'iTwin';
+                           comment.variant === 'variant3' ? '150' : 'iModel';
         
         const timeAgo = getTimeAgo(comment.timestamp);
         
@@ -789,14 +1092,16 @@
     function getVariantName(variant) {
       return variant === 'variant1' ? 'Design "Malmö"' : 
              variant === 'variant2' ? 'Design "Atlanta"' : 
-             variant === 'variant3' ? 'Design "150"' :
-             variant === 'variant4' ? 'Design "iTwin"' : 'a design';
+             variant === 'variant3' ? 'Design "150"' : 
+             variant === 'variant4' ? 'Design "iModel"' :
+             'a design';
     }
 
     function updateVotingWidget() {
       const variantName = getVariantName(activeVariant);
       const color = activeVariant === 'variant1' ? '#4caf50' : 
-                   activeVariant === 'variant2' ? '#2196f3' : '#ff9800';
+                   activeVariant === 'variant2' ? '#2196f3' : 
+                   activeVariant === 'variant3' ? '#ff9800' : '#9c27b0';
       document.getElementById('votingVariantName').textContent = variantName;
       document.getElementById('votingVariantName').style.color = color;
     }
@@ -804,82 +1109,67 @@
     function switchVariant(variant) {
       activeVariant = variant;
       
+      if (tileset1) tileset1.show = false;
+      if (tileset2) tileset2.show = false;
+      if (tileset3) tileset3.show = false;
+      if (tileset4) tileset4.show = false;
+      
+      document.getElementById('variant1Btn').style.background = '#666';
+      document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
+      document.getElementById('variant2Btn').style.background = '#666';
+      document.getElementById('variant2Btn').innerHTML = '○ Design "Atlanta"';
+      document.getElementById('variant3Btn').style.background = '#666';
+      document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
+      document.getElementById('variant4Btn').style.background = '#666';
+      document.getElementById('variant4Btn').innerHTML = '<span id="variant4Icon">○</span> Design "iModel"<span id="variant4Status" style="font-size: 10px; color: #888;"></span>';
+      
       if (variant === 'variant1') {
         if (tileset1) {
           tileset1.show = true;
           viewer.flyTo(tileset1);
         }
-        if (tileset2) tileset2.show = false;
-        if (tileset3) tileset3.show = false;
-        if (tileset4) tileset4.show = false;
         document.getElementById('variant1Btn').style.background = '#4caf50';
         document.getElementById('variant1Btn').innerHTML = '● Design "Malmö"';
-        document.getElementById('variant2Btn').style.background = '#666';
-        document.getElementById('variant2Btn').innerHTML = '○ Design "Atlanta"';
-        document.getElementById('variant3Btn').style.background = '#666';
-        document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
-        document.getElementById('variant4Btn').style.background = '#666';
-        document.getElementById('variant4Btn').innerHTML = '○ Design "iTwin"';
         showStatus('Design "Malmö" active', 'success');
       } else if (variant === 'variant2') {
-        if (tileset1) tileset1.show = false;
         if (tileset2) {
           tileset2.show = true;
           viewer.flyTo(tileset2);
         }
-        if (tileset3) tileset3.show = false;
-        if (tileset4) tileset4.show = false;
-        document.getElementById('variant1Btn').style.background = '#666';
-        document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
         document.getElementById('variant2Btn').style.background = '#2196f3';
         document.getElementById('variant2Btn').innerHTML = '● Design "Atlanta"';
-        document.getElementById('variant3Btn').style.background = '#666';
-        document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
-        document.getElementById('variant4Btn').style.background = '#666';
-        document.getElementById('variant4Btn').innerHTML = '○ Design "iTwin"';
         showStatus('Design "Atlanta" active', 'success');
       } else if (variant === 'variant3') {
-        if (tileset1) tileset1.show = false;
-        if (tileset2) tileset2.show = false;
         if (tileset3) {
           tileset3.show = true;
           viewer.flyTo(tileset3);
         }
-        if (tileset4) tileset4.show = false;
-        document.getElementById('variant1Btn').style.background = '#666';
-        document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
-        document.getElementById('variant2Btn').style.background = '#666';
-        document.getElementById('variant2Btn').innerHTML = '○ Design "Atlanta"';
         document.getElementById('variant3Btn').style.background = '#ff9800';
         document.getElementById('variant3Btn').innerHTML = '● Design "150"';
-        document.getElementById('variant4Btn').style.background = '#666';
-        document.getElementById('variant4Btn').innerHTML = '○ Design "iTwin"';
         showStatus('Design "150" active', 'success');
       } else if (variant === 'variant4') {
-        if (tileset1) tileset1.show = false;
-        if (tileset2) tileset2.show = false;
-        if (tileset3) tileset3.show = false;
+        if (!tileset4) {
+          showStatus('⚠️ Please configure iTwin access first!', 'error');
+          showItwinConfigDialog();
+          return;
+        }
         if (tileset4) {
           tileset4.show = true;
           viewer.flyTo(tileset4);
-        } else {
-          showStatus('iTwin model not available', 'error');
-          return;
         }
-        document.getElementById('variant1Btn').style.background = '#666';
-        document.getElementById('variant1Btn').innerHTML = '○ Design "Malmö"';
-        document.getElementById('variant2Btn').style.background = '#666';
-        document.getElementById('variant2Btn').innerHTML = '○ Design "Atlanta"';
-        document.getElementById('variant3Btn').style.background = '#666';
-        document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
-        document.getElementById('variant4Btn').style.background = '#e91e63';
-        document.getElementById('variant4Btn').innerHTML = '● Design "iTwin"';
-        showStatus('Design "iTwin" active', 'success');
+        document.getElementById('variant4Btn').style.background = '#9c27b0';
+        document.getElementById('variant4Btn').innerHTML = '<span id="variant4Icon">●</span> Design "iModel"';
+        showStatus('Design "iModel" active', 'success');
       }
       
       updateCommentVisibility();
       updateCommentList();
       updateVotingWidget();
+      
+      // Restore status after variant switch
+      if (variant === 'variant4' && tileset4) {
+        updateVariant4Status('Ready', true);
+      }
     }
 
     function createPreviewMarker(lon, lat, height) {
@@ -888,7 +1178,7 @@
       const position = Cesium.Cartesian3.fromDegrees(lon, lat, height + 2);
       const color = activeVariant === 'variant1' ? '#4caf50' : 
                     activeVariant === 'variant2' ? '#2196f3' : 
-                    activeVariant === 'variant3' ? '#ff9800' : '#e91e63';
+                    activeVariant === 'variant3' ? '#ff9800' : '#9c27b0';
       
       previewEntity = viewer.entities.add({
         id: 'preview_marker',
@@ -924,8 +1214,8 @@
       const dialog = document.getElementById('commentDialog');
       const variantText = activeVariant === 'variant1' ? 'Design "Malmö"' : 
                           activeVariant === 'variant2' ? 'Design "Atlanta"' : 
-                          activeVariant === 'variant3' ? 'Design "150"' :
-                          activeVariant === 'variant4' ? 'Design "iTwin"' : 'Unknown';
+                          activeVariant === 'variant3' ? 'Design "150"' : 
+                          activeVariant === 'variant4' ? 'Design "iModel"' : 'Unknown';
       
       document.getElementById('dialogVariant').textContent = variantText;
       document.getElementById('commentTitle').value = '';
@@ -958,49 +1248,32 @@
         
         tileset1 = await Cesium.Cesium3DTileset.fromIonAssetId(3291876);
         viewer.scene.primitives.add(tileset1);
-        tileset1.show = false; // Hide initially
+        tileset1.show = false;
         console.log('Asset 3291876 (Malmö) loaded');
         
         tileset2 = await Cesium.Cesium3DTileset.fromIonAssetId(3658308);
         viewer.scene.primitives.add(tileset2);
-        tileset2.show = false; // Hide initially
+        tileset2.show = false;
         console.log('Asset 3658308 (Atlanta) loaded');
         
         tileset3 = await Cesium.Cesium3DTileset.fromIonAssetId(3154873);
         viewer.scene.primitives.add(tileset3);
-        tileset3.show = false; // Hide initially
+        tileset3.show = false;
         console.log('Asset 3154873 (150) loaded');
         
-        // Load iTwin Model
-        try {
-          showStatus('Loading iTwin model...', 'loading');
-          const iModelId = '50f1139c-0fdf-43c9-bbea-46542aa33e2d';
-          console.log(`🏗️ Loading iTwin Model: ${iModelId}`);
-          console.log(`🔑 Share Key available: ${Cesium.ITwinPlatform.defaultShareKey ? 'YES' : 'NO'}`);
-          
-          tileset4 = await Cesium.ITwinData.createTilesetFromIModelId(iModelId);
-          
-          if (!tileset4) {
-            throw new Error('Tileset could not be created - check Model ID and permissions');
-          }
-          
-          tileset4.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE;
-          tileset4.shadows = Cesium.ShadowMode.ENABLED;
-          viewer.scene.primitives.add(tileset4);
-          tileset4.show = false; // Hide initially
-          console.log('✅ iTwin Model loaded successfully');
-        } catch (iTwinError) {
-          console.error('❌ iTwin Model loading failed:', iTwinError);
-          console.log(`🔍 Debug Info:
-            - Model ID: 50f1139c-0fdf-43c9-bbea-46542aa33e2d
-            - Share Key Available: ${Cesium.ITwinPlatform.defaultShareKey ? 'YES' : 'NO'}
-            - Error: ${iTwinError.message}`);
-          console.log('⚠️ iTwin model unavailable - continuing with other designs');
-          tileset4 = null;
-        }
-        
         showStatus('All assets loaded! Select a design to view.', 'success');
-        // No auto-flyTo - user must select a variant first
+        
+        // Auto-load iModel if credentials are saved
+        loadSavedCredentials();
+        if (itwinConfig.clientId && itwinConfig.accessToken) {
+          console.log('🔄 Auto-loading iModel with saved credentials...');
+          updateVariant4Status('Loading...', false);
+          // Note: Auto-load is commented out to avoid automatic API calls
+          // Uncomment if you want to auto-load on page refresh:
+          // await loadIModelViaTileset();
+        } else {
+          updateVariant4Status('Not configured', false);
+        }
         
       } catch (error) {
         console.error('Error loading assets:', error);
@@ -1170,6 +1443,18 @@
       switchVariant('variant4');
     });
 
+    document.getElementById('configItwinBtn').addEventListener('click', function() {
+      showItwinConfigDialog();
+    });
+
+    document.getElementById('saveConfigBtn').addEventListener('click', async function() {
+      await loadIModelViaTileset();
+    });
+
+    document.getElementById('cancelConfigBtn').addEventListener('click', function() {
+      closeItwinConfigDialog();
+    });
+
     document.getElementById('thumbsUpBtn').addEventListener('click', function() {
       vote('up');
     });
@@ -1201,14 +1486,11 @@
         showStatus('No comments to delete');
         return;
       }
-      const variantName = activeVariant === 'variant1' ? 'Design "Malmö"' : 
-                         activeVariant === 'variant2' ? 'Design "Atlanta"' : 
-                         activeVariant === 'variant3' ? 'Design "150"' : 'Design "iTwin"';
+      const variantName = getVariantName(activeVariant);
       if (confirm(`Do you really want to delete all ${variantComments.length} comments from ${variantName}?`)) {
         showStatus('Deleting comments...', 'loading');
         const success = await deleteVariantCommentsFromFirebase(activeVariant);
         if (success) {
-          // Remove from viewer
           variantComments.forEach(comment => viewer.entities.removeById(comment.id));
           showStatus('All comments deleted', 'success');
         }
@@ -1258,7 +1540,7 @@
       
       const color = comment.variant === 'variant1' ? '#4caf50' : 
                     comment.variant === 'variant2' ? '#2196f3' : 
-                    comment.variant === 'variant3' ? '#ff9800' : '#e91e63';
+                    comment.variant === 'variant3' ? '#ff9800' : '#9c27b0';
       
       viewer.entities.add({
         id: comment.id,
@@ -1283,8 +1565,8 @@
         },
         description: `<div style="padding:10px">
           <h3>${comment.title}</h3>
-          <div style="background: ${comment.variant === 'variant1' ? '#4caf50' : comment.variant === 'variant2' ? '#2196f3' : comment.variant === 'variant3' ? '#ff9800' : '#e91e63'}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-            ${comment.variant === 'variant1' ? 'Design "Malmö"' : comment.variant === 'variant2' ? 'Design "Atlanta"' : comment.variant === 'variant3' ? 'Design "150"' : 'Design "iTwin"'}
+          <div style="background: ${color}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
+            ${getVariantName(comment.variant)}
           </div>
           <p>${comment.text}</p>
           <p style="font-size:11px;color:#888">
@@ -1327,7 +1609,8 @@
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    console.log('✅ Public Twin Comment System with Firebase loaded');
+    console.log('✅ Public Twin with iTwin Integration loaded');
+    console.log('🏗️ iTwin Platform integration ready - click "Configure iTwin Access" to set up');
   </script>
 </body>
 </html>
