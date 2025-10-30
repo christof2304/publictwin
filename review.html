@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CESIUM Design Review</title>
+  <title>🏗️ CESIUM Design Review - Asset Manager</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   
@@ -434,13 +434,13 @@
   <!-- Main Panel -->
   <div id="panel" class="hidden">
     <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #555; padding-bottom: 8px;">
-      📐 CESIUM Design Review
+      🏗️ CESIUM Design Review
     </h3>
     
     <!-- Asset Manager Section -->
     <div style="margin-bottom: 20px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h4 style="margin: 0; color: #888; font-size: 13px;">🏗️ Asset Manager (<span id="assetCount">0</span>/5):</h4>
+        <h4 style="margin: 0; color: #888; font-size: 13px;">📦 Asset Manager (<span id="assetCount">0</span>/5):</h4>
         <button id="importAssetBtn" style="background: #4caf50; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; min-height: 32px;">➕ Import Asset</button>
       </div>
       <div id="assetList" style="background: rgba(0,0,0,0.2); border-radius: 6px; padding: 8px; min-height: 60px;">
@@ -583,7 +583,6 @@
       console.log('✅ Firebase initialized successfully');
     } catch (error) {
       console.error('❌ Firebase initialization error:', error);
-      showStatus('⚠️ Firebase not configured! Please add your credentials.', 'error');
     }
 
     // =====================================
@@ -623,14 +622,12 @@
     function setupFirebaseListeners() {
       if (!firebaseInitialized) return;
       
-      // Listen to comments in real-time
       db.collection('comments').onSnapshot((snapshot) => {
         comments = [];
         snapshot.forEach((doc) => {
           const comment = { id: doc.id, ...doc.data() };
           comments.push(comment);
           
-          // Add to viewer if not already there
           if (!viewer.entities.getById(comment.id)) {
             addCommentToViewer(comment);
           }
@@ -716,7 +713,6 @@
       setTimeout(() => statusEl.style.display = 'none', 4000);
     }
 
-    // Menu Toggle
     const menuToggle = document.getElementById('menuToggle');
     const panel = document.getElementById('panel');
     
@@ -758,11 +754,7 @@
         
         loadedAssets.push(asset);
         updateAssetList();
-        
-        // Select this asset
         selectAsset(asset);
-        
-        // Fly to the asset
         viewer.flyTo(tileset);
         
         showStatus(`${assetName} loaded successfully!`, 'success');
@@ -867,20 +859,15 @@
         : `Remove "${asset.name}"?`;
       
       if (confirm(confirmMsg)) {
-        // Remove tileset from viewer
         viewer.scene.primitives.remove(asset.tileset);
-        
-        // Remove asset from array
         loadedAssets = loadedAssets.filter(a => a.id !== assetId);
         
-        // Delete comments from Firebase
         const assetComments = comments.filter(c => c.assetId === assetId);
         assetComments.forEach(async (comment) => {
           await deleteCommentFromFirebase(comment.id);
           viewer.entities.removeById(comment.id);
         });
         
-        // Clear selection if this was selected
         if (selectedAsset && selectedAsset.id === assetId) {
           selectedAsset = null;
           updateCommentList();
@@ -903,7 +890,6 @@
       const modal = document.getElementById('importModal');
       modal.classList.add('active');
       
-      // Pre-fill token if available
       const tokenInput = document.getElementById('ionTokenInput');
       if (!tokenInput.value) {
         tokenInput.value = DEFAULT_ION_TOKEN;
@@ -946,7 +932,6 @@
           return;
         }
         
-        // Filter for 3D Tiles only
         const tilesets = assets.filter(a => 
           a.type === '3DTILES' || 
           a.type === 'TERRAIN' ||
@@ -964,7 +949,6 @@
           const item = document.createElement('div');
           item.className = 'ion-asset-item';
           
-          // Check if already loaded
           const alreadyLoaded = loadedAssets.some(a => a.id === asset.id.toString());
           if (alreadyLoaded) {
             item.style.opacity = '0.5';
@@ -981,15 +965,12 @@
           
           if (!alreadyLoaded) {
             item.onclick = function() {
-              // Check max assets
               const remainingSlots = 5 - loadedAssets.length;
               
               if (selectedIonAssets.includes(asset.id)) {
-                // Deselect
                 selectedIonAssets = selectedIonAssets.filter(id => id !== asset.id);
                 item.classList.remove('selected');
               } else {
-                // Select if space available
                 if (selectedIonAssets.length < remainingSlots) {
                   selectedIonAssets.push(asset.id);
                   item.classList.add('selected');
@@ -1021,9 +1002,7 @@
       
       const token = document.getElementById('ionTokenInput').value.trim();
       
-      // Load each selected asset
       for (const assetId of selectedIonAssets) {
-        // Get asset details
         try {
           const response = await fetch(`https://api.cesium.com/v1/assets/${assetId}`, {
             headers: {
@@ -1065,7 +1044,6 @@
         return;
       }
       
-      // Sort by timestamp (newest first)
       assetComments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       container.innerHTML = '';
@@ -1089,7 +1067,6 @@
           </div>
         `;
         
-        // Click to fly to comment (but not on buttons)
         item.onclick = function(e) {
           if (!e.target.closest('.comment-controls')) {
             const entity = viewer.entities.getById(comment.id);
@@ -1110,9 +1087,6 @@
       comments.forEach(comment => {
         const entity = viewer.entities.getById(comment.id);
         if (entity) {
-          // Show comment if:
-          // 1. Its asset is selected
-          // 2. Its asset is visible
           const asset = loadedAssets.find(a => a.id === comment.assetId);
           entity.show = selectedAsset && 
                        comment.assetId === selectedAsset.id && 
@@ -1222,7 +1196,6 @@
         dialog.style.left = Math.min(screenPosition.x + 20, window.innerWidth - 380) + 'px';
         dialog.style.top = Math.min(screenPosition.y - 50, window.innerHeight - 320) + 'px';
       } else {
-        // Center on screen
         dialog.style.left = '50%';
         dialog.style.top = '50%';
         dialog.style.transform = 'translate(-50%, -50%)';
@@ -1405,7 +1378,6 @@
       }
       
       if (editingComment) {
-        // Update existing comment
         const updatedComment = {
           ...editingComment,
           title: title,
@@ -1416,7 +1388,6 @@
         const success = await saveCommentToFirebase(updatedComment);
         
         if (success) {
-          // Update entity
           const entity = viewer.entities.getById(editingComment.id);
           if (entity) {
             entity.label.text = title;
@@ -1439,7 +1410,6 @@
           showStatus('Comment updated!', 'success');
         }
       } else {
-        // Create new comment
         const comment = {
           id: 'comment_' + Date.now(),
           title: title,
@@ -1465,7 +1435,6 @@
 
     document.getElementById('cancelCommentBtn').addEventListener('click', closeCommentDialog);
 
-    // Click handler for adding comments
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
     handler.setInputAction(function(click) {
       if (!isAddingComment) return;
@@ -1502,16 +1471,16 @@
     // =====================================
 
     async function initializeApp() {
-      showStatus('Loading Google 3D Tiles...', 'loading');
+      showStatus('🏗️ CESIUM Design Review - Loading...', 'loading');
       
       try {
         googleTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2275207);
         viewer.scene.primitives.add(googleTileset);
-        console.log('Google 3D Tiles loaded');
-        showStatus('Ready! Import assets to start.', 'success');
+        console.log('✅ Google 3D Tiles loaded');
+        showStatus('✅ Ready! Import assets to start reviewing.', 'success');
       } catch (error) {
-        console.error('Error loading Google 3D Tiles:', error);
-        showStatus('Error loading base map', 'error');
+        console.error('❌ Error loading Google 3D Tiles:', error);
+        showStatus('⚠️ Error loading base map', 'error');
       }
       
       setupFirebaseListeners();
@@ -1519,7 +1488,7 @@
 
     initializeApp();
 
-    console.log('✅ CESIUM Design Review loaded');
+    console.log('🏗️ CESIUM Design Review v1.0 loaded successfully!');
   </script>
 </body>
 </html>
