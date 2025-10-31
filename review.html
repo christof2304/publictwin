@@ -703,6 +703,13 @@
           if (!viewer.entities.getById(comment.id)) {
             console.log('➕ Adding new comment to viewer:', comment.title, 'for asset:', comment.assetName);
             addCommentToViewer(comment);
+          } else {
+            // Update existing entity's description to modern design if needed
+            const entity = viewer.entities.getById(comment.id);
+            if (entity && !entity.description.includes('modern-infobox')) {
+              entity.description = createModernDescription(comment);
+              console.log('🎨 Refreshed InfoBox design for existing comment:', comment.title);
+            }
           }
         });
         
@@ -1219,11 +1226,96 @@
           
           entity.show = shouldShow;
           
+          // Update description to modern design if needed
+          if (!entity.description.includes('modern-infobox')) {
+            entity.description = createModernDescription(comment);
+            console.log(`🎨 Updated InfoBox design for: "${comment.title}"`);
+          }
+          
           if (shouldShow) {
             console.log(`👁️ Showing comment: "${comment.title}" for asset: ${comment.assetName}`);
           }
         }
       });
+    }
+    
+    function createModernDescription(comment) {
+      const timeLabel = comment.isUpdated ? 'Updated' : 'Created';
+      
+      return `
+        <div class="modern-infobox">
+          <h3>💬 ${comment.title}</h3>
+          
+          <div class="asset-badge">
+            🏗️ ${comment.assetName}
+          </div>
+          
+          <div class="comment-text-box">
+            ${comment.text}
+          </div>
+          
+          <div class="info-section">
+            <div class="section-header" onclick="parent.toggleSection(this)">
+              <span><span class="section-icon">📍</span>Location Details</span>
+              <span class="section-toggle expanded">▼</span>
+            </div>
+            <div class="section-content expanded">
+              <div class="info-row">
+                <span class="info-label">Latitude</span>
+                <span class="info-value coordinate-value">${comment.lat.toFixed(6)}°</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Longitude</span>
+                <span class="info-value coordinate-value">${comment.lon.toFixed(6)}°</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Height (MSL)</span>
+                <span class="info-value coordinate-value">${comment.height.toFixed(2)} m</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <div class="section-header" onclick="parent.toggleSection(this)">
+              <span><span class="section-icon">🏗️</span>Asset Information</span>
+              <span class="section-toggle">▼</span>
+            </div>
+            <div class="section-content">
+              <div class="info-row">
+                <span class="info-label">Asset Name</span>
+                <span class="info-value">${comment.assetName}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Asset ID</span>
+                <span class="info-value">${comment.assetId}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <div class="section-header" onclick="parent.toggleSection(this)">
+              <span><span class="section-icon">⏰</span>Timestamp</span>
+              <span class="section-toggle">▼</span>
+            </div>
+            <div class="section-content">
+              <div class="info-row">
+                <span class="info-label">${timeLabel}</span>
+                <span class="info-value timestamp">${new Date(comment.timestamp).toLocaleString('de-DE', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">ID</span>
+                <span class="info-value" style="font-size: 11px;">${comment.id}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     function addCommentToViewer(comment) {
@@ -1254,80 +1346,7 @@
           pixelOffset: new Cesium.Cartesian2(0, -40),
           disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
-        description: `
-          <div class="modern-infobox">
-            <h3>💬 ${comment.title}</h3>
-            
-            <div class="asset-badge">
-              🏗️ ${comment.assetName}
-            </div>
-            
-            <div class="comment-text-box">
-              ${comment.text}
-            </div>
-            
-            <div class="info-section">
-              <div class="section-header" onclick="parent.toggleSection(this)">
-                <span><span class="section-icon">📍</span>Location Details</span>
-                <span class="section-toggle expanded">▼</span>
-              </div>
-              <div class="section-content expanded">
-                <div class="info-row">
-                  <span class="info-label">Latitude</span>
-                  <span class="info-value coordinate-value">${comment.lat.toFixed(6)}°</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Longitude</span>
-                  <span class="info-value coordinate-value">${comment.lon.toFixed(6)}°</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Height (MSL)</span>
-                  <span class="info-value coordinate-value">${comment.height.toFixed(2)} m</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="info-section">
-              <div class="section-header" onclick="parent.toggleSection(this)">
-                <span><span class="section-icon">🏗️</span>Asset Information</span>
-                <span class="section-toggle">▼</span>
-              </div>
-              <div class="section-content">
-                <div class="info-row">
-                  <span class="info-label">Asset Name</span>
-                  <span class="info-value">${comment.assetName}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Asset ID</span>
-                  <span class="info-value">${comment.assetId}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="info-section">
-              <div class="section-header" onclick="parent.toggleSection(this)">
-                <span><span class="section-icon">⏰</span>Timestamp</span>
-                <span class="section-toggle">▼</span>
-              </div>
-              <div class="section-content">
-                <div class="info-row">
-                  <span class="info-label">Created</span>
-                  <span class="info-value timestamp">${new Date(comment.timestamp).toLocaleString('de-DE', { 
-                    day: '2-digit', 
-                    month: '2-digit', 
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">ID</span>
-                  <span class="info-value" style="font-size: 11px;">${comment.id}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        `
+        description: createModernDescription(comment)
       });
     }
 
@@ -1581,80 +1600,12 @@
           const entity = viewer.entities.getById(editingComment.id);
           if (entity) {
             entity.label.text = title;
-            entity.description = `
-              <div class="modern-infobox">
-                <h3>💬 ${title}</h3>
-                
-                <div class="asset-badge">
-                  🏗️ ${updatedComment.assetName}
-                </div>
-                
-                <div class="comment-text-box">
-                  ${text}
-                </div>
-                
-                <div class="info-section">
-                  <div class="section-header" onclick="parent.toggleSection(this)">
-                    <span><span class="section-icon">📍</span>Location Details</span>
-                    <span class="section-toggle expanded">▼</span>
-                  </div>
-                  <div class="section-content expanded">
-                    <div class="info-row">
-                      <span class="info-label">Latitude</span>
-                      <span class="info-value coordinate-value">${updatedComment.lat.toFixed(6)}°</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">Longitude</span>
-                      <span class="info-value coordinate-value">${updatedComment.lon.toFixed(6)}°</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">Height (MSL)</span>
-                      <span class="info-value coordinate-value">${updatedComment.height.toFixed(2)} m</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="info-section">
-                  <div class="section-header" onclick="parent.toggleSection(this)">
-                    <span><span class="section-icon">🏗️</span>Asset Information</span>
-                    <span class="section-toggle">▼</span>
-                  </div>
-                  <div class="section-content">
-                    <div class="info-row">
-                      <span class="info-label">Asset Name</span>
-                      <span class="info-value">${updatedComment.assetName}</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">Asset ID</span>
-                      <span class="info-value">${updatedComment.assetId}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="info-section">
-                  <div class="section-header" onclick="parent.toggleSection(this)">
-                    <span><span class="section-icon">⏰</span>Timestamp</span>
-                    <span class="section-toggle">▼</span>
-                  </div>
-                  <div class="section-content">
-                    <div class="info-row">
-                      <span class="info-label">Updated</span>
-                      <span class="info-value timestamp">${new Date().toLocaleString('de-DE', { 
-                        day: '2-digit', 
-                        month: '2-digit', 
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">ID</span>
-                      <span class="info-value" style="font-size: 11px;">${updatedComment.id}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
+            // Update the description with modern design
+            entity.description = createModernDescription({
+              ...updatedComment,
+              timestamp: new Date().toISOString(),
+              isUpdated: true
+            });
           }
           
           removePreviewMarker();
@@ -1689,32 +1640,221 @@
 
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
     handler.setInputAction(function(click) {
-      if (!isAddingComment) return;
-      
-      let pickedPosition = null;
-      let pickedFeature = viewer.scene.pick(click.position);
-      
-      if (Cesium.defined(pickedFeature)) {
-        pickedPosition = viewer.scene.pickPosition(click.position);
+      // MODE 1: Adding Comment
+      if (isAddingComment) {
+        let pickedPosition = null;
+        let pickedFeature = viewer.scene.pick(click.position);
+        
+        if (Cesium.defined(pickedFeature)) {
+          pickedPosition = viewer.scene.pickPosition(click.position);
+        }
+        
+        if (!Cesium.defined(pickedPosition)) {
+          const ray = viewer.camera.getPickRay(click.position);
+          pickedPosition = viewer.scene.globe.pick(ray, viewer.scene);
+        }
+        
+        if (Cesium.defined(pickedPosition)) {
+          const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
+          const lon = Cesium.Math.toDegrees(cartographic.longitude);
+          const lat = Cesium.Math.toDegrees(cartographic.latitude);
+          const height = cartographic.height;
+          
+          currentPosition = { lon, lat, height };
+          createPreviewMarker(lon, lat, height);
+          openCommentDialog(click.position);
+          
+        } else {
+          showStatus('⚠️ Please click on a 3D model or terrain!', 'error');
+        }
+        return;
       }
       
-      if (!Cesium.defined(pickedPosition)) {
-        const ray = viewer.camera.getPickRay(click.position);
-        pickedPosition = viewer.scene.globe.pick(ray, viewer.scene);
-      }
+      // MODE 2: Show 3D Feature InfoBox
+      const pickedFeature = viewer.scene.pick(click.position);
       
-      if (Cesium.defined(pickedPosition)) {
-        const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
-        const lon = Cesium.Math.toDegrees(cartographic.longitude);
-        const lat = Cesium.Math.toDegrees(cartographic.latitude);
-        const height = cartographic.height;
+      if (Cesium.defined(pickedFeature) && pickedFeature instanceof Cesium.Cesium3DTileFeature) {
+        const feature = pickedFeature;
         
-        currentPosition = { lon, lat, height };
-        createPreviewMarker(lon, lat, height);
-        openCommentDialog(click.position);
+        // Get all properties
+        const propertyIds = feature.getPropertyIds();
         
-      } else {
-        showStatus('⚠️ Please click on a 3D model or terrain!', 'error');
+        // Get feature position
+        let position = null;
+        try {
+          position = viewer.scene.pickPosition(click.position);
+        } catch (e) {
+          console.log('Could not get position');
+        }
+        
+        let coordinates = { lat: 0, lon: 0, height: 0 };
+        if (position) {
+          const cartographic = Cesium.Cartographic.fromCartesian(position);
+          coordinates = {
+            lat: Cesium.Math.toDegrees(cartographic.latitude),
+            lon: Cesium.Math.toDegrees(cartographic.longitude),
+            height: cartographic.height
+          };
+        }
+        
+        // Find which asset this feature belongs to
+        let assetName = 'Unknown Asset';
+        let assetId = 'Unknown';
+        for (const asset of loadedAssets) {
+          if (asset.tileset && asset.tileset.show && asset.visible) {
+            assetName = asset.name;
+            assetId = asset.id;
+            break;
+          }
+        }
+        
+        // Build property sections
+        let geometrySection = '';
+        let identificationSection = '';
+        let attributesSection = '';
+        let otherSection = '';
+        
+        propertyIds.forEach(propertyId => {
+          const value = feature.getProperty(propertyId);
+          const valueStr = String(value);
+          
+          const row = `
+            <div class="info-row">
+              <span class="info-label">${propertyId}</span>
+              <span class="info-value">${valueStr.length > 50 ? valueStr.substring(0, 50) + '...' : valueStr}</span>
+            </div>
+          `;
+          
+          // Categorize properties
+          const propLower = propertyId.toLowerCase();
+          if (propLower.includes('height') || propLower.includes('area') || propLower.includes('volume') || 
+              propLower.includes('length') || propLower.includes('width')) {
+            geometrySection += row;
+          } else if (propLower.includes('id') || propLower.includes('name') || propLower.includes('type') || 
+                     propLower.includes('class') || propLower.includes('category')) {
+            identificationSection += row;
+          } else if (propLower.includes('material') || propLower.includes('color') || propLower.includes('texture') ||
+                     propLower.includes('level') || propLower.includes('floor')) {
+            attributesSection += row;
+          } else {
+            otherSection += row;
+          }
+        });
+        
+        // Create modern InfoBox HTML
+        const infoBoxHTML = `
+          <div class="modern-infobox">
+            <h3>🏗️ 3D Element</h3>
+            
+            <div class="asset-badge">
+              📦 ${assetName}
+            </div>
+            
+            ${position ? `
+              <div class="info-section">
+                <div class="section-header" onclick="parent.toggleSection(this)">
+                  <span><span class="section-icon">📍</span>Location</span>
+                  <span class="section-toggle expanded">▼</span>
+                </div>
+                <div class="section-content expanded">
+                  <div class="info-row">
+                    <span class="info-label">Latitude</span>
+                    <span class="info-value coordinate-value">${coordinates.lat.toFixed(6)}°</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Longitude</span>
+                    <span class="info-value coordinate-value">${coordinates.lon.toFixed(6)}°</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Height (MSL)</span>
+                    <span class="info-value coordinate-value">${coordinates.height.toFixed(2)} m</span>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+            
+            ${identificationSection ? `
+              <div class="info-section">
+                <div class="section-header" onclick="parent.toggleSection(this)">
+                  <span><span class="section-icon">🏷️</span>Identification</span>
+                  <span class="section-toggle ${!position ? 'expanded' : ''}">▼</span>
+                </div>
+                <div class="section-content ${!position ? 'expanded' : ''}">
+                  ${identificationSection}
+                </div>
+              </div>
+            ` : ''}
+            
+            ${geometrySection ? `
+              <div class="info-section">
+                <div class="section-header" onclick="parent.toggleSection(this)">
+                  <span><span class="section-icon">📐</span>Geometry</span>
+                  <span class="section-toggle">▼</span>
+                </div>
+                <div class="section-content">
+                  ${geometrySection}
+                </div>
+              </div>
+            ` : ''}
+            
+            ${attributesSection ? `
+              <div class="info-section">
+                <div class="section-header" onclick="parent.toggleSection(this)">
+                  <span><span class="section-icon">🎨</span>Attributes</span>
+                  <span class="section-toggle">▼</span>
+                </div>
+                <div class="section-content">
+                  ${attributesSection}
+                </div>
+              </div>
+            ` : ''}
+            
+            ${otherSection ? `
+              <div class="info-section">
+                <div class="section-header" onclick="parent.toggleSection(this)">
+                  <span><span class="section-icon">📋</span>Other Properties</span>
+                  <span class="section-toggle">▼</span>
+                </div>
+                <div class="section-content">
+                  ${otherSection}
+                </div>
+              </div>
+            ` : ''}
+            
+            ${propertyIds.length === 0 ? `
+              <div style="color: #888; text-align: center; padding: 20px; font-size: 13px;">
+                No metadata available for this element
+              </div>
+            ` : ''}
+            
+            <div class="info-section">
+              <div class="section-header" onclick="parent.toggleSection(this)">
+                <span><span class="section-icon">ℹ️</span>Asset Info</span>
+                <span class="section-toggle">▼</span>
+              </div>
+              <div class="section-content">
+                <div class="info-row">
+                  <span class="info-label">Asset Name</span>
+                  <span class="info-value">${assetName}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Asset ID</span>
+                  <span class="info-value">${assetId}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Properties</span>
+                  <span class="info-value">${propertyIds.length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Set the InfoBox content
+        viewer.selectedEntity = new Cesium.Entity({
+          name: 'Feature Info',
+          description: infoBoxHTML
+        });
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
