@@ -615,6 +615,24 @@
     const AUTO_LOAD_ASSETS = true;
     
     // =====================================
+    // GLOBAL FUNCTIONS FOR INFOBOX
+    // =====================================
+    
+    // Global function for collapsible sections in InfoBox (accessed from iframe)
+    window.toggleSection = function(header) {
+      const content = header.nextElementSibling;
+      const toggle = header.querySelector('.section-toggle');
+      
+      if (content.classList.contains('expanded')) {
+        content.classList.remove('expanded');
+        toggle.classList.remove('expanded');
+      } else {
+        content.classList.add('expanded');
+        toggle.classList.add('expanded');
+      }
+    };
+
+    // =====================================
     // FIREBASE SETUP
     // =====================================
     let db;
@@ -1249,11 +1267,11 @@
             </div>
             
             <div class="info-section">
-              <div class="section-header" onclick="toggleSection(this)">
+              <div class="section-header" onclick="parent.toggleSection(this)">
                 <span><span class="section-icon">📍</span>Location Details</span>
-                <span class="section-toggle">▼</span>
+                <span class="section-toggle expanded">▼</span>
               </div>
-              <div class="section-content">
+              <div class="section-content expanded">
                 <div class="info-row">
                   <span class="info-label">Latitude</span>
                   <span class="info-value coordinate-value">${comment.lat.toFixed(6)}°</span>
@@ -1270,7 +1288,7 @@
             </div>
             
             <div class="info-section">
-              <div class="section-header" onclick="toggleSection(this)">
+              <div class="section-header" onclick="parent.toggleSection(this)">
                 <span><span class="section-icon">🏗️</span>Asset Information</span>
                 <span class="section-toggle">▼</span>
               </div>
@@ -1287,7 +1305,7 @@
             </div>
             
             <div class="info-section">
-              <div class="section-header" onclick="toggleSection(this)">
+              <div class="section-header" onclick="parent.toggleSection(this)">
                 <span><span class="section-icon">⏰</span>Timestamp</span>
                 <span class="section-toggle">▼</span>
               </div>
@@ -1308,31 +1326,6 @@
                 </div>
               </div>
             </div>
-            
-            <script>
-              function toggleSection(header) {
-                const content = header.nextElementSibling;
-                const toggle = header.querySelector('.section-toggle');
-                
-                if (content.classList.contains('expanded')) {
-                  content.classList.remove('expanded');
-                  toggle.classList.remove('expanded');
-                } else {
-                  content.classList.add('expanded');
-                  toggle.classList.add('expanded');
-                }
-              }
-              
-              // Auto-expand first section
-              document.addEventListener('DOMContentLoaded', function() {
-                const firstSection = document.querySelector('.section-content');
-                const firstToggle = document.querySelector('.section-toggle');
-                if (firstSection) {
-                  firstSection.classList.add('expanded');
-                  firstToggle.classList.add('expanded');
-                }
-              });
-            </script>
           </div>
         `
       });
@@ -1601,11 +1594,11 @@
                 </div>
                 
                 <div class="info-section">
-                  <div class="section-header" onclick="toggleSection(this)">
+                  <div class="section-header" onclick="parent.toggleSection(this)">
                     <span><span class="section-icon">📍</span>Location Details</span>
-                    <span class="section-toggle">▼</span>
+                    <span class="section-toggle expanded">▼</span>
                   </div>
-                  <div class="section-content">
+                  <div class="section-content expanded">
                     <div class="info-row">
                       <span class="info-label">Latitude</span>
                       <span class="info-value coordinate-value">${updatedComment.lat.toFixed(6)}°</span>
@@ -1622,7 +1615,7 @@
                 </div>
                 
                 <div class="info-section">
-                  <div class="section-header" onclick="toggleSection(this)">
+                  <div class="section-header" onclick="parent.toggleSection(this)">
                     <span><span class="section-icon">🏗️</span>Asset Information</span>
                     <span class="section-toggle">▼</span>
                   </div>
@@ -1639,7 +1632,7 @@
                 </div>
                 
                 <div class="info-section">
-                  <div class="section-header" onclick="toggleSection(this)">
+                  <div class="section-header" onclick="parent.toggleSection(this)">
                     <span><span class="section-icon">⏰</span>Timestamp</span>
                     <span class="section-toggle">▼</span>
                   </div>
@@ -1660,31 +1653,6 @@
                     </div>
                   </div>
                 </div>
-                
-                <script>
-                  function toggleSection(header) {
-                    const content = header.nextElementSibling;
-                    const toggle = header.querySelector('.section-toggle');
-                    
-                    if (content.classList.contains('expanded')) {
-                      content.classList.remove('expanded');
-                      toggle.classList.remove('expanded');
-                    } else {
-                      content.classList.add('expanded');
-                      toggle.classList.add('expanded');
-                    }
-                  }
-                  
-                  // Auto-expand first section
-                  document.addEventListener('DOMContentLoaded', function() {
-                    const firstSection = document.querySelector('.section-content');
-                    const firstToggle = document.querySelector('.section-toggle');
-                    if (firstSection) {
-                      firstSection.classList.add('expanded');
-                      firstToggle.classList.add('expanded');
-                    }
-                  });
-                </script>
               </div>
             `;
           }
