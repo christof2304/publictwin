@@ -319,6 +319,171 @@
       background: #555;
       margin: 15px 0;
     }
+    
+    /* Custom Modern InfoBox */
+    .cesium-infoBox {
+      background: linear-gradient(135deg, rgba(30, 30, 35, 0.98) 0%, rgba(42, 42, 47, 0.98) 100%) !important;
+      border: 1px solid rgba(90, 170, 204, 0.3) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+      backdrop-filter: blur(10px);
+      color: white !important;
+    }
+    
+    .cesium-infoBox-title {
+      background: linear-gradient(135deg, #5ac 0%, #4a9cc2 100%) !important;
+      color: white !important;
+      padding: 15px 20px !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      border-radius: 12px 12px 0 0 !important;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    .cesium-infoBox-iframe {
+      border: none !important;
+      background: transparent !important;
+    }
+    
+    /* Modern InfoBox Content Styling */
+    .modern-infobox {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+    
+    .modern-infobox h3 {
+      color: #5ac;
+      font-size: 20px;
+      margin: 0 0 15px 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .asset-badge {
+      background: linear-gradient(135deg, #5ac 0%, #4a9cc2 100%);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-block;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(90, 170, 204, 0.3);
+    }
+    
+    .info-section {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .info-section:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(90, 170, 204, 0.3);
+    }
+    
+    .section-header {
+      padding: 12px 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 14px;
+      color: #5ac;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    
+    .section-header:hover {
+      background: rgba(90, 170, 204, 0.1);
+    }
+    
+    .section-header:active {
+      transform: scale(0.98);
+    }
+    
+    .section-icon {
+      font-size: 16px;
+      margin-right: 8px;
+    }
+    
+    .section-toggle {
+      transition: transform 0.3s ease;
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .section-toggle.expanded {
+      transform: rotate(180deg);
+    }
+    
+    .section-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 0 16px;
+    }
+    
+    .section-content.expanded {
+      max-height: 500px;
+      padding: 12px 16px 16px 16px;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      color: #999;
+      font-weight: 500;
+    }
+    
+    .info-value {
+      color: #fff;
+      font-weight: 400;
+      text-align: right;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .coordinate-value {
+      background: rgba(90, 170, 204, 0.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .comment-text-box {
+      background: rgba(90, 170, 204, 0.1);
+      border-left: 3px solid #5ac;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 12px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #e0e0e0;
+    }
+    
+    .timestamp {
+      color: #888;
+      font-size: 11px;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -502,19 +667,54 @@
     function setupFirebaseListeners() {
       if (!firebaseInitialized) return;
       
+      let isFirstLoad = true;
+      
       db.collection('review_comments').onSnapshot((snapshot) => {
+        console.log('🔥 Firebase snapshot received:', snapshot.size, 'document(s)');
+        
+        const previousCommentCount = comments.length;
+        
         comments = [];
         snapshot.forEach((doc) => {
           const comment = { id: doc.id, ...doc.data() };
           comments.push(comment);
           
+          // Ensure assetId is string
+          comment.assetId = comment.assetId.toString();
+          
           if (!viewer.entities.getById(comment.id)) {
+            console.log('➕ Adding new comment to viewer:', comment.title, 'for asset:', comment.assetName);
             addCommentToViewer(comment);
           }
         });
+        
         updateCommentList();
         updateAssetCommentCounts();
-        console.log(`📝 Loaded ${comments.length} comments from Firebase`);
+        updateCommentVisibility(); // Ensure visibility is updated after loading comments
+        
+        console.log(`📝 Loaded ${comments.length} total comment(s) from Firebase`);
+        
+        // Log comments per asset
+        const commentsByAsset = {};
+        comments.forEach(c => {
+          if (!commentsByAsset[c.assetId]) {
+            commentsByAsset[c.assetId] = [];
+          }
+          commentsByAsset[c.assetId].push(c);
+        });
+        
+        Object.keys(commentsByAsset).forEach(assetId => {
+          console.log(`  Asset ${assetId}: ${commentsByAsset[assetId].length} comment(s)`);
+        });
+        
+        // Show notification for new comments (not on first load)
+        if (!isFirstLoad && comments.length > previousCommentCount) {
+          const newCommentCount = comments.length - previousCommentCount;
+          showStatus(`🔔 ${newCommentCount} new comment(s) from other users!`, 'success');
+        }
+        
+        isFirstLoad = false;
+        
       }, (error) => {
         console.error('Error listening to comments:', error);
         showStatus('Error loading comments', 'error');
@@ -528,17 +728,20 @@
       }
       
       try {
-        await db.collection('review_comments').doc(comment.id).set({
+        // Ensure assetId is stored as string
+        const commentData = {
           title: comment.title,
           text: comment.text,
           lon: comment.lon,
           lat: comment.lat,
           height: comment.height,
           timestamp: comment.timestamp,
-          assetId: comment.assetId,
+          assetId: comment.assetId.toString(),
           assetName: comment.assetName
-        });
-        console.log('✅ Comment saved to Firebase:', comment.id);
+        };
+        
+        await db.collection('review_comments').doc(comment.id).set(commentData);
+        console.log('✅ Comment saved to Firebase:', comment.id, 'for asset:', commentData.assetId);
         return true;
       } catch (error) {
         console.error('❌ Error saving comment:', error);
@@ -619,6 +822,9 @@
         return;
       }
       
+      // Ensure assetId is always a string for consistency
+      assetId = assetId.toString();
+      
       showStatus(`Loading ${assetName}...`, 'loading');
       
       try {
@@ -637,8 +843,17 @@
         selectAsset(asset);
         viewer.flyTo(tileset);
         
-        showStatus(`${assetName} loaded successfully!`, 'success');
-        console.log('✅ Asset loaded:', assetName);
+        // Check for existing comments for this asset
+        const assetComments = comments.filter(c => c.assetId === assetId);
+        console.log(`📝 Found ${assetComments.length} existing comment(s) for ${assetName}`);
+        
+        if (assetComments.length > 0) {
+          showStatus(`${assetName} loaded with ${assetComments.length} comment(s)!`, 'success');
+        } else {
+          showStatus(`${assetName} loaded successfully!`, 'success');
+        }
+        
+        console.log('✅ Asset loaded:', assetName, 'ID:', assetId);
         
       } catch (error) {
         console.error('❌ Error loading asset:', error);
@@ -853,14 +1068,26 @@
         
         // Check if already loaded
         const alreadyLoaded = loadedAssets.some(a => a.id === asset.id.toString());
+        
+        // Check if there are comments for this asset
+        const assetId = asset.id.toString();
+        const commentCount = comments.filter(c => c.assetId === assetId).length;
+        
         if (alreadyLoaded) {
           item.style.opacity = '0.5';
           item.style.cursor = 'not-allowed';
           item.style.borderLeftColor = '#666';
+        } else if (commentCount > 0) {
+          // Highlight assets with comments
+          item.style.borderLeftColor = '#4caf50';
+          item.style.background = 'rgba(76, 175, 80, 0.1)';
         }
         
         item.innerHTML = `
-          <div class="ion-asset-name">${asset.name}</div>
+          <div class="ion-asset-name">
+            ${asset.name}
+            ${commentCount > 0 ? `<span style="background: rgba(76, 175, 80, 0.3); color: #4caf50; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">💬 ${commentCount}</span>` : ''}
+          </div>
           <div class="ion-asset-id">
             ID: ${asset.id} | Type: ${asset.type}
             ${alreadyLoaded ? '<span style="color: #4caf50;"> ✓ Loaded</span>' : ''}
@@ -957,14 +1184,26 @@
     }
 
     function updateCommentVisibility() {
+      console.log('🔄 Updating comment visibility...', {
+        totalComments: comments.length,
+        selectedAsset: selectedAsset ? selectedAsset.name : 'none',
+        loadedAssets: loadedAssets.map(a => a.id)
+      });
+      
       comments.forEach(comment => {
         const entity = viewer.entities.getById(comment.id);
         if (entity) {
           const asset = loadedAssets.find(a => a.id === comment.assetId);
-          entity.show = selectedAsset && 
-                       comment.assetId === selectedAsset.id && 
-                       asset && 
-                       asset.visible;
+          const shouldShow = selectedAsset && 
+                           comment.assetId === selectedAsset.id && 
+                           asset && 
+                           asset.visible;
+          
+          entity.show = shouldShow;
+          
+          if (shouldShow) {
+            console.log(`👁️ Showing comment: "${comment.title}" for asset: ${comment.assetName}`);
+          }
         }
       });
     }
@@ -997,18 +1236,105 @@
           pixelOffset: new Cesium.Cartesian2(0, -40),
           disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
-        description: `<div style="padding:10px">
-          <h3>${comment.title}</h3>
-          <div style="background: #5ac; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-            ${comment.assetName}
+        description: `
+          <div class="modern-infobox">
+            <h3>💬 ${comment.title}</h3>
+            
+            <div class="asset-badge">
+              🏗️ ${comment.assetName}
+            </div>
+            
+            <div class="comment-text-box">
+              ${comment.text}
+            </div>
+            
+            <div class="info-section">
+              <div class="section-header" onclick="toggleSection(this)">
+                <span><span class="section-icon">📍</span>Location Details</span>
+                <span class="section-toggle">▼</span>
+              </div>
+              <div class="section-content">
+                <div class="info-row">
+                  <span class="info-label">Latitude</span>
+                  <span class="info-value coordinate-value">${comment.lat.toFixed(6)}°</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Longitude</span>
+                  <span class="info-value coordinate-value">${comment.lon.toFixed(6)}°</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Height (MSL)</span>
+                  <span class="info-value coordinate-value">${comment.height.toFixed(2)} m</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="info-section">
+              <div class="section-header" onclick="toggleSection(this)">
+                <span><span class="section-icon">🏗️</span>Asset Information</span>
+                <span class="section-toggle">▼</span>
+              </div>
+              <div class="section-content">
+                <div class="info-row">
+                  <span class="info-label">Asset Name</span>
+                  <span class="info-value">${comment.assetName}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Asset ID</span>
+                  <span class="info-value">${comment.assetId}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="info-section">
+              <div class="section-header" onclick="toggleSection(this)">
+                <span><span class="section-icon">⏰</span>Timestamp</span>
+                <span class="section-toggle">▼</span>
+              </div>
+              <div class="section-content">
+                <div class="info-row">
+                  <span class="info-label">Created</span>
+                  <span class="info-value timestamp">${new Date(comment.timestamp).toLocaleString('de-DE', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">ID</span>
+                  <span class="info-value" style="font-size: 11px;">${comment.id}</span>
+                </div>
+              </div>
+            </div>
+            
+            <script>
+              function toggleSection(header) {
+                const content = header.nextElementSibling;
+                const toggle = header.querySelector('.section-toggle');
+                
+                if (content.classList.contains('expanded')) {
+                  content.classList.remove('expanded');
+                  toggle.classList.remove('expanded');
+                } else {
+                  content.classList.add('expanded');
+                  toggle.classList.add('expanded');
+                }
+              }
+              
+              // Auto-expand first section
+              document.addEventListener('DOMContentLoaded', function() {
+                const firstSection = document.querySelector('.section-content');
+                const firstToggle = document.querySelector('.section-toggle');
+                if (firstSection) {
+                  firstSection.classList.add('expanded');
+                  firstToggle.classList.add('expanded');
+                }
+              });
+            </script>
           </div>
-          <p>${comment.text}</p>
-          <p style="font-size:11px;color:#888">
-            Coordinates: ${comment.lat.toFixed(5)}°, ${comment.lon.toFixed(5)}°<br>
-            Height: ${comment.height.toFixed(1)}m<br>
-            Created: ${new Date(comment.timestamp).toLocaleString('en-US')}
-          </p>
-        </div>`
+        `
       });
     }
 
@@ -1262,18 +1588,105 @@
           const entity = viewer.entities.getById(editingComment.id);
           if (entity) {
             entity.label.text = title;
-            entity.description = `<div style="padding:10px">
-              <h3>${title}</h3>
-              <div style="background: #5ac; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-                ${updatedComment.assetName}
+            entity.description = `
+              <div class="modern-infobox">
+                <h3>💬 ${title}</h3>
+                
+                <div class="asset-badge">
+                  🏗️ ${updatedComment.assetName}
+                </div>
+                
+                <div class="comment-text-box">
+                  ${text}
+                </div>
+                
+                <div class="info-section">
+                  <div class="section-header" onclick="toggleSection(this)">
+                    <span><span class="section-icon">📍</span>Location Details</span>
+                    <span class="section-toggle">▼</span>
+                  </div>
+                  <div class="section-content">
+                    <div class="info-row">
+                      <span class="info-label">Latitude</span>
+                      <span class="info-value coordinate-value">${updatedComment.lat.toFixed(6)}°</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Longitude</span>
+                      <span class="info-value coordinate-value">${updatedComment.lon.toFixed(6)}°</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Height (MSL)</span>
+                      <span class="info-value coordinate-value">${updatedComment.height.toFixed(2)} m</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="info-section">
+                  <div class="section-header" onclick="toggleSection(this)">
+                    <span><span class="section-icon">🏗️</span>Asset Information</span>
+                    <span class="section-toggle">▼</span>
+                  </div>
+                  <div class="section-content">
+                    <div class="info-row">
+                      <span class="info-label">Asset Name</span>
+                      <span class="info-value">${updatedComment.assetName}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Asset ID</span>
+                      <span class="info-value">${updatedComment.assetId}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="info-section">
+                  <div class="section-header" onclick="toggleSection(this)">
+                    <span><span class="section-icon">⏰</span>Timestamp</span>
+                    <span class="section-toggle">▼</span>
+                  </div>
+                  <div class="section-content">
+                    <div class="info-row">
+                      <span class="info-label">Updated</span>
+                      <span class="info-value timestamp">${new Date().toLocaleString('de-DE', { 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">ID</span>
+                      <span class="info-value" style="font-size: 11px;">${updatedComment.id}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <script>
+                  function toggleSection(header) {
+                    const content = header.nextElementSibling;
+                    const toggle = header.querySelector('.section-toggle');
+                    
+                    if (content.classList.contains('expanded')) {
+                      content.classList.remove('expanded');
+                      toggle.classList.remove('expanded');
+                    } else {
+                      content.classList.add('expanded');
+                      toggle.classList.add('expanded');
+                    }
+                  }
+                  
+                  // Auto-expand first section
+                  document.addEventListener('DOMContentLoaded', function() {
+                    const firstSection = document.querySelector('.section-content');
+                    const firstToggle = document.querySelector('.section-toggle');
+                    if (firstSection) {
+                      firstSection.classList.add('expanded');
+                      firstToggle.classList.add('expanded');
+                    }
+                  });
+                </script>
               </div>
-              <p>${text}</p>
-              <p style="font-size:11px;color:#888">
-                Coordinates: ${updatedComment.lat.toFixed(5)}°, ${updatedComment.lon.toFixed(5)}°<br>
-                Height: ${updatedComment.height.toFixed(1)}m<br>
-                Updated: ${new Date().toLocaleString('en-US')}
-              </p>
-            </div>`;
+            `;
           }
           
           removePreviewMarker();
