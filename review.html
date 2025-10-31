@@ -1226,12 +1226,6 @@
           
           entity.show = shouldShow;
           
-          // Update description to modern design if needed
-          if (!entity.description.includes('modern-infobox')) {
-            entity.description = createModernDescription(comment);
-            console.log(`🎨 Updated InfoBox design for: "${comment.title}"`);
-          }
-          
           if (shouldShow) {
             console.log(`👁️ Showing comment: "${comment.title}" for asset: ${comment.assetName}`);
           }
