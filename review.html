@@ -376,49 +376,66 @@
     }
     
     .info-section {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+      margin-bottom: 8px;
       overflow: hidden;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
     
     .info-section:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(90, 170, 204, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(90, 170, 204, 0.2);
     }
     
     .section-header {
-      padding: 12px 16px;
+      padding: 10px 14px;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13px;
       color: #5ac;
       user-select: none;
       transition: all 0.2s ease;
+      background: rgba(90, 170, 204, 0.08);
     }
     
     .section-header:hover {
-      background: rgba(90, 170, 204, 0.1);
+      background: rgba(90, 170, 204, 0.15);
     }
     
     .section-header:active {
-      transform: scale(0.98);
+      transform: scale(0.99);
+    }
+    
+    .section-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     
     .section-icon {
-      font-size: 16px;
-      margin-right: 8px;
+      font-size: 14px;
+      display: inline-block;
+      width: 18px;
+      text-align: center;
     }
     
     .section-toggle {
-      transition: transform 0.3s ease;
-      font-size: 12px;
-      color: #888;
+      transition: transform 0.25s ease;
+      font-size: 11px;
+      color: #999;
+      font-weight: bold;
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
     }
     
     .section-toggle.expanded {
@@ -428,21 +445,23 @@
     .section-content {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.3s ease, padding 0.3s ease;
-      padding: 0 16px;
+      transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+      padding: 0 14px;
+      background: rgba(0, 0, 0, 0.2);
     }
     
     .section-content.expanded {
-      max-height: 500px;
-      padding: 12px 16px 16px 16px;
+      max-height: 800px;
+      padding: 12px 14px 14px 14px;
     }
     
     .info-row {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 13px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 12px;
+      gap: 12px;
     }
     
     .info-row:last-child {
@@ -452,6 +471,8 @@
     .info-label {
       color: #999;
       font-weight: 500;
+      flex-shrink: 0;
+      min-width: 120px;
     }
     
     .info-value {
@@ -459,13 +480,15 @@
       font-weight: 400;
       text-align: right;
       font-family: 'Courier New', monospace;
+      word-break: break-word;
+      flex: 1;
     }
     
     .coordinate-value {
       background: rgba(90, 170, 204, 0.15);
       padding: 2px 8px;
       border-radius: 4px;
-      font-size: 12px;
+      font-size: 11px;
     }
     
     .comment-text-box {
@@ -1250,7 +1273,10 @@
           
           <div class="info-section">
             <div class="section-header" onclick="parent.toggleSection(this)">
-              <span><span class="section-icon">📍</span>Location Details</span>
+              <div class="section-header-left">
+                <span class="section-icon">📍</span>
+                <span>Location Details</span>
+              </div>
               <span class="section-toggle expanded">▼</span>
             </div>
             <div class="section-content expanded">
@@ -1271,7 +1297,10 @@
           
           <div class="info-section">
             <div class="section-header" onclick="parent.toggleSection(this)">
-              <span><span class="section-icon">🏗️</span>Asset Information</span>
+              <div class="section-header-left">
+                <span class="section-icon">🏗️</span>
+                <span>Asset Information</span>
+              </div>
               <span class="section-toggle">▼</span>
             </div>
             <div class="section-content">
@@ -1288,7 +1317,10 @@
           
           <div class="info-section">
             <div class="section-header" onclick="parent.toggleSection(this)">
-              <span><span class="section-icon">⏰</span>Timestamp</span>
+              <div class="section-header-left">
+                <span class="section-icon">⏰</span>
+                <span>Timestamp</span>
+              </div>
               <span class="section-toggle">▼</span>
             </div>
             <div class="section-content">
@@ -1747,7 +1779,10 @@
             ${position ? `
               <div class="info-section">
                 <div class="section-header" onclick="parent.toggleSection(this)">
-                  <span><span class="section-icon">📍</span>Location</span>
+                  <div class="section-header-left">
+                    <span class="section-icon">📍</span>
+                    <span>Location</span>
+                  </div>
                   <span class="section-toggle expanded">▼</span>
                 </div>
                 <div class="section-content expanded">
@@ -1770,7 +1805,10 @@
             ${identificationSection ? `
               <div class="info-section">
                 <div class="section-header" onclick="parent.toggleSection(this)">
-                  <span><span class="section-icon">🏷️</span>Identification</span>
+                  <div class="section-header-left">
+                    <span class="section-icon">🏷️</span>
+                    <span>Identification</span>
+                  </div>
                   <span class="section-toggle ${!position ? 'expanded' : ''}">▼</span>
                 </div>
                 <div class="section-content ${!position ? 'expanded' : ''}">
@@ -1782,7 +1820,10 @@
             ${geometrySection ? `
               <div class="info-section">
                 <div class="section-header" onclick="parent.toggleSection(this)">
-                  <span><span class="section-icon">📐</span>Geometry</span>
+                  <div class="section-header-left">
+                    <span class="section-icon">📐</span>
+                    <span>Geometry</span>
+                  </div>
                   <span class="section-toggle">▼</span>
                 </div>
                 <div class="section-content">
@@ -1794,7 +1835,10 @@
             ${attributesSection ? `
               <div class="info-section">
                 <div class="section-header" onclick="parent.toggleSection(this)">
-                  <span><span class="section-icon">🎨</span>Attributes</span>
+                  <div class="section-header-left">
+                    <span class="section-icon">🎨</span>
+                    <span>Attributes</span>
+                  </div>
                   <span class="section-toggle">▼</span>
                 </div>
                 <div class="section-content">
@@ -1806,7 +1850,10 @@
             ${otherSection ? `
               <div class="info-section">
                 <div class="section-header" onclick="parent.toggleSection(this)">
-                  <span><span class="section-icon">📋</span>Other Properties</span>
+                  <div class="section-header-left">
+                    <span class="section-icon">📋</span>
+                    <span>Other Properties</span>
+                  </div>
                   <span class="section-toggle">▼</span>
                 </div>
                 <div class="section-content">
@@ -1823,7 +1870,10 @@
             
             <div class="info-section">
               <div class="section-header" onclick="parent.toggleSection(this)">
-                <span><span class="section-icon">ℹ️</span>Asset Info</span>
+                <div class="section-header-left">
+                  <span class="section-icon">ℹ️</span>
+                  <span>Asset Info</span>
+                </div>
                 <span class="section-toggle">▼</span>
               </div>
               <div class="section-content">
