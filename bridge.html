@@ -413,28 +413,46 @@
     // FIREBASE REALTIME LISTENERS
     // =====================================
     
+    // Helper function to get collection name for a variant
+    function getCollectionName(variant) {
+      const collectionMap = {
+        'variant1': 'comments_trainbridge',
+        'variant2': 'comments_transporter',
+        'variant3': 'comments_belgium'
+      };
+      return collectionMap[variant] || 'comments_unknown';
+    }
+    
     // Listen to comments in real-time
     function setupFirebaseListeners() {
       if (!firebaseInitialized) return;
       
-      // Listen to comments
-      db.collection('comments').onSnapshot((snapshot) => {
-        comments = [];
-        snapshot.forEach((doc) => {
-          const comment = { id: doc.id, ...doc.data() };
-          comments.push(comment);
+      // Listen to comments from all three collections
+      ['variant1', 'variant2', 'variant3'].forEach(variant => {
+        const collectionName = getCollectionName(variant);
+        
+        db.collection(collectionName).onSnapshot((snapshot) => {
+          // Remove old comments for this variant
+          comments = comments.filter(c => c.variant !== variant);
           
-          // Add to viewer if not already there
-          if (!viewer.entities.getById(comment.id)) {
-            addCommentToViewer(comment);
-          }
+          // Add new/updated comments
+          snapshot.forEach((doc) => {
+            const comment = { id: doc.id, variant: variant, ...doc.data() };
+            comments.push(comment);
+            
+            // Add to viewer if not already there
+            if (!viewer.entities.getById(comment.id)) {
+              addCommentToViewer(comment);
+            }
+          });
+          
+          updateCommentList();
+          updateLatestCommentsWidget();
+          console.log(`📝 Loaded ${snapshot.size} comments from ${collectionName}`);
+        }, (error) => {
+          console.error(`Error listening to ${collectionName}:`, error);
+          showStatus('Error loading comments', 'error');
         });
-        updateCommentList();
-        updateLatestCommentsWidget();
-        console.log(`📝 Loaded ${comments.length} comments from Firebase`);
-      }, (error) => {
-        console.error('Error listening to comments:', error);
-        showStatus('Error loading comments', 'error');
       });
       
       // Listen to votes in real-time
@@ -457,16 +475,18 @@
       }
       
       try {
-        await db.collection('comments').doc(comment.id).set({
+        const collectionName = getCollectionName(comment.variant);
+        
+        await db.collection(collectionName).doc(comment.id).set({
           title: comment.title,
           text: comment.text,
           lon: comment.lon,
           lat: comment.lat,
           height: comment.height,
-          timestamp: comment.timestamp,
-          variant: comment.variant
+          timestamp: comment.timestamp
+          // Note: variant is NOT saved in the document since the collection itself identifies the variant
         });
-        console.log('✅ Comment saved to Firebase:', comment.id);
+        console.log(`✅ Comment saved to Firebase: ${collectionName}/${comment.id}`);
         return true;
       } catch (error) {
         console.error('❌ Error saving comment:', error);
@@ -530,16 +550,17 @@
       }
       
       try {
+        const collectionName = getCollectionName(variant);
         const batch = db.batch();
         const variantComments = comments.filter(c => c.variant === variant);
         
         variantComments.forEach(comment => {
-          const docRef = db.collection('comments').doc(comment.id);
+          const docRef = db.collection(collectionName).doc(comment.id);
           batch.delete(docRef);
         });
         
         await batch.commit();
-        console.log(`✅ Deleted ${variantComments.length} comments from Firebase`);
+        console.log(`✅ Deleted ${variantComments.length} comments from ${collectionName}`);
         return true;
       } catch (error) {
         console.error('❌ Error deleting comments:', error);
@@ -826,7 +847,7 @@
     function createPreviewMarker(lon, lat, height) {
       removePreviewMarker();
       
-      const position = Cesium.Cartesian3.fromDegrees(lon, lat, height + 2);
+      const position = Cesium.Cartesian3.fromDegrees(lon, lat, height + 0.5);
       const color = activeVariant === 'variant1' ? '#4caf50' : 
                     activeVariant === 'variant2' ? '#2196f3' : '#ff9800';
       
@@ -1159,7 +1180,7 @@
       const position = Cesium.Cartesian3.fromDegrees(
         comment.lon,
         comment.lat,
-        comment.height + 2
+        comment.height + 0.5
       );
       
       const color = comment.variant === 'variant1' ? '#4caf50' : 
