@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Reality Mesh Viewer for Bridge Models</title>
+  <title>CESIUM Bridge Inspector</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   
@@ -423,6 +423,16 @@
       return collectionMap[variant] || 'comments_unknown';
     }
     
+    // Helper function to get vote collection name for a variant
+    function getVoteCollectionName(variant) {
+      const collectionMap = {
+        'variant1': 'votes_trainbridge',
+        'variant2': 'votes_transporter',
+        'variant3': 'votes_belgium'
+      };
+      return collectionMap[variant] || 'votes_unknown';
+    }
+    
     // Listen to comments in real-time
     function setupFirebaseListeners() {
       if (!firebaseInitialized) return;
@@ -455,15 +465,23 @@
         });
       });
       
-      // Listen to votes in real-time
-      db.collection('votes').doc('aggregated').onSnapshot((doc) => {
-        if (doc.exists) {
-          votes = doc.data();
-          updateVotingOverview();
-          console.log('📊 Votes updated:', votes);
-        }
-      }, (error) => {
-        console.error('Error listening to votes:', error);
+      // Listen to votes in real-time from all three collections
+      ['variant1', 'variant2', 'variant3'].forEach(variant => {
+        const voteCollectionName = getVoteCollectionName(variant);
+        
+        db.collection(voteCollectionName).doc('count').onSnapshot((doc) => {
+          if (doc.exists) {
+            votes[variant] = doc.data();
+            updateVotingOverview();
+            console.log(`📊 Votes updated for ${variant}:`, votes[variant]);
+          } else {
+            // Initialize if doesn't exist
+            votes[variant] = { thumbsUp: 0, thumbsDown: 0 };
+            updateVotingOverview();
+          }
+        }, (error) => {
+          console.error(`Error listening to ${voteCollectionName}:`, error);
+        });
       });
     }
 
@@ -503,37 +521,31 @@
       }
       
       try {
-        const voteRef = db.collection('votes').doc('aggregated');
+        const voteCollectionName = getVoteCollectionName(variant);
+        const voteRef = db.collection(voteCollectionName).doc('count');
         
         // Use transaction to ensure atomic increment
         await db.runTransaction(async (transaction) => {
           const doc = await transaction.get(voteRef);
           
+          let currentVotes;
           if (!doc.exists) {
             // Initialize votes if document doesn't exist
-            transaction.set(voteRef, {
-              variant1: { thumbsUp: 0, thumbsDown: 0 },
-              variant2: { thumbsUp: 0, thumbsDown: 0 },
-              variant3: { thumbsUp: 0, thumbsDown: 0 }
-            });
+            currentVotes = { thumbsUp: 0, thumbsDown: 0 };
+          } else {
+            currentVotes = doc.data();
           }
           
-          const currentVotes = doc.exists ? doc.data() : {
-            variant1: { thumbsUp: 0, thumbsDown: 0 },
-            variant2: { thumbsUp: 0, thumbsDown: 0 },
-            variant3: { thumbsUp: 0, thumbsDown: 0 }
-          };
-          
           if (voteType === 'up') {
-            currentVotes[variant].thumbsUp++;
+            currentVotes.thumbsUp++;
           } else {
-            currentVotes[variant].thumbsDown++;
+            currentVotes.thumbsDown++;
           }
           
           transaction.set(voteRef, currentVotes);
         });
         
-        console.log('✅ Vote saved to Firebase');
+        console.log(`✅ Vote saved to ${voteCollectionName}`);
         return true;
       } catch (error) {
         console.error('❌ Error saving vote:', error);
