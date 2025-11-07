@@ -1063,11 +1063,58 @@
     }
 
     function addDrawingToViewer(drawing) {
+      console.log('Adding drawing to viewer:', drawing);
+      
+      const color = Cesium.Color.fromCssColorString(drawing.color);
+      
+      if (drawing.type === 'annotation' && drawing.positions.length > 0) {
+        const pos = drawing.positions[0];
+        console.log('Creating annotation at:', pos);
+        
+        const position = Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat, pos.height);
+        console.log('Cartesian position:', position);
+        
+        const entity = viewer.entities.add({
+          id: drawing.id,
+          show: drawing.variant === activeVariant,
+          position: position,
+          billboard: {
+            image: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"><circle cx="20" cy="20" r="18" fill="${drawing.color}" stroke="white" stroke-width="3"/><text x="20" y="27" font-family="Arial" font-size="20" fill="white" text-anchor="middle">📌</text></svg>`),
+            scale: 0.8,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          label: {
+            text: drawing.label,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -40),
+            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          description: `<div style="padding:10px">
+            <h3>${drawing.label}</h3>
+            <div style="background: ${drawing.color}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
+              ANNOTATION
+            </div>
+            <p>Coordinates: ${pos.lat.toFixed(5)}°, ${pos.lon.toFixed(5)}°<br>
+            Height: ${pos.height.toFixed(1)}m<br>
+            Created: ${new Date(drawing.timestamp).toLocaleString('en-US')}</p>
+          </div>`
+        });
+        
+        console.log('Annotation entity created:', entity);
+        return;
+      }
+      
       const positions = drawing.positions.map(p => 
         Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
       );
-      
-      const color = Cesium.Color.fromCssColorString(drawing.color);
       
       if (drawing.type === 'polygon') {
         viewer.entities.add({
@@ -1123,39 +1170,6 @@
             <h3>${drawing.label}</h3>
             <div style="background: ${drawing.color}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
               ${drawing.type.toUpperCase()}
-            </div>
-            <p>Created: ${new Date(drawing.timestamp).toLocaleString('en-US')}</p>
-          </div>`
-        });
-      } else if (drawing.type === 'annotation' && drawing.positions.length > 0) {
-        const pos = drawing.positions[0];
-        viewer.entities.add({
-          id: drawing.id,
-          show: drawing.variant === activeVariant,
-          position: Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat, pos.height),
-          billboard: {
-            image: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"><circle cx="20" cy="20" r="18" fill="${drawing.color}" stroke="white" stroke-width="3"/><text x="20" y="27" font-family="Arial" font-size="20" fill="white" text-anchor="middle">📌</text></svg>`),
-            scale: 0.8,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY
-          },
-          label: {
-            text: drawing.label,
-            font: '14px sans-serif',
-            fillColor: Cesium.Color.WHITE,
-            outlineColor: Cesium.Color.BLACK,
-            outlineWidth: 2,
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            pixelOffset: new Cesium.Cartesian2(0, -40),
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY
-          },
-          description: `<div style="padding:10px">
-            <h3>${drawing.label}</h3>
-            <div style="background: ${drawing.color}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-              ANNOTATION
             </div>
             <p>Created: ${new Date(drawing.timestamp).toLocaleString('en-US')}</p>
           </div>`
