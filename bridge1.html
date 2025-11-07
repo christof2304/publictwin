@@ -517,64 +517,47 @@
     <div style="background: rgba(72,136,187,0.2); padding: 8px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
       Comment for: <strong id="dialogVariant">Variant 1</strong>
     </div>
+    
+    <!-- Visualization Type Selection -->
+    <div style="margin-bottom: 15px;">
+      <label style="display: block; font-size: 11px; color: #888; margin-bottom: 5px;">Visualization Type:</label>
+      <div style="display: flex; gap: 5px;">
+        <button id="visTypePoint" class="vis-type-btn active" data-type="point" style="flex: 1; background: #4caf50; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">
+          📍 Point
+        </button>
+        <button id="visTypeLine" class="vis-type-btn" data-type="line" style="flex: 1; background: #666; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">
+          📏 Line
+        </button>
+        <button id="visTypePolygon" class="vis-type-btn" data-type="polygon" style="flex: 1; background: #666; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">
+          📐 Polygon
+        </button>
+      </div>
+    </div>
+    
+    <!-- Color Selection -->
+    <div style="margin-bottom: 15px;">
+      <label style="display: block; font-size: 11px; color: #888; margin-bottom: 5px;">Color:</label>
+      <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px;">
+        <div class="color-swatch-dialog selected" style="aspect-ratio: 1; background: #4CAF50; border: 2px solid white; border-radius: 4px; cursor: pointer;" data-color="#4CAF50"></div>
+        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #2196F3; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#2196F3"></div>
+        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #FF9800; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#FF9800"></div>
+        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #F44336; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#F44336"></div>
+        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #9C27B0; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#9C27B0"></div>
+        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #FFEB3B; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#FFEB3B"></div>
+        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #00BCD4; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#00BCD4"></div>
+        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #607D8B; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#607D8B"></div>
+      </div>
+    </div>
+    
+    <div id="commentInstructions" style="background: rgba(255,152,0,0.2); padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px; color: #ff9800; display: none;">
+      Click on the map to add points. Right-click to finish.
+    </div>
+    
     <input type="text" id="commentTitle" placeholder="Comment Title" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; box-sizing: border-box;">
     <textarea id="commentText" placeholder="Your comment on the design..." style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; min-height: 80px; resize: vertical; box-sizing: border-box;"></textarea>
     <div style="margin-top: 15px; text-align: right;">
       <button id="cancelCommentBtn" style="background: #666; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Cancel</button>
       <button id="saveCommentBtn" style="background: #4caf50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Save</button>
-    </div>
-  </div>
-  
-  <!-- Drawing Tools Panel -->
-  <div id="drawingPanel" class="minimized">
-    <div class="panel-header" onclick="toggleDrawingPanel()">
-      <h4>✏️ Drawing Tools</h4>
-      <button class="panel-toggle minimized">▼</button>
-    </div>
-    <div class="panel-content">
-      <button id="drawPolygonBtn" class="tool-button">
-        <span>📐</span>
-        <span>Draw Polygon</span>
-      </button>
-      
-      <button id="drawLineBtn" class="tool-button">
-        <span>📏</span>
-        <span>Draw Line</span>
-      </button>
-      
-      <button id="drawAnnotationBtn" class="tool-button">
-        <span>📌</span>
-        <span>Add Annotation</span>
-      </button>
-      
-      <div class="color-picker-container">
-        <label>Drawing Color:</label>
-        <div class="color-swatch-grid">
-          <div class="color-swatch selected" style="background: #4CAF50;" data-color="#4CAF50"></div>
-          <div class="color-swatch" style="background: #2196F3;" data-color="#2196F3"></div>
-          <div class="color-swatch" style="background: #FF9800;" data-color="#FF9800"></div>
-          <div class="color-swatch" style="background: #F44336;" data-color="#F44336"></div>
-          <div class="color-swatch" style="background: #9C27B0;" data-color="#9C27B0"></div>
-          <div class="color-swatch" style="background: #FFEB3B;" data-color="#FFEB3B"></div>
-          <div class="color-swatch" style="background: #00BCD4;" data-color="#00BCD4"></div>
-          <div class="color-swatch" style="background: #E91E63;" data-color="#E91E63"></div>
-          <div class="color-swatch" style="background: #FFFFFF;" data-color="#FFFFFF"></div>
-          <div class="color-swatch" style="background: #000000;" data-color="#000000"></div>
-          <div class="color-swatch" style="background: #607D8B;" data-color="#607D8B"></div>
-          <div class="color-swatch" style="background: #FFC107;" data-color="#FFC107"></div>
-        </div>
-      </div>
-      
-      <div id="drawingStatus" style="display: none;">
-        Ready to draw
-      </div>
-      
-      <div style="margin-top: 15px;">
-        <h4 style="margin: 0 0 10px 0; color: #888; font-size: 12px;">📋 Drawings (<span id="drawingCount">0</span>):</h4>
-        <div id="drawingList" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 5px;">
-          <div style="color: #666; font-size: 11px; text-align: center; padding: 10px;">No drawings yet</div>
-        </div>
-      </div>
     </div>
   </div>
   
@@ -631,7 +614,6 @@
     });
 
     let comments = [];
-    let drawings = [];
     let currentPosition = null;
     let isAddingComment = false;
     let previewEntity = null;
@@ -645,11 +627,11 @@
     let basemapMode = 'google3d';
     let menuOpen = false;
     
-    // Drawing state
-    let drawingMode = null; // 'polygon', 'line', 'annotation', or null
-    let drawingPoints = [];
+    // Comment visualization state
+    let commentVisType = 'point'; // 'point', 'line', or 'polygon'
+    let commentColor = '#4CAF50';
+    let commentPositions = []; // For line/polygon
     let tempDrawingEntity = null;
-    let currentDrawingColor = '#4CAF50';
     
     let votes = {
       variant1: { thumbsUp: 0, thumbsDown: 0 },
@@ -679,19 +661,153 @@
       return collectionMap[variant] || 'votes_unknown';
     }
     
-    function getDrawingsCollectionName(variant) {
-      const collectionMap = {
-        'variant1': 'drawings_trainbridge',
-        'variant2': 'drawings_transporter',
-        'variant3': 'drawings_belgium'
-      };
-      return collectionMap[variant] || 'drawings_unknown';
+    function addCommentToViewer(comment) {
+      console.log('Adding comment to viewer:', comment);
+      
+      const visType = comment.visType || 'point';
+      const color = comment.color || '#4CAF50';
+      const cesiumColor = Cesium.Color.fromCssColorString(color);
+      
+      // Get positions (backward compatibility with old comments)
+      let positions = comment.positions;
+      if (!positions && comment.lon !== undefined && comment.lat !== undefined) {
+        positions = [{lon: comment.lon, lat: comment.lat, height: comment.height || 0}];
+      }
+      
+      if (!positions || positions.length === 0) {
+        console.error('Comment has no positions:', comment);
+        return;
+      }
+      
+      const variantColor = comment.variant === 'variant1' ? '#4caf50' : 
+                          comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+      
+      // POINT visualization
+      if (visType === 'point') {
+        const pos = positions[0];
+        const position = Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat, pos.height);
+        
+        viewer.entities.add({
+          id: comment.id,
+          position: position,
+          show: comment.variant === activeVariant,
+          billboard: {
+            image: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"><circle cx="20" cy="20" r="18" fill="${color}" stroke="white" stroke-width="3"/><circle cx="20" cy="20" r="8" fill="white"/></svg>`),
+            scale: 0.8,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          label: {
+            text: comment.title,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -40),
+            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          description: `<div style="padding:10px">
+            <h3>${comment.title}</h3>
+            <div style="background: ${variantColor}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
+              ${comment.variant === 'variant1' ? 'Train Bridge' : comment.variant === 'variant2' ? 'Transporter Bridge' : 'Belgium Bridge'}
+            </div>
+            <p>${comment.text}</p>
+            <p style="font-size:11px;color:#888">
+              Coordinates: ${pos.lat.toFixed(5)}°, ${pos.lon.toFixed(5)}°<br>
+              Height: ${pos.height.toFixed(1)}m<br>
+              Created: ${new Date(comment.timestamp).toLocaleString('en-US')}
+            </p>
+          </div>`
+        });
+      }
+      // LINE visualization
+      else if (visType === 'line') {
+        const cartesianPositions = positions.map(p => 
+          Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
+        );
+        
+        viewer.entities.add({
+          id: comment.id,
+          show: comment.variant === activeVariant,
+          polyline: {
+            positions: cartesianPositions,
+            width: 5,
+            material: cesiumColor,
+            clampToGround: true
+          },
+          label: {
+            text: comment.title,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset: new Cesium.Cartesian2(0, -20),
+            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
+          },
+          description: `<div style="padding:10px">
+            <h3>${comment.title}</h3>
+            <div style="background: ${variantColor}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
+              ${comment.variant === 'variant1' ? 'Train Bridge' : comment.variant === 'variant2' ? 'Transporter Bridge' : 'Belgium Bridge'} • LINE
+            </div>
+            <p>${comment.text}</p>
+            <p style="font-size:11px;color:#888">
+              Points: ${positions.length}<br>
+              Created: ${new Date(comment.timestamp).toLocaleString('en-US')}
+            </p>
+          </div>`
+        });
+      }
+      // POLYGON visualization
+      else if (visType === 'polygon') {
+        const cartesianPositions = positions.map(p => 
+          Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
+        );
+        
+        viewer.entities.add({
+          id: comment.id,
+          show: comment.variant === activeVariant,
+          polygon: {
+            hierarchy: new Cesium.PolygonHierarchy(cartesianPositions),
+            material: cesiumColor.withAlpha(0.4),
+            outline: true,
+            outlineColor: cesiumColor,
+            outlineWidth: 3,
+            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
+          },
+          label: {
+            text: comment.title,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset: new Cesium.Cartesian2(0, -20),
+            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
+          },
+          description: `<div style="padding:10px">
+            <h3>${comment.title}</h3>
+            <div style="background: ${variantColor}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
+              ${comment.variant === 'variant1' ? 'Train Bridge' : comment.variant === 'variant2' ? 'Transporter Bridge' : 'Belgium Bridge'} • POLYGON
+            </div>
+            <p>${comment.text}</p>
+            <p style="font-size:11px;color:#888">
+              Points: ${positions.length}<br>
+              Created: ${new Date(comment.timestamp).toLocaleString('en-US')}
+            </p>
+          </div>`
+        });
+      }
     }
     
     function setupFirebaseListeners() {
       if (!firebaseInitialized) return;
       
-      // Listen to comments
+      // Listen to comments from all three collections
       ['variant1', 'variant2', 'variant3'].forEach(variant => {
         const collectionName = getCollectionName(variant);
         
@@ -713,27 +829,6 @@
         }, (error) => {
           console.error(`Error listening to ${collectionName}:`, error);
           showStatus('Error loading comments', 'error');
-        });
-        
-        // Listen to drawings
-        const drawingsCollectionName = getDrawingsCollectionName(variant);
-        
-        db.collection(drawingsCollectionName).onSnapshot((snapshot) => {
-          drawings = drawings.filter(d => d.variant !== variant);
-          
-          snapshot.forEach((doc) => {
-            const drawing = { id: doc.id, variant: variant, ...doc.data() };
-            drawings.push(drawing);
-            
-            if (!viewer.entities.getById(drawing.id)) {
-              addDrawingToViewer(drawing);
-            }
-          });
-          
-          updateDrawingList();
-          console.log(`✏️ Loaded ${snapshot.size} drawings from ${drawingsCollectionName}`);
-        }, (error) => {
-          console.error(`Error listening to ${drawingsCollectionName}:`, error);
         });
       });
       
@@ -765,59 +860,28 @@
       try {
         const collectionName = getCollectionName(comment.variant);
         
-        await db.collection(collectionName).doc(comment.id).set({
+        const commentData = {
           title: comment.title,
           text: comment.text,
-          lon: comment.lon,
-          lat: comment.lat,
-          height: comment.height,
+          visType: comment.visType || 'point',
+          color: comment.color || '#4CAF50',
+          positions: comment.positions || [{lon: comment.lon, lat: comment.lat, height: comment.height}],
           timestamp: comment.timestamp
-        });
+        };
+        
+        // Backward compatibility: keep lon, lat, height for old point comments
+        if (comment.visType === 'point' && comment.positions && comment.positions.length > 0) {
+          commentData.lon = comment.positions[0].lon;
+          commentData.lat = comment.positions[0].lat;
+          commentData.height = comment.positions[0].height;
+        }
+        
+        await db.collection(collectionName).doc(comment.id).set(commentData);
         console.log(`✅ Comment saved to Firebase: ${collectionName}/${comment.id}`);
         return true;
       } catch (error) {
         console.error('❌ Error saving comment:', error);
         showStatus('Error saving comment: ' + error.message, 'error');
-        return false;
-      }
-    }
-
-    async function saveDrawingToFirebase(drawing) {
-      if (!firebaseInitialized) {
-        showStatus('Firebase not configured', 'error');
-        return false;
-      }
-      
-      try {
-        const collectionName = getDrawingsCollectionName(drawing.variant);
-        
-        await db.collection(collectionName).doc(drawing.id).set({
-          type: drawing.type,
-          label: drawing.label,
-          color: drawing.color,
-          positions: drawing.positions,
-          timestamp: drawing.timestamp
-        });
-        console.log(`✅ Drawing saved to Firebase: ${collectionName}/${drawing.id}`);
-        return true;
-      } catch (error) {
-        console.error('❌ Error saving drawing:', error);
-        showStatus('Error saving drawing: ' + error.message, 'error');
-        return false;
-      }
-    }
-
-    async function deleteDrawingFromFirebase(drawingId, variant) {
-      if (!firebaseInitialized) return false;
-      
-      try {
-        const collectionName = getDrawingsCollectionName(variant);
-        await db.collection(collectionName).doc(drawingId).delete();
-        console.log(`✅ Drawing deleted from Firebase: ${collectionName}/${drawingId}`);
-        return true;
-      } catch (error) {
-        console.error('❌ Error deleting drawing:', error);
-        showStatus('Error deleting drawing: ' + error.message, 'error');
         return false;
       }
     }
@@ -884,368 +948,6 @@
         showStatus('Error deleting comments: ' + error.message, 'error');
         return false;
       }
-    }
-
-    // =====================================
-    // DRAWING FUNCTIONS
-    // =====================================
-
-    function toggleDrawingPanel() {
-      const panel = document.getElementById('drawingPanel');
-      const toggle = panel.querySelector('.panel-toggle');
-      
-      if (panel.classList.contains('minimized')) {
-        panel.classList.remove('minimized');
-        toggle.classList.remove('minimized');
-      } else {
-        panel.classList.add('minimized');
-        toggle.classList.add('minimized');
-      }
-    }
-
-    function startDrawing(mode) {
-      if (!activeVariant) {
-        showStatus('⚠️ Please select a bridge design first!', 'error');
-        return;
-      }
-      
-      // Cancel any existing comment mode
-      if (isAddingComment) {
-        isAddingComment = false;
-        document.getElementById('addCommentBtn').style.background = '#48b';
-        document.getElementById('addCommentBtn').textContent = '➕ Add Comment';
-        closeCommentDialog();
-      }
-      
-      if (drawingMode === mode) {
-        // Cancel current drawing mode
-        cancelDrawing();
-      } else {
-        // Start new drawing mode
-        drawingMode = mode;
-        drawingPoints = [];
-        
-        // Update UI
-        document.querySelectorAll('.tool-button').forEach(btn => btn.classList.remove('active'));
-        if (mode === 'polygon') {
-          document.getElementById('drawPolygonBtn').classList.add('active');
-          showDrawingStatus('Click to add points. Right-click to finish polygon.');
-        } else if (mode === 'line') {
-          document.getElementById('drawLineBtn').classList.add('active');
-          showDrawingStatus('Click to add points. Right-click to finish line.');
-        } else if (mode === 'annotation') {
-          document.getElementById('drawAnnotationBtn').classList.add('active');
-          showDrawingStatus('Click to place annotation marker.');
-        }
-      }
-    }
-
-    function cancelDrawing() {
-      drawingMode = null;
-      drawingPoints = [];
-      removeTempDrawing();
-      
-      document.querySelectorAll('.tool-button').forEach(btn => btn.classList.remove('active'));
-      hideDrawingStatus();
-    }
-
-    function showDrawingStatus(message) {
-      const status = document.getElementById('drawingStatus');
-      status.textContent = message;
-      status.style.display = 'block';
-    }
-
-    function hideDrawingStatus() {
-      const status = document.getElementById('drawingStatus');
-      status.style.display = 'none';
-    }
-
-    function updateTempDrawing() {
-      removeTempDrawing();
-      
-      if (drawingPoints.length === 0) return;
-      
-      const positions = drawingPoints.map(p => 
-        Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
-      );
-      
-      if (drawingMode === 'polygon' && drawingPoints.length >= 2) {
-        tempDrawingEntity = viewer.entities.add({
-          id: 'temp_drawing',
-          polygon: {
-            hierarchy: new Cesium.PolygonHierarchy(positions),
-            material: Cesium.Color.fromCssColorString(currentDrawingColor).withAlpha(0.5),
-            outline: true,
-            outlineColor: Cesium.Color.fromCssColorString(currentDrawingColor),
-            outlineWidth: 3,
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
-          }
-        });
-      } else if (drawingMode === 'line' && drawingPoints.length >= 2) {
-        tempDrawingEntity = viewer.entities.add({
-          id: 'temp_drawing',
-          polyline: {
-            positions: positions,
-            width: 5,
-            material: Cesium.Color.fromCssColorString(currentDrawingColor),
-            clampToGround: true
-          }
-        });
-      }
-      
-      // Add point markers
-      drawingPoints.forEach((point, index) => {
-        viewer.entities.add({
-          id: `temp_point_${index}`,
-          position: Cesium.Cartesian3.fromDegrees(point.lon, point.lat, point.height),
-          point: {
-            pixelSize: 10,
-            color: Cesium.Color.WHITE,
-            outlineColor: Cesium.Color.fromCssColorString(currentDrawingColor),
-            outlineWidth: 3,
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
-          }
-        });
-      });
-    }
-
-    function removeTempDrawing() {
-      if (tempDrawingEntity) {
-        viewer.entities.remove(tempDrawingEntity);
-        tempDrawingEntity = null;
-      }
-      
-      // Remove point markers
-      for (let i = 0; i < 100; i++) {
-        const entity = viewer.entities.getById(`temp_point_${i}`);
-        if (entity) viewer.entities.remove(entity);
-      }
-    }
-
-    function finishDrawing() {
-      if (!drawingMode) {
-        console.log('No drawing mode active');
-        cancelDrawing();
-        return;
-      }
-      
-      // Annotations only need 1 point, lines/polygons need at least 2
-      const minPoints = drawingMode === 'annotation' ? 1 : 2;
-      
-      if (drawingPoints.length < minPoints) {
-        console.log(`Not enough points: ${drawingPoints.length} < ${minPoints}`);
-        cancelDrawing();
-        return;
-      }
-      
-      const label = prompt(`Enter a label for this ${drawingMode}:`, `${drawingMode} ${drawings.length + 1}`);
-      if (!label) {
-        console.log('User cancelled label input');
-        cancelDrawing();
-        return;
-      }
-      
-      const drawing = {
-        id: 'drawing_' + Date.now(),
-        variant: activeVariant,
-        type: drawingMode,
-        label: label,
-        color: currentDrawingColor,
-        positions: drawingPoints,
-        timestamp: new Date().toISOString()
-      };
-      
-      console.log('Saving drawing:', drawing);
-      saveDrawingToFirebase(drawing);
-      
-      cancelDrawing();
-      showStatus(`Drawing "${label}" saved!`, 'success');
-    }
-
-    function addDrawingToViewer(drawing) {
-      console.log('Adding drawing to viewer:', drawing);
-      
-      const color = Cesium.Color.fromCssColorString(drawing.color);
-      
-      if (drawing.type === 'annotation' && drawing.positions.length > 0) {
-        const pos = drawing.positions[0];
-        console.log('Creating annotation at:', pos);
-        
-        const position = Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat, pos.height);
-        console.log('Cartesian position:', position);
-        
-        const entity = viewer.entities.add({
-          id: drawing.id,
-          show: drawing.variant === activeVariant,
-          position: position,
-          billboard: {
-            image: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"><path d="M20 5 L30 20 L20 40 L10 20 Z" fill="${drawing.color}" stroke="white" stroke-width="2"/><circle cx="20" cy="20" r="5" fill="white"/></svg>`),
-            scale: 0.9,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY
-          },
-          label: {
-            text: drawing.label,
-            font: '14px sans-serif',
-            fillColor: Cesium.Color.WHITE,
-            outlineColor: Cesium.Color.BLACK,
-            outlineWidth: 2,
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            pixelOffset: new Cesium.Cartesian2(0, -40),
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY
-          },
-          description: `<div style="padding:10px">
-            <h3>${drawing.label}</h3>
-            <div style="background: ${drawing.color}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-              ANNOTATION
-            </div>
-            <p>Coordinates: ${pos.lat.toFixed(5)}°, ${pos.lon.toFixed(5)}°<br>
-            Height: ${pos.height.toFixed(1)}m<br>
-            Created: ${new Date(drawing.timestamp).toLocaleString('en-US')}</p>
-          </div>`
-        });
-        
-        console.log('Annotation entity created:', entity);
-        return;
-      }
-      
-      const positions = drawing.positions.map(p => 
-        Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
-      );
-      
-      if (drawing.type === 'polygon') {
-        viewer.entities.add({
-          id: drawing.id,
-          show: drawing.variant === activeVariant,
-          polygon: {
-            hierarchy: new Cesium.PolygonHierarchy(positions),
-            material: color.withAlpha(0.4),
-            outline: true,
-            outlineColor: color,
-            outlineWidth: 3,
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
-          },
-          label: {
-            text: drawing.label,
-            font: '14px sans-serif',
-            fillColor: Cesium.Color.WHITE,
-            outlineColor: Cesium.Color.BLACK,
-            outlineWidth: 2,
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            pixelOffset: new Cesium.Cartesian2(0, -20),
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
-          },
-          description: `<div style="padding:10px">
-            <h3>${drawing.label}</h3>
-            <div style="background: ${drawing.color}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-              ${drawing.type.toUpperCase()}
-            </div>
-            <p>Created: ${new Date(drawing.timestamp).toLocaleString('en-US')}</p>
-          </div>`
-        });
-      } else if (drawing.type === 'line') {
-        viewer.entities.add({
-          id: drawing.id,
-          show: drawing.variant === activeVariant,
-          polyline: {
-            positions: positions,
-            width: 5,
-            material: color,
-            clampToGround: true
-          },
-          label: {
-            text: drawing.label,
-            font: '14px sans-serif',
-            fillColor: Cesium.Color.WHITE,
-            outlineColor: Cesium.Color.BLACK,
-            outlineWidth: 2,
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            pixelOffset: new Cesium.Cartesian2(0, -20),
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
-          },
-          description: `<div style="padding:10px">
-            <h3>${drawing.label}</h3>
-            <div style="background: ${drawing.color}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-              ${drawing.type.toUpperCase()}
-            </div>
-            <p>Created: ${new Date(drawing.timestamp).toLocaleString('en-US')}</p>
-          </div>`
-        });
-      }
-    }
-
-    function updateDrawingList() {
-      const container = document.getElementById('drawingList');
-      container.innerHTML = '';
-      
-      if (!activeVariant) {
-        container.innerHTML = '<div style="color: #666; font-size: 11px; text-align: center; padding: 10px;">Please select a bridge design first</div>';
-        document.getElementById('drawingCount').textContent = '0';
-        return;
-      }
-      
-      const filteredDrawings = drawings.filter(d => d.variant === activeVariant);
-      document.getElementById('drawingCount').textContent = filteredDrawings.length;
-      
-      if (filteredDrawings.length === 0) {
-        container.innerHTML = '<div style="color: #666; font-size: 11px; text-align: center; padding: 10px;">No drawings yet</div>';
-        return;
-      }
-      
-      filteredDrawings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      
-      filteredDrawings.forEach(drawing => {
-        const item = document.createElement('div');
-        item.className = 'drawing-list-item';
-        item.style.borderLeftColor = drawing.color;
-        
-        const info = document.createElement('div');
-        info.className = 'drawing-info';
-        info.innerHTML = `
-          <div class="drawing-title">${drawing.label}</div>
-          <div class="drawing-meta">${drawing.type} • ${new Date(drawing.timestamp).toLocaleDateString('en-US')}</div>
-        `;
-        
-        info.onclick = function() {
-          const entity = viewer.entities.getById(drawing.id);
-          if (entity) {
-            viewer.flyTo(entity, {
-              duration: 2.0,
-              offset: new Cesium.HeadingPitchRange(0, -0.5, 500)
-            });
-          }
-        };
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-drawing-btn';
-        deleteBtn.textContent = '🗑️';
-        deleteBtn.onclick = async function(e) {
-          e.stopPropagation();
-          if (confirm(`Delete drawing "${drawing.label}"?`)) {
-            const success = await deleteDrawingFromFirebase(drawing.id, drawing.variant);
-            if (success) {
-              viewer.entities.removeById(drawing.id);
-              showStatus('Drawing deleted', 'success');
-            }
-          }
-        };
-        
-        item.appendChild(info);
-        item.appendChild(deleteBtn);
-        container.appendChild(item);
-      });
-    }
-
-    function updateDrawingVisibility() {
-      drawings.forEach(drawing => {
-        const entity = viewer.entities.getById(drawing.id);
-        if (entity) {
-          entity.show = activeVariant ? drawing.variant === activeVariant : false;
-        }
-      });
     }
 
     // =====================================
@@ -1324,13 +1026,25 @@
       
       filteredComments.forEach(comment => {
         const item = document.createElement('div');
-        const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
-                           comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+        const borderColor = comment.color || (comment.variant === 'variant1' ? '#4caf50' : 
+                           comment.variant === 'variant2' ? '#2196f3' : '#ff9800');
+        const visType = comment.visType || 'point';
+        const visIcon = visType === 'point' ? '📍' : visType === 'line' ? '📏' : '📐';
+        
         item.style.cssText = 'background: rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 10px; margin-bottom: 8px; cursor: pointer; border-left: 3px solid ' + borderColor + ';';
+        
+        // Get first position for display
+        let displayPos = { lat: 0, lon: 0 };
+        if (comment.positions && comment.positions.length > 0) {
+          displayPos = comment.positions[0];
+        } else if (comment.lon !== undefined) {
+          displayPos = { lat: comment.lat, lon: comment.lon };
+        }
+        
         item.innerHTML = `
-          <div style="font-weight: bold; color: #5ac; margin-bottom: 5px;">${comment.title}</div>
+          <div style="font-weight: bold; color: #5ac; margin-bottom: 5px;">${visIcon} ${comment.title}</div>
           <div style="font-size: 12px; color: #ccc; margin-bottom: 5px;">${comment.text.substring(0, 60)}${comment.text.length > 60 ? '...' : ''}</div>
-          <div style="font-size: 10px; color: #888;">📍 ${comment.lat.toFixed(3)}°, ${comment.lon.toFixed(3)}° | ${new Date(comment.timestamp).toLocaleDateString('en-US')}</div>
+          <div style="font-size: 10px; color: #888;">📍 ${displayPos.lat.toFixed(3)}°, ${displayPos.lon.toFixed(3)}° | ${new Date(comment.timestamp).toLocaleDateString('en-US')}</div>
         `;
         item.onclick = function() {
           const entity = viewer.entities.getById(comment.id);
@@ -1402,8 +1116,8 @@
         const item = document.createElement('div');
         item.className = 'latest-comment-item';
         
-        const borderColor = comment.variant === 'variant1' ? '#4caf50' : 
-                           comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
+        const borderColor = comment.color || (comment.variant === 'variant1' ? '#4caf50' : 
+                           comment.variant === 'variant2' ? '#2196f3' : '#ff9800');
         item.style.borderLeftColor = borderColor;
         
         const variantColor = comment.variant === 'variant1' ? '#4caf50' : 
@@ -1411,11 +1125,14 @@
         const variantText = comment.variant === 'variant1' ? 'Train' : 
                            comment.variant === 'variant2' ? 'Transporter' : 'Belgium';
         
+        const visType = comment.visType || 'point';
+        const visIcon = visType === 'point' ? '📍' : visType === 'line' ? '📏' : '📐';
+        
         const timeAgo = getTimeAgo(comment.timestamp);
         
         item.innerHTML = `
           <div class="latest-comment-title">
-            <span>${comment.title}</span>
+            <span>${visIcon} ${comment.title}</span>
             <span class="latest-comment-variant" style="background: ${variantColor};">${variantText}</span>
           </div>
           <div class="latest-comment-text">${comment.text}</div>
@@ -1516,8 +1233,6 @@
       updateCommentVisibility();
       updateCommentList();
       updateVotingWidget();
-      updateDrawingVisibility();
-      updateDrawingList();
     }
 
     function createPreviewMarker(lon, lat, height) {
@@ -1569,9 +1284,32 @@
       document.getElementById('commentTitle').value = '';
       document.getElementById('commentText').value = '';
       
+      // Reset vis type and color to defaults
+      commentVisType = 'point';
+      commentColor = '#4CAF50';
+      commentPositions = [];
+      
+      // Update UI
+      document.querySelectorAll('.vis-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = '#666';
+      });
+      document.getElementById('visTypePoint').classList.add('active');
+      document.getElementById('visTypePoint').style.background = '#4caf50';
+      
+      document.querySelectorAll('.color-swatch-dialog').forEach(swatch => {
+        swatch.classList.remove('selected');
+        swatch.style.borderColor = 'transparent';
+      });
+      document.querySelector('.color-swatch-dialog[data-color="#4CAF50"]').classList.add('selected');
+      document.querySelector('.color-swatch-dialog[data-color="#4CAF50"]').style.borderColor = 'white';
+      
+      // Show/hide instructions
+      document.getElementById('commentInstructions').style.display = 'none';
+      
       dialog.style.display = 'block';
       dialog.style.left = Math.min(screenPosition.x + 20, window.innerWidth - 360) + 'px';
-      dialog.style.top = Math.min(screenPosition.y - 50, window.innerHeight - 300) + 'px';
+      dialog.style.top = Math.min(screenPosition.y - 50, window.innerHeight - 400) + 'px';
       
       setTimeout(() => document.getElementById('commentTitle').focus(), 100);
     }
@@ -1581,9 +1319,77 @@
       document.getElementById('commentTitle').value = '';
       document.getElementById('commentText').value = '';
       removePreviewMarker();
+      removeTempDrawing();
       isAddingComment = false;
+      commentPositions = [];
       document.getElementById('addCommentBtn').style.background = '#48b';
       document.getElementById('addCommentBtn').textContent = '➕ Add Comment';
+      document.getElementById('commentInstructions').style.display = 'none';
+    }
+    
+    function removeTempDrawing() {
+      if (tempDrawingEntity) {
+        viewer.entities.remove(tempDrawingEntity);
+        tempDrawingEntity = null;
+      }
+      
+      // Remove point markers
+      for (let i = 0; i < 100; i++) {
+        const entity = viewer.entities.getById(`temp_point_${i}`);
+        if (entity) viewer.entities.remove(entity);
+      }
+    }
+    
+    function updateTempDrawing() {
+      removeTempDrawing();
+      
+      if (commentPositions.length === 0) return;
+      
+      const positions = commentPositions.map(p => 
+        Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
+      );
+      
+      if (commentVisType === 'polygon' && commentPositions.length >= 2) {
+        tempDrawingEntity = viewer.entities.add({
+          id: 'temp_drawing',
+          polygon: {
+            hierarchy: new Cesium.PolygonHierarchy(positions),
+            material: Cesium.Color.fromCssColorString(commentColor).withAlpha(0.3),
+            outline: true,
+            outlineColor: Cesium.Color.fromCssColorString(commentColor),
+            outlineWidth: 3,
+            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
+          }
+        });
+      } else if (commentVisType === 'line' && commentPositions.length >= 2) {
+        tempDrawingEntity = viewer.entities.add({
+          id: 'temp_drawing',
+          polyline: {
+            positions: positions,
+            width: 5,
+            material: new Cesium.PolylineDashMaterialProperty({
+              color: Cesium.Color.fromCssColorString(commentColor),
+              dashLength: 16
+            }),
+            clampToGround: true
+          }
+        });
+      }
+      
+      // Add fixed point markers
+      commentPositions.forEach((point, index) => {
+        viewer.entities.add({
+          id: `temp_point_${index}`,
+          position: Cesium.Cartesian3.fromDegrees(point.lon, point.lat, point.height),
+          point: {
+            pixelSize: 10,
+            color: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.fromCssColorString(commentColor),
+            outlineWidth: 3,
+            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
+          }
+        });
+      });
     }
 
     async function loadAssets() {
@@ -1754,18 +1560,61 @@
         return;
       }
       
-      // Cancel drawing mode if active
-      if (drawingMode) {
-        cancelDrawing();
-      }
-      
       isAddingComment = !isAddingComment;
       this.style.background = isAddingComment ? '#f60' : '#48b';
       this.textContent = isAddingComment ? '✋ Cancel' : '➕ Add Comment';
       if (!isAddingComment) {
         closeCommentDialog();
+      } else {
+        showStatus('Click on the map to place your comment...', 'info');
       }
-      showStatus(isAddingComment ? 'Click on a 3D building...' : '');
+    });
+    
+    // Visualization type selection
+    document.querySelectorAll('.vis-type-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        commentVisType = this.dataset.type;
+        commentPositions = [];
+        removeTempDrawing();
+        removePreviewMarker();
+        
+        // Update button states
+        document.querySelectorAll('.vis-type-btn').forEach(b => {
+          b.classList.remove('active');
+          b.style.background = '#666';
+        });
+        this.classList.add('active');
+        this.style.background = commentVisType === 'point' ? '#4caf50' : 
+                               commentVisType === 'line' ? '#2196f3' : '#ff9800';
+        
+        // Show/hide instructions
+        const instructions = document.getElementById('commentInstructions');
+        if (commentVisType === 'line' || commentVisType === 'polygon') {
+          instructions.style.display = 'block';
+          instructions.textContent = 'Click on the map to add points. Right-click to finish.';
+        } else {
+          instructions.style.display = 'none';
+        }
+      });
+    });
+    
+    // Color selection in dialog
+    document.querySelectorAll('.color-swatch-dialog').forEach(swatch => {
+      swatch.addEventListener('click', function() {
+        commentColor = this.dataset.color;
+        
+        document.querySelectorAll('.color-swatch-dialog').forEach(s => {
+          s.classList.remove('selected');
+          s.style.borderColor = 'transparent';
+        });
+        this.classList.add('selected');
+        this.style.borderColor = 'white';
+        
+        // Update temp drawing if exists
+        if (commentPositions.length > 0) {
+          updateTempDrawing();
+        }
+      });
     });
 
     document.getElementById('variant1Btn').addEventListener('click', function() {
@@ -1832,13 +1681,30 @@
         return;
       }
       
+      // Check if we have positions
+      let positions = [];
+      if (commentVisType === 'point') {
+        if (!currentPosition) {
+          alert('Please click on the map first!');
+          return;
+        }
+        positions = [currentPosition];
+      } else {
+        // Line or polygon
+        if (commentPositions.length < 2) {
+          alert(`Please add at least 2 points for a ${commentVisType}!`);
+          return;
+        }
+        positions = commentPositions;
+      }
+      
       const comment = {
         id: 'comment_' + Date.now(),
         title: title,
         text: text,
-        lon: currentPosition.lon,
-        lat: currentPosition.lat,
-        height: currentPosition.height,
+        visType: commentVisType,
+        color: commentColor,
+        positions: positions,
         timestamp: new Date().toISOString(),
         variant: activeVariant
       };
@@ -1848,6 +1714,7 @@
       
       if (success) {
         removePreviewMarker();
+        removeTempDrawing();
         closeCommentDialog();
         showStatus(`Comment "${title}" saved!`, 'success');
       }
@@ -1855,28 +1722,6 @@
 
     document.getElementById('cancelCommentBtn').addEventListener('click', function() {
       closeCommentDialog();
-    });
-
-    // Drawing tool buttons
-    document.getElementById('drawPolygonBtn').addEventListener('click', function() {
-      startDrawing('polygon');
-    });
-
-    document.getElementById('drawLineBtn').addEventListener('click', function() {
-      startDrawing('line');
-    });
-
-    document.getElementById('drawAnnotationBtn').addEventListener('click', function() {
-      startDrawing('annotation');
-    });
-
-    // Color picker
-    document.querySelectorAll('.color-swatch').forEach(swatch => {
-      swatch.addEventListener('click', function() {
-        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-        this.classList.add('selected');
-        currentDrawingColor = this.dataset.color;
-      });
     });
 
     function addCommentToViewer(comment) {
@@ -1935,87 +1780,64 @@
     
     // LEFT CLICK
     handler.setInputAction(function(click) {
-      // Handle comment placement
-      if (isAddingComment) {
-        let pickedPosition = null;
-        let pickedFeature = viewer.scene.pick(click.position);
+      if (!isAddingComment) return;
+      
+      let pickedPosition = null;
+      let pickedFeature = viewer.scene.pick(click.position);
+      
+      if (Cesium.defined(pickedFeature)) {
+        pickedPosition = viewer.scene.pickPosition(click.position);
+      }
+      
+      if (!Cesium.defined(pickedPosition)) {
+        const ray = viewer.camera.getPickRay(click.position);
+        pickedPosition = viewer.scene.globe.pick(ray, viewer.scene);
+      }
+      
+      if (Cesium.defined(pickedPosition)) {
+        const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
+        const lon = Cesium.Math.toDegrees(cartographic.longitude);
+        const lat = Cesium.Math.toDegrees(cartographic.latitude);
+        const height = cartographic.height;
         
-        if (Cesium.defined(pickedFeature)) {
-          pickedPosition = viewer.scene.pickPosition(click.position);
-        }
-        
-        if (!Cesium.defined(pickedPosition)) {
-          const ray = viewer.camera.getPickRay(click.position);
-          pickedPosition = viewer.scene.globe.pick(ray, viewer.scene);
-        }
-        
-        if (Cesium.defined(pickedPosition)) {
-          const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
-          const lon = Cesium.Math.toDegrees(cartographic.longitude);
-          const lat = Cesium.Math.toDegrees(cartographic.latitude);
-          const height = cartographic.height;
-          
+        if (commentVisType === 'point') {
+          // POINT mode - single click
           currentPosition = { lon, lat, height };
           createPreviewMarker(lon, lat, height);
           openCommentDialog(click.position);
         } else {
-          showStatus('⚠️ Please click on a 3D building or terrain!', 'error');
-        }
-        return;
-      }
-      
-      // Handle drawing
-      if (drawingMode) {
-        console.log('Drawing mode active:', drawingMode);
-        let pickedPosition = null;
-        let pickedFeature = viewer.scene.pick(click.position);
-        
-        if (Cesium.defined(pickedFeature)) {
-          pickedPosition = viewer.scene.pickPosition(click.position);
-          console.log('Picked from feature:', pickedPosition);
-        }
-        
-        if (!Cesium.defined(pickedPosition)) {
-          const ray = viewer.camera.getPickRay(click.position);
-          pickedPosition = viewer.scene.globe.pick(ray, viewer.scene);
-          console.log('Picked from globe:', pickedPosition);
-        }
-        
-        if (Cesium.defined(pickedPosition)) {
-          const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
-          const lon = Cesium.Math.toDegrees(cartographic.longitude);
-          const lat = Cesium.Math.toDegrees(cartographic.latitude);
-          const height = cartographic.height;
+          // LINE or POLYGON mode - multiple clicks
+          commentPositions.push({ lon, lat, height });
+          updateTempDrawing();
           
-          console.log('Position:', { lon, lat, height });
-          
-          drawingPoints.push({ lon, lat, height });
-          
-          if (drawingMode === 'annotation') {
-            console.log('Annotation mode - finishing drawing');
-            // For annotation, finish immediately after first click
-            finishDrawing();
-          } else {
-            updateTempDrawing();
-            showDrawingStatus(`${drawingPoints.length} points added. Right-click to finish.`);
+          // Open dialog on first click, keep it open
+          if (commentPositions.length === 1) {
+            openCommentDialog(click.position);
           }
-        } else {
-          console.log('Failed to pick position');
-          showStatus('⚠️ Please click on a 3D building or terrain!', 'error');
+          
+          showStatus(`${commentPositions.length} point(s) added. Right-click to finish or keep adding points.`);
         }
+      } else {
+        showStatus('⚠️ Please click on a 3D building or terrain!', 'error');
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     
-    // RIGHT CLICK
+    // RIGHT CLICK - Finish line/polygon
     handler.setInputAction(function(click) {
-      if (drawingMode && drawingPoints.length >= 2) {
-        finishDrawing();
+      if (isAddingComment && (commentVisType === 'line' || commentVisType === 'polygon')) {
+        if (commentPositions.length >= 2) {
+          showStatus(`${commentVisType} complete with ${commentPositions.length} points. Fill in the form and save.`, 'success');
+        } else {
+          showStatus('Add at least 2 points before finishing', 'error');
+        }
       }
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     
-    // MOUSE MOVE - For temporary drawing preview
+    // MOUSE MOVE - For temporary drawing preview (line/polygon only)
     handler.setInputAction(function(movement) {
-      if (!drawingMode || drawingPoints.length === 0) return;
+      if (!isAddingComment) return;
+      if (commentVisType === 'point') return;
+      if (commentPositions.length === 0) return;
       
       let pickedPosition = null;
       let pickedFeature = viewer.scene.pick(movement.endPosition);
@@ -2038,31 +1860,31 @@
         // Create temp preview with current mouse position
         removeTempDrawing();
         
-        const allPoints = [...drawingPoints, { lon, lat, height }];
+        const allPoints = [...commentPositions, { lon, lat, height }];
         const positions = allPoints.map(p => 
           Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
         );
         
-        if (drawingMode === 'polygon' && allPoints.length >= 2) {
+        if (commentVisType === 'polygon' && allPoints.length >= 2) {
           tempDrawingEntity = viewer.entities.add({
             id: 'temp_drawing',
             polygon: {
               hierarchy: new Cesium.PolygonHierarchy(positions),
-              material: Cesium.Color.fromCssColorString(currentDrawingColor).withAlpha(0.3),
+              material: Cesium.Color.fromCssColorString(commentColor).withAlpha(0.3),
               outline: true,
-              outlineColor: Cesium.Color.fromCssColorString(currentDrawingColor),
+              outlineColor: Cesium.Color.fromCssColorString(commentColor),
               outlineWidth: 3,
               heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
             }
           });
-        } else if (drawingMode === 'line' && allPoints.length >= 2) {
+        } else if (commentVisType === 'line' && allPoints.length >= 2) {
           tempDrawingEntity = viewer.entities.add({
             id: 'temp_drawing',
             polyline: {
               positions: positions,
               width: 5,
               material: new Cesium.PolylineDashMaterialProperty({
-                color: Cesium.Color.fromCssColorString(currentDrawingColor),
+                color: Cesium.Color.fromCssColorString(commentColor),
                 dashLength: 16
               }),
               clampToGround: true
@@ -2071,14 +1893,14 @@
         }
         
         // Add fixed point markers
-        drawingPoints.forEach((point, index) => {
+        commentPositions.forEach((point, index) => {
           viewer.entities.add({
             id: `temp_point_${index}`,
             position: Cesium.Cartesian3.fromDegrees(point.lon, point.lat, point.height),
             point: {
               pixelSize: 10,
               color: Cesium.Color.WHITE,
-              outlineColor: Cesium.Color.fromCssColorString(currentDrawingColor),
+              outlineColor: Cesium.Color.fromCssColorString(commentColor),
               outlineWidth: 3,
               heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
             }
@@ -2087,7 +1909,7 @@
       }
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-    console.log('✅ Public Twin Bridge Comment System with Drawing Tools loaded');
+    console.log('✅ Public Twin Bridge Comment System with Integrated Drawing Tools loaded');
   </script>
 </body>
 </html>
