@@ -700,9 +700,9 @@
     }
     
     function addCommentToViewer(comment) {
-      console.log('Adding comment to viewer:', comment);
-      
       const visType = comment.visType || 'point';
+      console.log('📍 Adding comment to viewer. ID:', comment.id, 'visType:', visType, 'positions:', comment.positions);
+      
       const color = comment.color || '#4CAF50';
       const cesiumColor = Cesium.Color.fromCssColorString(color);
       
@@ -911,6 +911,8 @@
           positions: comment.positions || [{lon: comment.lon, lat: comment.lat, height: comment.height}],
           timestamp: comment.timestamp
         };
+        
+        console.log('💾 Data being saved to Firebase:', commentData);
         
         // Backward compatibility: keep lon, lat, height for old point comments
         if (comment.visType === 'point' && comment.positions && comment.positions.length > 0) {
@@ -1442,10 +1444,18 @@
       document.getElementById('commentTitle').value = '';
       document.getElementById('commentText').value = '';
       
-      // Set dialog type info
+      // Set dialog type info with VERY CLEAR indication
       const typeIcon = commentVisType === 'point' ? '📍' : commentVisType === 'line' ? '📏' : '📐';
       const typeName = commentVisType === 'point' ? 'Point' : commentVisType === 'line' ? 'Line' : 'Polygon';
+      const typeColor = commentVisType === 'point' ? '#4CAF50' : commentVisType === 'line' ? '#2196F3' : '#FF9800';
+      
       document.getElementById('dialogTypeInfo').textContent = `${typeIcon} ${typeName} Comment`;
+      document.getElementById('dialogTypeInfo').style.background = typeColor;
+      
+      // Also update the dialog title to show the mode
+      document.getElementById('dialogTitle').textContent = `✋ Drag to Move | Mode: ${typeName}`;
+      
+      console.log(`🎨 Dialog opened in ${typeName} mode (commentVisType = '${commentVisType}')`);
       
       // Reset color to defaults
       commentColor = '#4CAF50';
@@ -1485,6 +1495,8 @@
       removeTempDrawing();
       isAddingComment = false;
       commentPositions = [];
+      
+      // DON'T reset commentVisType here - let the button handlers control it
       
       // Reset button states
       document.getElementById('addPointCommentBtn').style.background = '#4caf50';
@@ -1796,6 +1808,9 @@
 
     // Point Comment Button
     document.getElementById('addPointCommentBtn').addEventListener('click', function() {
+      console.log('═══════════════════════════════════════');
+      console.log('📍 POINT BUTTON CLICKED');
+      
       if (!activeVariant) {
         showStatus('⚠️ Please select a bridge design first!', 'error');
         return;
@@ -1804,16 +1819,21 @@
       // If already in point mode, cancel
       if (isAddingComment && commentVisType === 'point') {
         isAddingComment = false;
+        commentVisType = 'point'; // Ensure it stays point
         this.style.background = '#4caf50';
         closeCommentDialog();
+        console.log('Point mode cancelled');
         return;
       }
       
-      // Start point mode
+      // Start point mode - EXPLICITLY SET
       commentVisType = 'point';
       commentPositions = [];
       isAddingComment = true;
       removeTempDrawing();
+      
+      console.log('Point mode activated. commentVisType is now:', commentVisType);
+      console.log('═══════════════════════════════════════');
       
       // Update button states
       this.style.background = '#f60';
@@ -1824,6 +1844,9 @@
     
     // Line Comment Button
     document.getElementById('addLineCommentBtn').addEventListener('click', function() {
+      console.log('═══════════════════════════════════════');
+      console.log('📏 LINE BUTTON CLICKED');
+      
       if (!activeVariant) {
         showStatus('⚠️ Please select a bridge design first!', 'error');
         return;
@@ -1832,16 +1855,21 @@
       // If already in line mode, cancel
       if (isAddingComment && commentVisType === 'line') {
         isAddingComment = false;
+        commentVisType = 'line'; // Keep it as line even when cancelled
         this.style.background = '#2196f3';
         closeCommentDialog();
+        console.log('Line mode cancelled');
         return;
       }
       
-      // Start line mode
+      // Start line mode - EXPLICITLY SET
       commentVisType = 'line';
       commentPositions = [];
       isAddingComment = true;
       removeTempDrawing();
+      
+      console.log('Line mode activated. commentVisType is now:', commentVisType);
+      console.log('═══════════════════════════════════════');
       
       // Update button states
       this.style.background = '#f60';
@@ -1852,6 +1880,9 @@
     
     // Polygon Comment Button
     document.getElementById('addPolygonCommentBtn').addEventListener('click', function() {
+      console.log('═══════════════════════════════════════');
+      console.log('📐 POLYGON BUTTON CLICKED');
+      
       if (!activeVariant) {
         showStatus('⚠️ Please select a bridge design first!', 'error');
         return;
@@ -1860,16 +1891,21 @@
       // If already in polygon mode, cancel
       if (isAddingComment && commentVisType === 'polygon') {
         isAddingComment = false;
+        commentVisType = 'polygon'; // Keep it as polygon even when cancelled
         this.style.background = '#ff9800';
         closeCommentDialog();
+        console.log('Polygon mode cancelled');
         return;
       }
       
-      // Start polygon mode
+      // Start polygon mode - EXPLICITLY SET
       commentVisType = 'polygon';
       commentPositions = [];
       isAddingComment = true;
       removeTempDrawing();
+      
+      console.log('Polygon mode activated. commentVisType is now:', commentVisType);
+      console.log('═══════════════════════════════════════');
       
       // Update button states
       this.style.background = '#f60';
@@ -1966,6 +2002,15 @@
       const title = document.getElementById('commentTitle').value.trim();
       const text = document.getElementById('commentText').value.trim();
       
+      // CRITICAL DEBUG: Log exactly what mode we're in
+      console.log('═══════════════════════════════════════');
+      console.log('💾 SAVE BUTTON CLICKED');
+      console.log('Current commentVisType:', commentVisType);
+      console.log('Number of positions:', commentPositions.length);
+      console.log('commentPositions:', commentPositions);
+      console.log('isAddingComment:', isAddingComment);
+      console.log('═══════════════════════════════════════');
+      
       if (!title || !text) {
         showStatus('⚠️ Please fill in both title and comment!', 'error');
         return;
@@ -1999,6 +2044,11 @@
         variant: activeVariant
       };
       
+      console.log('💾 Comment object being created:');
+      console.log('  - visType:', comment.visType);
+      console.log('  - positions count:', comment.positions.length);
+      console.log('  - Full comment:', comment);
+      
       showStatus('Saving comment...', 'loading');
       const success = await saveCommentToFirebase(comment);
       
@@ -2006,7 +2056,9 @@
         removePreviewMarker();
         removeTempDrawing();
         closeCommentDialog();
-        showStatus(`✅ Comment "${title}" saved!`, 'success');
+        showStatus(`✅ ${commentVisType.toUpperCase()} comment "${title}" saved!`, 'success');
+        
+        console.log('✅ Comment saved successfully as:', commentVisType);
       }
     });
 
@@ -2117,10 +2169,18 @@
           currentPosition = { lon, lat, height };
           createPreviewMarker(lon, lat, height);
           openCommentDialog(click.position);
+          console.log('📍 Point placed at:', currentPosition, '| commentVisType:', commentVisType);
         } else {
           // LINE or POLYGON mode - multiple clicks
           commentPositions.push({ lon, lat, height });
           updateTempDrawing();
+          
+          console.log('═══════════════════════════════════════');
+          console.log(`📍 Point #${commentPositions.length} added to ${commentVisType.toUpperCase()}`);
+          console.log('Current commentVisType:', commentVisType);
+          console.log('Total points:', commentPositions.length);
+          console.log('All positions:', commentPositions);
+          console.log('═══════════════════════════════════════');
           
           // Open dialog on first click, keep it open
           if (commentPositions.length === 1) {
@@ -2137,6 +2197,11 @@
     // RIGHT CLICK - Finish line/polygon
     handler.setInputAction(function(click) {
       if (isAddingComment && (commentVisType === 'line' || commentVisType === 'polygon')) {
+        console.log('═══════════════════════════════════════');
+        console.log('🖱️ RIGHT-CLICK: Finishing drawing');
+        console.log('commentVisType:', commentVisType);
+        console.log('Points collected:', commentPositions.length);
+        
         if (commentPositions.length >= 2) {
           // Stop collecting more points
           isAddingComment = false;
@@ -2149,8 +2214,14 @@
           document.getElementById('addLineCommentBtn').style.background = '#2196f3';
           document.getElementById('addPolygonCommentBtn').style.background = '#ff9800';
           
+          console.log(`✅ Drawing finished. commentVisType is STILL: ${commentVisType}`);
+          console.log('isAddingComment is now:', isAddingComment);
+          console.log('═══════════════════════════════════════');
+          
           showStatus(`${commentVisType} complete with ${commentPositions.length} points. Fill in the form and save.`, 'success');
         } else {
+          console.log('⚠️ Not enough points. Need at least 2.');
+          console.log('═══════════════════════════════════════');
           showStatus('Add at least 2 points before finishing', 'error');
         }
       }
