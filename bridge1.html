@@ -701,7 +701,13 @@
     
     function addCommentToViewer(comment) {
       const visType = comment.visType || 'point';
-      console.log('📍 Adding comment to viewer. ID:', comment.id, 'visType:', visType, 'positions:', comment.positions);
+      console.log('═══════════════════════════════════════');
+      console.log('🎨 ADDING COMMENT TO VIEWER');
+      console.log('  ID:', comment.id);
+      console.log('  visType:', visType);
+      console.log('  positions:', comment.positions ? comment.positions.length : 'undefined');
+      console.log('  variant:', comment.variant);
+      console.log('═══════════════════════════════════════');
       
       const color = comment.color || '#4CAF50';
       const cesiumColor = Cesium.Color.fromCssColorString(color);
@@ -765,6 +771,8 @@
             </p>
           </div>`
         });
+        
+        console.log(`✅ POINT visualization created for comment ${comment.id}`);
       }
       // LINE visualization
       else if (visType === 'line') {
@@ -803,6 +811,8 @@
             </p>
           </div>`
         });
+        
+        console.log(`✅ LINE visualization created for comment ${comment.id} with ${positions.length} points`);
       }
       // POLYGON visualization
       else if (visType === 'polygon') {
@@ -844,6 +854,8 @@
             </p>
           </div>`
         });
+        
+        console.log(`✅ POLYGON visualization created for comment ${comment.id} with ${positions.length} points`);
       }
     }
     
@@ -857,18 +869,31 @@
         db.collection(collectionName).onSnapshot((snapshot) => {
           comments = comments.filter(c => c.variant !== variant);
           
+          console.log(`\n📦 Firebase snapshot received for ${collectionName}`);
+          
           snapshot.forEach((doc) => {
-            const comment = { id: doc.id, variant: variant, ...doc.data() };
+            const docData = doc.data();
+            const comment = { id: doc.id, variant: variant, ...docData };
+            
+            console.log(`  └─ Comment: ${doc.id}`);
+            console.log(`     ├─ visType: ${docData.visType || 'undefined'}`);
+            console.log(`     ├─ positions: ${docData.positions ? docData.positions.length : 'undefined'}`);
+            console.log(`     └─ Full data:`, docData);
+            
             comments.push(comment);
             
-            if (!viewer.entities.getById(comment.id)) {
+            const existingEntity = viewer.entities.getById(comment.id);
+            if (!existingEntity) {
+              console.log(`     ✅ Adding to viewer (entity doesn't exist yet)`);
               addCommentToViewer(comment);
+            } else {
+              console.log(`     ⚠️ Skipping - entity already exists in scene`);
             }
           });
           
           updateCommentList();
           updateLatestCommentsWidget();
-          console.log(`📝 Loaded ${snapshot.size} comments from ${collectionName}`);
+          console.log(`📝 Loaded ${snapshot.size} comments from ${collectionName}\n`);
         }, (error) => {
           console.error(`Error listening to ${collectionName}:`, error);
           showStatus('Error loading comments', 'error');
@@ -1432,6 +1457,14 @@
         viewer.entities.remove(previewEntity);
         previewEntity = null;
       }
+      
+      // Also try to remove by ID in case reference was lost
+      const previewMarker = viewer.entities.getById('preview_marker');
+      if (previewMarker) {
+        viewer.entities.remove(previewMarker);
+      }
+      
+      console.log('🧹 Preview marker cleaned up');
     }
 
     function openCommentDialog(screenPosition) {
@@ -1507,16 +1540,27 @@
     }
     
     function removeTempDrawing() {
+      // Remove main temp drawing entity
       if (tempDrawingEntity) {
         viewer.entities.remove(tempDrawingEntity);
         tempDrawingEntity = null;
       }
       
-      // Remove point markers
+      // Also try to remove by ID in case reference was lost
+      const tempEntity = viewer.entities.getById('temp_drawing');
+      if (tempEntity) {
+        viewer.entities.remove(tempEntity);
+      }
+      
+      // Remove all point markers (generous cleanup)
       for (let i = 0; i < 100; i++) {
         const entity = viewer.entities.getById(`temp_point_${i}`);
-        if (entity) viewer.entities.remove(entity);
+        if (entity) {
+          viewer.entities.remove(entity);
+        }
       }
+      
+      console.log('🧹 Temp drawing entities cleaned up');
     }
     
     function updateTempDrawing() {
@@ -2053,12 +2097,23 @@
       const success = await saveCommentToFirebase(comment);
       
       if (success) {
+        // Clean up ALL temporary entities before closing
         removePreviewMarker();
         removeTempDrawing();
+        
+        // Also ensure the comment ID doesn't exist as an entity yet
+        // (in case there's a conflict with temp drawing)
+        const tempEntity = viewer.entities.getById(comment.id);
+        if (tempEntity) {
+          console.log('⚠️ Removing conflicting temp entity:', comment.id);
+          viewer.entities.remove(tempEntity);
+        }
+        
         closeCommentDialog();
         showStatus(`✅ ${commentVisType.toUpperCase()} comment "${title}" saved!`, 'success');
         
         console.log('✅ Comment saved successfully as:', commentVisType);
+        console.log('Waiting for Firebase to trigger visualization...\n');
       }
     });
 
