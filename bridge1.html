@@ -699,6 +699,9 @@
       return collectionMap[variant] || 'votes_unknown';
     }
     
+    // =====================================
+    // FIXED: Single addCommentToViewer function with full support for point/line/polygon
+    // =====================================
     function addCommentToViewer(comment) {
       const visType = comment.visType || 'point';
       console.log('═══════════════════════════════════════');
@@ -1198,6 +1201,9 @@
       document.getElementById('editCommentText').value = '';
     }
     
+    // =====================================
+    // FIXED: Complete saveEditedComment with all fields
+    // =====================================
     async function saveEditedComment() {
       if (!editingCommentId) return;
       
@@ -1217,6 +1223,8 @@
       comment.text = newText;
       
       showStatus('Saving changes...', 'loading');
+      
+      // Save complete comment to Firebase (including visType, color, positions)
       const success = await saveCommentToFirebase(comment);
       
       if (success) {
@@ -2129,67 +2137,6 @@
     document.getElementById('saveEditBtn').addEventListener('click', async function() {
       await saveEditedComment();
     });
-
-    function addCommentToViewer(comment) {
-      // Get coordinates - check if they exist directly, otherwise get from positions array
-      let lon = comment.lon;
-      let lat = comment.lat;
-      let height = comment.height;
-      
-      if ((lon === undefined || lat === undefined || height === undefined) && comment.positions && comment.positions.length > 0) {
-        lon = comment.positions[0].lon;
-        lat = comment.positions[0].lat;
-        height = comment.positions[0].height;
-      }
-      
-      // If still undefined, skip this comment
-      if (lon === undefined || lat === undefined || height === undefined) {
-        console.warn(`Skipping comment ${comment.id} - missing coordinate data`);
-        return;
-      }
-      
-      const position = Cesium.Cartesian3.fromDegrees(lon, lat, height);
-      
-      const color = comment.variant === 'variant1' ? '#4caf50' : 
-                    comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
-      
-      viewer.entities.add({
-        id: comment.id,
-        position: position,
-        show: comment.variant === activeVariant,
-        billboard: {
-          image: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"><circle cx="20" cy="20" r="18" fill="${color}" stroke="white" stroke-width="3"/><circle cx="20" cy="20" r="8" fill="white"/></svg>`),
-          scale: 0.8,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
-        },
-        label: {
-          text: comment.title,
-          font: '14px sans-serif',
-          fillColor: Cesium.Color.WHITE,
-          outlineColor: Cesium.Color.BLACK,
-          outlineWidth: 2,
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -40),
-          heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
-        },
-        description: `<div style="padding:10px">
-          <h3>${comment.title}</h3>
-          <div style="background: ${comment.variant === 'variant1' ? '#4caf50' : comment.variant === 'variant2' ? '#2196f3' : '#ff9800'}; color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 11px; margin-bottom: 10px;">
-            ${comment.variant === 'variant1' ? 'Train Bridge' : comment.variant === 'variant2' ? 'Transporter Bridge' : 'Belgium Bridge'}
-          </div>
-          <p>${comment.text}</p>
-          <p style="font-size:11px;color:#888">
-            Coordinates: ${lat.toFixed(5)}°, ${lon.toFixed(5)}°<br>
-            Height: ${height.toFixed(1)}m<br>
-            Created: ${new Date(comment.timestamp).toLocaleString('en-US')}
-          </p>
-        </div>`
-      });
-    }
 
     // =====================================
     // CESIUM EVENT HANDLERS
