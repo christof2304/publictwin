@@ -2138,6 +2138,17 @@
     handler.setInputAction(function(click) {
       if (isAddingComment && (commentVisType === 'line' || commentVisType === 'polygon')) {
         if (commentPositions.length >= 2) {
+          // Stop collecting more points
+          isAddingComment = false;
+          
+          // Show final drawing
+          updateTempDrawing();
+          
+          // Reset button states
+          document.getElementById('addPointCommentBtn').style.background = '#4caf50';
+          document.getElementById('addLineCommentBtn').style.background = '#2196f3';
+          document.getElementById('addPolygonCommentBtn').style.background = '#ff9800';
+          
           showStatus(`${commentVisType} complete with ${commentPositions.length} points. Fill in the form and save.`, 'success');
         } else {
           showStatus('Add at least 2 points before finishing', 'error');
