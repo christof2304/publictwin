@@ -457,7 +457,14 @@
   <div id="panel" class="hidden">
     <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #555; padding-bottom: 8px;">🌉 Public Twin - Bridge Design Participation</h3>
     
-    <button id="addCommentBtn" style="background: #48b; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">➕ Add Comment</button>
+    <div style="margin-bottom: 15px;">
+      <h4 style="color: #5ac; margin: 0 0 10px 0; font-size: 13px;">💬 Add Comment:</h4>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
+        <button id="addPointCommentBtn" style="background: #4caf50; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 20px;">📍</button>
+        <button id="addLineCommentBtn" style="background: #2196f3; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 20px;">📏</button>
+        <button id="addPolygonCommentBtn" style="background: #ff9800; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 20px;">📐</button>
+      </div>
+    </div>
     
     <div style="margin: 15px 0; padding: 10px; border-top: 1px solid #555; background: rgba(255,255,255,0.05); border-radius: 4px;">
       <h4 style="color: #5ac; margin: 0 0 10px 0; font-size: 13px;">🌉 Bridge Designs:</h4>
@@ -503,7 +510,10 @@
     <div style="margin-top: 15px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h4 style="margin: 0; color: #888; font-size: 13px;">📋 Comments (<span id="commentCount">0</span>):</h4>
-        <button id="clearAllBtn" style="display: none; background: #d32f2f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Clear All</button>
+        <div style="display: flex; gap: 5px;">
+          <button id="toggleCommentsVisibilityBtn" style="background: #4caf50; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">👁️ Hide</button>
+          <button id="clearAllBtn" style="display: none; background: #d32f2f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Clear All</button>
+        </div>
       </div>
       <div id="commentItems" style="max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 5px;"><div style="color: #666; font-size: 12px; padding: 5px;">Loading comments...</div></div>
     </div>
@@ -513,25 +523,11 @@
 
   <!-- Comment Dialog -->
   <div id="commentDialog" style="position: absolute; display: none; background: rgba(42, 42, 42, 0.95); border-radius: 8px; padding: 20px; color: white; z-index: 200; box-shadow: 0 8px 16px rgba(0,0,0,0.5); min-width: 320px; font-family: Arial, sans-serif;">
-    <h4 style="margin-top: 0; margin-bottom: 15px; color: #48b;">New Comment</h4>
+    <h4 style="margin-top: 0; margin-bottom: 15px; color: #48b;">
+      <span id="dialogTitle">New Comment</span>
+    </h4>
     <div style="background: rgba(72,136,187,0.2); padding: 8px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
-      Comment for: <strong id="dialogVariant">Variant 1</strong>
-    </div>
-    
-    <!-- Visualization Type Selection -->
-    <div style="margin-bottom: 15px;">
-      <label style="display: block; font-size: 11px; color: #888; margin-bottom: 5px;">Visualization Type:</label>
-      <div style="display: flex; gap: 5px;">
-        <button id="visTypePoint" class="vis-type-btn active" data-type="point" style="flex: 1; background: #4caf50; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">
-          📍 Point
-        </button>
-        <button id="visTypeLine" class="vis-type-btn" data-type="line" style="flex: 1; background: #666; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">
-          📏 Line
-        </button>
-        <button id="visTypePolygon" class="vis-type-btn" data-type="polygon" style="flex: 1; background: #666; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">
-          📐 Polygon
-        </button>
-      </div>
+      <span id="dialogTypeInfo">📍 Point Comment</span> for: <strong id="dialogVariant">Variant 1</strong>
     </div>
     
     <!-- Color Selection -->
@@ -558,6 +554,17 @@
     <div style="margin-top: 15px; text-align: right;">
       <button id="cancelCommentBtn" style="background: #666; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Cancel</button>
       <button id="saveCommentBtn" style="background: #4caf50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Save</button>
+    </div>
+  </div>
+  
+  <!-- Edit Comment Dialog -->
+  <div id="editCommentDialog" style="position: absolute; display: none; background: rgba(42, 42, 42, 0.95); border-radius: 8px; padding: 20px; color: white; z-index: 200; box-shadow: 0 8px 16px rgba(0,0,0,0.5); min-width: 320px; font-family: Arial, sans-serif; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+    <h4 style="margin-top: 0; margin-bottom: 15px; color: #48b;">Edit Comment</h4>
+    <input type="text" id="editCommentTitle" placeholder="Comment Title" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; box-sizing: border-box;">
+    <textarea id="editCommentText" placeholder="Your comment on the design..." style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; min-height: 80px; resize: vertical; box-sizing: border-box;"></textarea>
+    <div style="margin-top: 15px; text-align: right;">
+      <button id="cancelEditBtn" style="background: #666; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Cancel</button>
+      <button id="saveEditBtn" style="background: #4caf50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Save Changes</button>
     </div>
   </div>
   
@@ -597,7 +604,10 @@
       console.log('✅ Firebase initialized successfully');
     } catch (error) {
       console.error('❌ Firebase initialization error:', error);
-      alert('⚠️ Firebase not configured!\n\nPlease add your Firebase credentials to the HTML file.\nSee README for instructions.');
+      // Show error in status message instead of alert
+      setTimeout(() => {
+        showStatus('⚠️ Firebase not configured! Check console for details.', 'error');
+      }, 1000);
     }
 
     // =====================================
@@ -632,6 +642,8 @@
     let commentColor = '#4CAF50';
     let commentPositions = []; // For line/polygon
     let tempDrawingEntity = null;
+    let commentsVisible = true; // Global visibility toggle
+    let editingCommentId = null; // Currently editing comment
     
     let votes = {
       variant1: { thumbsUp: 0, thumbsDown: 0 },
@@ -1031,7 +1043,7 @@
         const visType = comment.visType || 'point';
         const visIcon = visType === 'point' ? '📍' : visType === 'line' ? '📏' : '📐';
         
-        item.style.cssText = 'background: rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 10px; margin-bottom: 8px; cursor: pointer; border-left: 3px solid ' + borderColor + ';';
+        item.style.cssText = 'background: rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 10px; margin-bottom: 8px; border-left: 3px solid ' + borderColor + '; display: flex; justify-content: space-between; align-items: center;';
         
         // Get first position for display
         let displayPos = { lat: 0, lon: 0 };
@@ -1041,12 +1053,15 @@
           displayPos = { lat: comment.lat, lon: comment.lon };
         }
         
-        item.innerHTML = `
+        const infoDiv = document.createElement('div');
+        infoDiv.style.cssText = 'flex: 1; cursor: pointer;';
+        infoDiv.innerHTML = `
           <div style="font-weight: bold; color: #5ac; margin-bottom: 5px;">${visIcon} ${comment.title}</div>
           <div style="font-size: 12px; color: #ccc; margin-bottom: 5px;">${comment.text.substring(0, 60)}${comment.text.length > 60 ? '...' : ''}</div>
           <div style="font-size: 10px; color: #888;">📍 ${displayPos.lat.toFixed(3)}°, ${displayPos.lon.toFixed(3)}° | ${new Date(comment.timestamp).toLocaleDateString('en-US')}</div>
         `;
-        item.onclick = function() {
+        
+        infoDiv.onclick = function() {
           const entity = viewer.entities.getById(comment.id);
           if (entity) {
             viewer.flyTo(entity, {
@@ -1055,6 +1070,31 @@
             });
           }
         };
+        
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.style.cssText = 'display: flex; gap: 5px; flex-direction: column;';
+        
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.style.cssText = 'background: #2196f3; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; min-height: auto;';
+        editBtn.onclick = function(e) {
+          e.stopPropagation();
+          openEditCommentDialog(comment.id);
+        };
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.style.cssText = 'background: #d32f2f; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; min-height: auto;';
+        deleteBtn.onclick = function(e) {
+          e.stopPropagation();
+          deleteComment(comment.id);
+        };
+        
+        buttonsDiv.appendChild(editBtn);
+        buttonsDiv.appendChild(deleteBtn);
+        
+        item.appendChild(infoDiv);
+        item.appendChild(buttonsDiv);
         container.appendChild(item);
       });
     }
@@ -1063,9 +1103,96 @@
       comments.forEach(comment => {
         const entity = viewer.entities.getById(comment.id);
         if (entity) {
-          entity.show = activeVariant ? comment.variant === activeVariant : false;
+          entity.show = commentsVisible && (activeVariant ? comment.variant === activeVariant : false);
         }
       });
+    }
+    
+    function toggleAllCommentsVisibility() {
+      commentsVisible = !commentsVisible;
+      updateCommentVisibility();
+      
+      const btn = document.getElementById('toggleCommentsVisibilityBtn');
+      if (commentsVisible) {
+        btn.style.background = '#4caf50';
+        btn.textContent = '👁️ Hide';
+      } else {
+        btn.style.background = '#666';
+        btn.textContent = '👁️ Show';
+      }
+      showStatus(commentsVisible ? 'Comments visible' : 'Comments hidden', 'success');
+    }
+    
+    function openEditCommentDialog(commentId) {
+      const comment = comments.find(c => c.id === commentId);
+      if (!comment) return;
+      
+      editingCommentId = commentId;
+      document.getElementById('editCommentTitle').value = comment.title;
+      document.getElementById('editCommentText').value = comment.text;
+      document.getElementById('editCommentDialog').style.display = 'block';
+    }
+    
+    function closeEditCommentDialog() {
+      editingCommentId = null;
+      document.getElementById('editCommentDialog').style.display = 'none';
+      document.getElementById('editCommentTitle').value = '';
+      document.getElementById('editCommentText').value = '';
+    }
+    
+    async function saveEditedComment() {
+      if (!editingCommentId) return;
+      
+      const comment = comments.find(c => c.id === editingCommentId);
+      if (!comment) return;
+      
+      const newTitle = document.getElementById('editCommentTitle').value.trim();
+      const newText = document.getElementById('editCommentText').value.trim();
+      
+      if (!newTitle || !newText) {
+        showStatus('⚠️ Please fill in both title and comment!', 'error');
+        return;
+      }
+      
+      // Update comment
+      comment.title = newTitle;
+      comment.text = newText;
+      
+      showStatus('Saving changes...', 'loading');
+      const success = await saveCommentToFirebase(comment);
+      
+      if (success) {
+        // Update entity label
+        const entity = viewer.entities.getById(comment.id);
+        if (entity && entity.label) {
+          entity.label.text = newTitle;
+        }
+        
+        closeEditCommentDialog();
+        updateCommentList();
+        showStatus('✅ Comment updated!', 'success');
+      }
+    }
+    
+    async function deleteComment(commentId) {
+      const comment = comments.find(c => c.id === commentId);
+      if (!comment) return;
+      
+      const confirmDelete = window.confirm(`Delete comment "${comment.title}"?`);
+      if (!confirmDelete) return;
+      
+      showStatus('Deleting comment...', 'loading');
+      
+      try {
+        const collectionName = getCollectionName(comment.variant);
+        await db.collection(collectionName).doc(commentId).delete();
+        
+        viewer.entities.removeById(commentId);
+        showStatus('Comment deleted', 'success');
+      } catch (error) {
+        console.error('Error deleting comment:', error);
+        showStatus('Error deleting comment', 'error');
+      }
     }
 
     async function vote(voteType) {
@@ -1284,19 +1411,15 @@
       document.getElementById('commentTitle').value = '';
       document.getElementById('commentText').value = '';
       
-      // Reset vis type and color to defaults
-      commentVisType = 'point';
+      // Set dialog type info
+      const typeIcon = commentVisType === 'point' ? '📍' : commentVisType === 'line' ? '📏' : '📐';
+      const typeName = commentVisType === 'point' ? 'Point' : commentVisType === 'line' ? 'Line' : 'Polygon';
+      document.getElementById('dialogTypeInfo').textContent = `${typeIcon} ${typeName} Comment`;
+      
+      // Reset color to defaults
       commentColor = '#4CAF50';
-      commentPositions = [];
       
-      // Update UI
-      document.querySelectorAll('.vis-type-btn').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.background = '#666';
-      });
-      document.getElementById('visTypePoint').classList.add('active');
-      document.getElementById('visTypePoint').style.background = '#4caf50';
-      
+      // Update color swatches
       document.querySelectorAll('.color-swatch-dialog').forEach(swatch => {
         swatch.classList.remove('selected');
         swatch.style.borderColor = 'transparent';
@@ -1305,7 +1428,13 @@
       document.querySelector('.color-swatch-dialog[data-color="#4CAF50"]').style.borderColor = 'white';
       
       // Show/hide instructions
-      document.getElementById('commentInstructions').style.display = 'none';
+      const instructions = document.getElementById('commentInstructions');
+      if (commentVisType === 'line' || commentVisType === 'polygon') {
+        instructions.style.display = 'block';
+        instructions.textContent = 'Click on the map to add points. Right-click to finish.';
+      } else {
+        instructions.style.display = 'none';
+      }
       
       dialog.style.display = 'block';
       dialog.style.left = Math.min(screenPosition.x + 20, window.innerWidth - 360) + 'px';
@@ -1322,8 +1451,12 @@
       removeTempDrawing();
       isAddingComment = false;
       commentPositions = [];
-      document.getElementById('addCommentBtn').style.background = '#48b';
-      document.getElementById('addCommentBtn').textContent = '➕ Add Comment';
+      
+      // Reset button states
+      document.getElementById('addPointCommentBtn').style.background = '#4caf50';
+      document.getElementById('addLineCommentBtn').style.background = '#2196f3';
+      document.getElementById('addPolygonCommentBtn').style.background = '#ff9800';
+      
       document.getElementById('commentInstructions').style.display = 'none';
     }
     
@@ -1554,48 +1687,93 @@
     // EVENT LISTENERS
     // =====================================
 
-    document.getElementById('addCommentBtn').addEventListener('click', function() {
+    // Point Comment Button
+    document.getElementById('addPointCommentBtn').addEventListener('click', function() {
       if (!activeVariant) {
         showStatus('⚠️ Please select a bridge design first!', 'error');
         return;
       }
       
-      isAddingComment = !isAddingComment;
-      this.style.background = isAddingComment ? '#f60' : '#48b';
-      this.textContent = isAddingComment ? '✋ Cancel' : '➕ Add Comment';
-      if (!isAddingComment) {
+      // If already in point mode, cancel
+      if (isAddingComment && commentVisType === 'point') {
+        isAddingComment = false;
+        this.style.background = '#4caf50';
         closeCommentDialog();
-      } else {
-        showStatus('Click on the map to place your comment...', 'info');
+        return;
       }
+      
+      // Start point mode
+      commentVisType = 'point';
+      commentPositions = [];
+      isAddingComment = true;
+      removeTempDrawing();
+      
+      // Update button states
+      this.style.background = '#f60';
+      document.getElementById('addLineCommentBtn').style.background = '#2196f3';
+      document.getElementById('addPolygonCommentBtn').style.background = '#ff9800';
+      showStatus('Click on the map to place point comment...', 'info');
     });
     
-    // Visualization type selection
-    document.querySelectorAll('.vis-type-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        commentVisType = this.dataset.type;
-        commentPositions = [];
-        removeTempDrawing();
-        removePreviewMarker();
-        
-        // Update button states
-        document.querySelectorAll('.vis-type-btn').forEach(b => {
-          b.classList.remove('active');
-          b.style.background = '#666';
-        });
-        this.classList.add('active');
-        this.style.background = commentVisType === 'point' ? '#4caf50' : 
-                               commentVisType === 'line' ? '#2196f3' : '#ff9800';
-        
-        // Show/hide instructions
-        const instructions = document.getElementById('commentInstructions');
-        if (commentVisType === 'line' || commentVisType === 'polygon') {
-          instructions.style.display = 'block';
-          instructions.textContent = 'Click on the map to add points. Right-click to finish.';
-        } else {
-          instructions.style.display = 'none';
-        }
-      });
+    // Line Comment Button
+    document.getElementById('addLineCommentBtn').addEventListener('click', function() {
+      if (!activeVariant) {
+        showStatus('⚠️ Please select a bridge design first!', 'error');
+        return;
+      }
+      
+      // If already in line mode, cancel
+      if (isAddingComment && commentVisType === 'line') {
+        isAddingComment = false;
+        this.style.background = '#2196f3';
+        closeCommentDialog();
+        return;
+      }
+      
+      // Start line mode
+      commentVisType = 'line';
+      commentPositions = [];
+      isAddingComment = true;
+      removeTempDrawing();
+      
+      // Update button states
+      this.style.background = '#f60';
+      document.getElementById('addPointCommentBtn').style.background = '#4caf50';
+      document.getElementById('addPolygonCommentBtn').style.background = '#ff9800';
+      showStatus('Click on the map to add line points. Right-click to finish.', 'info');
+    });
+    
+    // Polygon Comment Button
+    document.getElementById('addPolygonCommentBtn').addEventListener('click', function() {
+      if (!activeVariant) {
+        showStatus('⚠️ Please select a bridge design first!', 'error');
+        return;
+      }
+      
+      // If already in polygon mode, cancel
+      if (isAddingComment && commentVisType === 'polygon') {
+        isAddingComment = false;
+        this.style.background = '#ff9800';
+        closeCommentDialog();
+        return;
+      }
+      
+      // Start polygon mode
+      commentVisType = 'polygon';
+      commentPositions = [];
+      isAddingComment = true;
+      removeTempDrawing();
+      
+      // Update button states
+      this.style.background = '#f60';
+      document.getElementById('addPointCommentBtn').style.background = '#4caf50';
+      document.getElementById('addLineCommentBtn').style.background = '#2196f3';
+      showStatus('Click on the map to add polygon points. Right-click to finish.', 'info');
+    });
+    
+    // Toggle Comments Visibility Button
+    document.getElementById('toggleCommentsVisibilityBtn').addEventListener('click', function() {
+      toggleAllCommentsVisibility();
     });
     
     // Color selection in dialog
@@ -1660,9 +1838,14 @@
         showStatus('No comments to delete');
         return;
       }
+      
       const variantName = activeVariant === 'variant1' ? 'Train Bridge' : 
                          activeVariant === 'variant2' ? 'Transporter Bridge' : 'Belgium Bridge';
-      if (confirm(`Do you really want to delete all ${variantComments.length} comments from ${variantName}?`)) {
+      
+      // Show confirmation in status instead of browser confirm
+      const confirmDelete = window.confirm(`Do you really want to delete all ${variantComments.length} comments from ${variantName}?`);
+      
+      if (confirmDelete) {
         showStatus('Deleting comments...', 'loading');
         const success = await deleteVariantCommentsFromFirebase(activeVariant);
         if (success) {
@@ -1677,7 +1860,7 @@
       const text = document.getElementById('commentText').value.trim();
       
       if (!title || !text) {
-        alert('Please fill in both title and comment!');
+        showStatus('⚠️ Please fill in both title and comment!', 'error');
         return;
       }
       
@@ -1685,14 +1868,14 @@
       let positions = [];
       if (commentVisType === 'point') {
         if (!currentPosition) {
-          alert('Please click on the map first!');
+          showStatus('⚠️ Please click on the map first!', 'error');
           return;
         }
         positions = [currentPosition];
       } else {
         // Line or polygon
         if (commentPositions.length < 2) {
-          alert(`Please add at least 2 points for a ${commentVisType}!`);
+          showStatus(`⚠️ Please add at least 2 points for a ${commentVisType}!`, 'error');
           return;
         }
         positions = commentPositions;
@@ -1716,12 +1899,21 @@
         removePreviewMarker();
         removeTempDrawing();
         closeCommentDialog();
-        showStatus(`Comment "${title}" saved!`, 'success');
+        showStatus(`✅ Comment "${title}" saved!`, 'success');
       }
     });
 
     document.getElementById('cancelCommentBtn').addEventListener('click', function() {
       closeCommentDialog();
+    });
+    
+    // Edit dialog buttons
+    document.getElementById('cancelEditBtn').addEventListener('click', function() {
+      closeEditCommentDialog();
+    });
+    
+    document.getElementById('saveEditBtn').addEventListener('click', async function() {
+      await saveEditedComment();
     });
 
     function addCommentToViewer(comment) {
