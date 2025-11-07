@@ -697,12 +697,16 @@
       // POINT visualization
       if (visType === 'point') {
         const pos = positions[0];
-        const position = Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat, pos.height);
+        const position = Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat, pos.height || 0);
+        
+        const lat = pos.lat !== undefined ? pos.lat.toFixed(5) : '0.00000';
+        const lon = pos.lon !== undefined ? pos.lon.toFixed(5) : '0.00000';
+        const height = pos.height !== undefined ? pos.height.toFixed(1) : '0.0';
         
         viewer.entities.add({
           id: comment.id,
           position: position,
-          show: comment.variant === activeVariant,
+          show: comment.variant === activeVariant && commentsVisible,
           billboard: {
             image: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"><circle cx="20" cy="20" r="18" fill="${color}" stroke="white" stroke-width="3"/><circle cx="20" cy="20" r="8" fill="white"/></svg>`),
             scale: 0.8,
@@ -729,8 +733,8 @@
             </div>
             <p>${comment.text}</p>
             <p style="font-size:11px;color:#888">
-              Coordinates: ${pos.lat.toFixed(5)}°, ${pos.lon.toFixed(5)}°<br>
-              Height: ${pos.height.toFixed(1)}m<br>
+              Coordinates: ${lat}°, ${lon}°<br>
+              Height: ${height}m<br>
               Created: ${new Date(comment.timestamp).toLocaleString('en-US')}
             </p>
           </div>`
@@ -739,12 +743,12 @@
       // LINE visualization
       else if (visType === 'line') {
         const cartesianPositions = positions.map(p => 
-          Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
+          Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height || 0)
         );
         
         viewer.entities.add({
           id: comment.id,
-          show: comment.variant === activeVariant,
+          show: comment.variant === activeVariant && commentsVisible,
           polyline: {
             positions: cartesianPositions,
             width: 5,
@@ -777,19 +781,20 @@
       // POLYGON visualization
       else if (visType === 'polygon') {
         const cartesianPositions = positions.map(p => 
-          Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
+          Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height || 0)
         );
         
         viewer.entities.add({
           id: comment.id,
-          show: comment.variant === activeVariant,
+          show: comment.variant === activeVariant && commentsVisible,
           polygon: {
             hierarchy: new Cesium.PolygonHierarchy(cartesianPositions),
             material: cesiumColor.withAlpha(0.4),
             outline: true,
             outlineColor: cesiumColor,
             outlineWidth: 3,
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
+            height: 0,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
           },
           label: {
             text: comment.title,
@@ -799,7 +804,7 @@
             outlineWidth: 2,
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
             pixelOffset: new Cesium.Cartesian2(0, -20),
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
           },
           description: `<div style="padding:10px">
             <h3>${comment.title}</h3>
