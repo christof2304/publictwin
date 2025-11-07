@@ -1023,13 +1023,24 @@
     }
 
     function finishDrawing() {
-      if (!drawingMode || drawingPoints.length < 2) {
+      if (!drawingMode) {
+        console.log('No drawing mode active');
+        cancelDrawing();
+        return;
+      }
+      
+      // Annotations only need 1 point, lines/polygons need at least 2
+      const minPoints = drawingMode === 'annotation' ? 1 : 2;
+      
+      if (drawingPoints.length < minPoints) {
+        console.log(`Not enough points: ${drawingPoints.length} < ${minPoints}`);
         cancelDrawing();
         return;
       }
       
       const label = prompt(`Enter a label for this ${drawingMode}:`, `${drawingMode} ${drawings.length + 1}`);
       if (!label) {
+        console.log('User cancelled label input');
         cancelDrawing();
         return;
       }
@@ -1044,6 +1055,7 @@
         timestamp: new Date().toISOString()
       };
       
+      console.log('Saving drawing:', drawing);
       saveDrawingToFirebase(drawing);
       
       cancelDrawing();
@@ -1940,16 +1952,19 @@
       
       // Handle drawing
       if (drawingMode) {
+        console.log('Drawing mode active:', drawingMode);
         let pickedPosition = null;
         let pickedFeature = viewer.scene.pick(click.position);
         
         if (Cesium.defined(pickedFeature)) {
           pickedPosition = viewer.scene.pickPosition(click.position);
+          console.log('Picked from feature:', pickedPosition);
         }
         
         if (!Cesium.defined(pickedPosition)) {
           const ray = viewer.camera.getPickRay(click.position);
           pickedPosition = viewer.scene.globe.pick(ray, viewer.scene);
+          console.log('Picked from globe:', pickedPosition);
         }
         
         if (Cesium.defined(pickedPosition)) {
@@ -1958,9 +1973,12 @@
           const lat = Cesium.Math.toDegrees(cartographic.latitude);
           const height = cartographic.height;
           
+          console.log('Position:', { lon, lat, height });
+          
           drawingPoints.push({ lon, lat, height });
           
           if (drawingMode === 'annotation') {
+            console.log('Annotation mode - finishing drawing');
             // For annotation, finish immediately after first click
             finishDrawing();
           } else {
@@ -1968,6 +1986,7 @@
             showDrawingStatus(`${drawingPoints.length} points added. Right-click to finish.`);
           }
         } else {
+          console.log('Failed to pick position');
           showStatus('⚠️ Please click on a 3D building or terrain!', 'error');
         }
       }
