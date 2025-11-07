@@ -2004,11 +2004,24 @@
     });
 
     function addCommentToViewer(comment) {
-      const position = Cesium.Cartesian3.fromDegrees(
-        comment.lon,
-        comment.lat,
-        comment.height
-      );
+      // Get coordinates - check if they exist directly, otherwise get from positions array
+      let lon = comment.lon;
+      let lat = comment.lat;
+      let height = comment.height;
+      
+      if ((lon === undefined || lat === undefined || height === undefined) && comment.positions && comment.positions.length > 0) {
+        lon = comment.positions[0].lon;
+        lat = comment.positions[0].lat;
+        height = comment.positions[0].height;
+      }
+      
+      // If still undefined, skip this comment
+      if (lon === undefined || lat === undefined || height === undefined) {
+        console.warn(`Skipping comment ${comment.id} - missing coordinate data`);
+        return;
+      }
+      
+      const position = Cesium.Cartesian3.fromDegrees(lon, lat, height);
       
       const color = comment.variant === 'variant1' ? '#4caf50' : 
                     comment.variant === 'variant2' ? '#2196f3' : '#ff9800';
@@ -2043,8 +2056,8 @@
           </div>
           <p>${comment.text}</p>
           <p style="font-size:11px;color:#888">
-            Coordinates: ${comment.lat.toFixed(5)}°, ${comment.lon.toFixed(5)}°<br>
-            Height: ${comment.height.toFixed(1)}m<br>
+            Coordinates: ${lat.toFixed(5)}°, ${lon.toFixed(5)}°<br>
+            Height: ${height.toFixed(1)}m<br>
             Created: ${new Date(comment.timestamp).toLocaleString('en-US')}
           </p>
         </div>`
