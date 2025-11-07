@@ -522,38 +522,43 @@
   </div>
 
   <!-- Comment Dialog -->
-  <div id="commentDialog" style="position: absolute; display: none; background: rgba(42, 42, 42, 0.95); border-radius: 8px; padding: 20px; color: white; z-index: 200; box-shadow: 0 8px 16px rgba(0,0,0,0.5); min-width: 320px; font-family: Arial, sans-serif;">
-    <h4 style="margin-top: 0; margin-bottom: 15px; color: #48b;">
-      <span id="dialogTitle">New Comment</span>
-    </h4>
-    <div style="background: rgba(72,136,187,0.2); padding: 8px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
-      <span id="dialogTypeInfo">📍 Point Comment</span> for: <strong id="dialogVariant">Variant 1</strong>
+  <div id="commentDialog" style="position: absolute; display: none; background: rgba(42, 42, 42, 0.95); border-radius: 8px; padding: 0; color: white; z-index: 200; box-shadow: 0 8px 16px rgba(0,0,0,0.5); min-width: 320px; font-family: Arial, sans-serif;">
+    <div id="commentDialogHeader" style="background: rgba(72, 136, 187, 0.9); padding: 12px 20px; border-radius: 8px 8px 0 0; cursor: move; user-select: none; display: flex; justify-content: space-between; align-items: center;">
+      <h4 style="margin: 0; color: white; font-size: 14px;">
+        <span id="dialogTitle">✋ Drag to Move</span>
+      </h4>
+      <span style="color: rgba(255,255,255,0.6); font-size: 18px;">⋮⋮</span>
     </div>
-    
-    <!-- Color Selection -->
-    <div style="margin-bottom: 15px;">
-      <label style="display: block; font-size: 11px; color: #888; margin-bottom: 5px;">Color:</label>
-      <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px;">
-        <div class="color-swatch-dialog selected" style="aspect-ratio: 1; background: #4CAF50; border: 2px solid white; border-radius: 4px; cursor: pointer;" data-color="#4CAF50"></div>
-        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #2196F3; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#2196F3"></div>
-        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #FF9800; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#FF9800"></div>
-        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #F44336; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#F44336"></div>
-        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #9C27B0; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#9C27B0"></div>
-        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #FFEB3B; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#FFEB3B"></div>
-        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #00BCD4; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#00BCD4"></div>
-        <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #607D8B; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#607D8B"></div>
+    <div style="padding: 20px;">
+      <div style="background: rgba(72,136,187,0.2); padding: 8px; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
+        <span id="dialogTypeInfo">📍 Point Comment</span> for: <strong id="dialogVariant">Variant 1</strong>
       </div>
-    </div>
-    
-    <div id="commentInstructions" style="background: rgba(255,152,0,0.2); padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px; color: #ff9800; display: none;">
-      Click on the map to add points. Right-click to finish.
-    </div>
-    
-    <input type="text" id="commentTitle" placeholder="Comment Title" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; box-sizing: border-box;">
-    <textarea id="commentText" placeholder="Your comment on the design..." style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; min-height: 80px; resize: vertical; box-sizing: border-box;"></textarea>
-    <div style="margin-top: 15px; text-align: right;">
-      <button id="cancelCommentBtn" style="background: #666; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Cancel</button>
-      <button id="saveCommentBtn" style="background: #4caf50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Save</button>
+      
+      <!-- Color Selection -->
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; font-size: 11px; color: #888; margin-bottom: 5px;">Color:</label>
+        <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px;">
+          <div class="color-swatch-dialog selected" style="aspect-ratio: 1; background: #4CAF50; border: 2px solid white; border-radius: 4px; cursor: pointer;" data-color="#4CAF50"></div>
+          <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #2196F3; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#2196F3"></div>
+          <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #FF9800; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#FF9800"></div>
+          <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #F44336; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#F44336"></div>
+          <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #9C27B0; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#9C27B0"></div>
+          <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #FFEB3B; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#FFEB3B"></div>
+          <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #00BCD4; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#00BCD4"></div>
+          <div class="color-swatch-dialog" style="aspect-ratio: 1; background: #607D8B; border: 2px solid transparent; border-radius: 4px; cursor: pointer;" data-color="#607D8B"></div>
+        </div>
+      </div>
+      
+      <div id="commentInstructions" style="background: rgba(255,152,0,0.2); padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px; color: #ff9800; display: none;">
+        Click on the map to add points. Right-click to finish.
+      </div>
+      
+      <input type="text" id="commentTitle" placeholder="Comment Title" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; box-sizing: border-box;">
+      <textarea id="commentText" placeholder="Your comment on the design..." style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #555; border-radius: 4px; background: #333; color: white; min-height: 80px; resize: vertical; box-sizing: border-box;"></textarea>
+      <div style="margin-top: 15px; text-align: right;">
+        <button id="cancelCommentBtn" style="background: #666; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Cancel</button>
+        <button id="saveCommentBtn" style="background: #4caf50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Save</button>
+      </div>
     </div>
   </div>
   
@@ -1442,8 +1447,11 @@
       }
       
       dialog.style.display = 'block';
-      dialog.style.left = Math.min(screenPosition.x + 20, window.innerWidth - 360) + 'px';
-      dialog.style.top = Math.min(screenPosition.y - 50, window.innerHeight - 400) + 'px';
+      
+      // Position dialog in top-right corner (out of the way)
+      dialog.style.right = '20px';
+      dialog.style.top = '80px';
+      dialog.style.left = 'auto';
       
       setTimeout(() => document.getElementById('commentTitle').focus(), 100);
     }
@@ -1484,7 +1492,7 @@
       if (commentPositions.length === 0) return;
       
       const positions = commentPositions.map(p => 
-        Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
+        Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height || 0)
       );
       
       if (commentVisType === 'polygon' && commentPositions.length >= 2) {
@@ -1496,7 +1504,8 @@
             outline: true,
             outlineColor: Cesium.Color.fromCssColorString(commentColor),
             outlineWidth: 3,
-            heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
+            height: 0,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
           }
         });
       } else if (commentVisType === 'line' && commentPositions.length >= 2) {
@@ -1505,10 +1514,7 @@
           polyline: {
             positions: positions,
             width: 5,
-            material: new Cesium.PolylineDashMaterialProperty({
-              color: Cesium.Color.fromCssColorString(commentColor),
-              dashLength: 16
-            }),
+            material: Cesium.Color.fromCssColorString(commentColor),
             clampToGround: true
           }
         });
@@ -1518,7 +1524,7 @@
       commentPositions.forEach((point, index) => {
         viewer.entities.add({
           id: `temp_point_${index}`,
-          position: Cesium.Cartesian3.fromDegrees(point.lon, point.lat, point.height),
+          position: Cesium.Cartesian3.fromDegrees(point.lon, point.lat, point.height || 0),
           point: {
             pixelSize: 10,
             color: Cesium.Color.WHITE,
@@ -1650,6 +1656,82 @@
 
     loadAssets();
     setupFirebaseListeners();
+    
+    // =====================================
+    // DRAGGABLE COMMENT DIALOG
+    // =====================================
+    
+    let isDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    
+    const commentDialog = document.getElementById('commentDialog');
+    const commentDialogHeader = document.getElementById('commentDialogHeader');
+    
+    commentDialogHeader.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      const rect = commentDialog.getBoundingClientRect();
+      dragOffsetX = e.clientX - rect.left;
+      dragOffsetY = e.clientY - rect.top;
+      commentDialogHeader.style.cursor = 'grabbing';
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      
+      let newX = e.clientX - dragOffsetX;
+      let newY = e.clientY - dragOffsetY;
+      
+      // Keep dialog within window bounds
+      const maxX = window.innerWidth - commentDialog.offsetWidth;
+      const maxY = window.innerHeight - commentDialog.offsetHeight;
+      
+      newX = Math.max(0, Math.min(newX, maxX));
+      newY = Math.max(0, Math.min(newY, maxY));
+      
+      commentDialog.style.left = newX + 'px';
+      commentDialog.style.top = newY + 'px';
+    });
+    
+    document.addEventListener('mouseup', function() {
+      if (isDragging) {
+        isDragging = false;
+        commentDialogHeader.style.cursor = 'move';
+      }
+    });
+    
+    // Touch support for mobile
+    commentDialogHeader.addEventListener('touchstart', function(e) {
+      isDragging = true;
+      const rect = commentDialog.getBoundingClientRect();
+      const touch = e.touches[0];
+      dragOffsetX = touch.clientX - rect.left;
+      dragOffsetY = touch.clientY - rect.top;
+      e.preventDefault();
+    });
+    
+    document.addEventListener('touchmove', function(e) {
+      if (!isDragging) return;
+      
+      const touch = e.touches[0];
+      let newX = touch.clientX - dragOffsetX;
+      let newY = touch.clientY - dragOffsetY;
+      
+      // Keep dialog within window bounds
+      const maxX = window.innerWidth - commentDialog.offsetWidth;
+      const maxY = window.innerHeight - commentDialog.offsetHeight;
+      
+      newX = Math.max(0, Math.min(newX, maxX));
+      newY = Math.max(0, Math.min(newY, maxY));
+      
+      commentDialog.style.left = newX + 'px';
+      commentDialog.style.top = newY + 'px';
+      e.preventDefault();
+    });
+    
+    document.addEventListener('touchend', function() {
+      isDragging = false;
+    });
 
     let clearButtonVisible = false;
     document.addEventListener('keydown', function(event) {
@@ -1995,7 +2077,7 @@
         const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
         const lon = Cesium.Math.toDegrees(cartographic.longitude);
         const lat = Cesium.Math.toDegrees(cartographic.latitude);
-        const height = cartographic.height;
+        const height = cartographic.height || 0;
         
         if (commentVisType === 'point') {
           // POINT mode - single click
@@ -2052,14 +2134,14 @@
         const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
         const lon = Cesium.Math.toDegrees(cartographic.longitude);
         const lat = Cesium.Math.toDegrees(cartographic.latitude);
-        const height = cartographic.height;
+        const height = cartographic.height || 0;
         
         // Create temp preview with current mouse position
         removeTempDrawing();
         
         const allPoints = [...commentPositions, { lon, lat, height }];
         const positions = allPoints.map(p => 
-          Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height)
+          Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.height || 0)
         );
         
         if (commentVisType === 'polygon' && allPoints.length >= 2) {
@@ -2071,7 +2153,8 @@
               outline: true,
               outlineColor: Cesium.Color.fromCssColorString(commentColor),
               outlineWidth: 3,
-              heightReference: Cesium.HeightReference.CLAMP_TO_3D_TILE
+              height: 0,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
             }
           });
         } else if (commentVisType === 'line' && allPoints.length >= 2) {
@@ -2093,7 +2176,7 @@
         commentPositions.forEach((point, index) => {
           viewer.entities.add({
             id: `temp_point_${index}`,
-            position: Cesium.Cartesian3.fromDegrees(point.lon, point.lat, point.height),
+            position: Cesium.Cartesian3.fromDegrees(point.lon, point.lat, point.height || 0),
             point: {
               pixelSize: 10,
               color: Cesium.Color.WHITE,
