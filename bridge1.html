@@ -602,17 +602,38 @@
     let db;
     let firebaseInitialized = false;
     
-    try {
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
-      firebaseInitialized = true;
-      console.log('✅ Firebase initialized successfully');
-    } catch (error) {
-      console.error('❌ Firebase initialization error:', error);
-      // Show error in status message instead of alert
-      setTimeout(() => {
-        showStatus('⚠️ Firebase not configured! Check console for details.', 'error');
-      }, 1000);
+    function initializeFirebase() {
+      try {
+        // Check if firebase is loaded
+        if (typeof firebase === 'undefined') {
+          console.error('❌ Firebase SDK not loaded');
+          setTimeout(() => {
+            showStatus('⚠️ Firebase SDK failed to load! Check your internet connection.', 'error');
+          }, 1000);
+          return;
+        }
+        
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        firebaseInitialized = true;
+        console.log('✅ Firebase initialized successfully');
+        
+        // Setup Firebase listeners after successful initialization
+        setupFirebaseListeners();
+      } catch (error) {
+        console.error('❌ Firebase initialization error:', error);
+        // Show error in status message instead of alert
+        setTimeout(() => {
+          showStatus('⚠️ Firebase not configured! Check console for details.', 'error');
+        }, 1000);
+      }
+    }
+    
+    // Wait for Firebase SDK to load before initializing
+    if (typeof firebase !== 'undefined') {
+      initializeFirebase();
+    } else {
+      window.addEventListener('load', initializeFirebase);
     }
 
     // =====================================
@@ -1655,7 +1676,6 @@
     }
 
     loadAssets();
-    setupFirebaseListeners();
     
     // =====================================
     // DRAGGABLE COMMENT DIALOG
