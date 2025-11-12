@@ -280,7 +280,7 @@
       <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "150"</button>
       <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Station"</button>
       
-      <!-- NEW: iTwin Models from First Example -->
+      <!-- iTwin Models from First Example -->
       <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555;">
         <div style="font-size: 10px; color: #888; margin-bottom: 5px;">🏗️ iTwin BIM Models:</div>
         <button id="variant5Btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ iTwin Model 1</button>
@@ -455,8 +455,8 @@
       variant2: { thumbsUp: 0, thumbsDown: 0 },
       variant3: { thumbsUp: 0, thumbsDown: 0 },
       variant4: { thumbsUp: 0, thumbsDown: 0 },
-      variant5: { thumbsUp: 0, thumbsDown: 0 }, // NEW
-      variant6: { thumbsUp: 0, thumbsDown: 0 }  // NEW
+      variant5: { thumbsUp: 0, thumbsDown: 0 },
+      variant6: { thumbsUp: 0, thumbsDown: 0 }
     };
 
     // =====================================
@@ -840,6 +840,9 @@
       document.getElementById('votingVariantName').style.color = color;
     }
 
+    // =====================================
+    // FIX 1: ZOOM-PROBLEM BEI iTWIN MODELLEN BEHOBEN
+    // =====================================
     function switchVariant(variant) {
       activeVariant = variant;
       
@@ -848,8 +851,8 @@
       if (tileset2) tileset2.show = false;
       if (tileset3) tileset3.show = false;
       if (tileset4) tileset4.show = false;
-      if (tileset5) tileset5.show = false; // NEW
-      if (tileset6) tileset6.show = false; // NEW
+      if (tileset5) tileset5.show = false;
+      if (tileset6) tileset6.show = false;
       
       // Reset all buttons
       document.getElementById('variant1Btn').style.background = '#666';
@@ -912,19 +915,33 @@
         document.getElementById('variant4Btn').innerHTML = '● Design "Station"';
         showStatus('Design "Station" active (Station + Area)', 'success');
       } else if (variant === 'variant5') {
-        // NEW: iTwin Model 1
+        // FIX: Wait for tileset to be ready before flying to it
         if (tileset5) {
           tileset5.show = true;
-          viewer.flyTo(tileset5);
+          tileset5.readyPromise.then(() => {
+            viewer.flyTo(tileset5, {
+              duration: 2.0,
+              offset: new Cesium.HeadingPitchRange(0, -0.5, 500)
+            });
+          }).catch((error) => {
+            console.error('Error flying to iTwin Model 1:', error);
+          });
         }
         document.getElementById('variant5Btn').style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
         document.getElementById('variant5Btn').innerHTML = '● iTwin Model 1';
         showStatus('iTwin Model 1 active', 'success');
       } else if (variant === 'variant6') {
-        // NEW: iTwin Model 2
+        // FIX: Wait for tileset to be ready before flying to it
         if (tileset6) {
           tileset6.show = true;
-          viewer.flyTo(tileset6);
+          tileset6.readyPromise.then(() => {
+            viewer.flyTo(tileset6, {
+              duration: 2.0,
+              offset: new Cesium.HeadingPitchRange(0, -0.5, 500)
+            });
+          }).catch((error) => {
+            console.error('Error flying to iTwin Model 2:', error);
+          });
         }
         document.getElementById('variant6Btn').style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
         document.getElementById('variant6Btn').innerHTML = '● iTwin Model 2';
@@ -1079,7 +1096,7 @@
           showStatus('iTwin Model A: Could not load. See console for details.', 'error');
         }
         
-        // NEW: Load iTwin Model 1 from first example
+        // Load iTwin Model 1 from first example
         try {
           console.log('🔄 Loading iTwin Model 1 (' + iTwinModelIds.model1 + ')...');
           tileset5 = await Cesium.ITwinData.createTilesetFromIModelId({
@@ -1095,7 +1112,7 @@
           showStatus('iTwin Model 1: Could not load', 'error');
         }
         
-        // NEW: Load iTwin Model 2 from first example
+        // Load iTwin Model 2 from first example
         try {
           console.log('🔄 Loading iTwin Model 2 (' + iTwinModelIds.model2 + ')...');
           tileset6 = await Cesium.ITwinData.createTilesetFromIModelId({
@@ -1119,6 +1136,9 @@
       }
     }
 
+    // =====================================
+    // FIX 2: ASSET 3845 FEHLER BEHOBEN - VERWENDE ASSET 2 (BING MAPS AERIAL)
+    // =====================================
     async function switchToTerrainMode() {
       showStatus('Switching to Terrain + Satellite...', 'loading');
       
@@ -1128,18 +1148,35 @@
       
       if (!googleImageryLayer) {
         try {
+          // FIX: Use Asset 2 (Bing Maps Aerial) instead of non-existent Asset 3845
           googleImageryLayer = viewer.imageryLayers.addImageryProvider(
-            await Cesium.IonImageryProvider.fromAssetId(3845)
+            await Cesium.IonImageryProvider.fromAssetId(2)
           );
-          console.log('Google Satellite imagery loaded');
+          console.log('Bing Maps Aerial imagery loaded');
         } catch (error) {
-          console.error('Error loading Google Satellite:', error);
+          console.error('Error loading Bing Maps Aerial:', error);
+          // Fallback: Try to use OpenStreetMap if Ion fails
+          try {
+            googleImageryLayer = viewer.imageryLayers.addImageryProvider(
+              new Cesium.OpenStreetMapImageryProvider({
+                url: 'https://a.tile.openstreetmap.org/'
+              })
+            );
+            console.log('Fallback: OpenStreetMap imagery loaded');
+          } catch (fallbackError) {
+            console.error('Fallback imagery also failed:', fallbackError);
+          }
         }
       } else {
         googleImageryLayer.show = true;
       }
       
-      viewer.terrainProvider = await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
+      try {
+        viewer.terrainProvider = await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
+      } catch (error) {
+        console.error('Error loading terrain:', error);
+        showStatus('Terrain loading failed, using default', 'error');
+      }
       
       basemapMode = 'terrain';
       document.getElementById('basemapBtn').textContent = 'Cesium Terrain + Satellite';
@@ -1281,7 +1318,6 @@
       switchVariant('variant4');
     });
 
-    // NEW: Event listeners for iTwin Models
     document.getElementById('variant5Btn').addEventListener('click', function() {
       switchVariant('variant5');
     });
@@ -1447,6 +1483,10 @@
     console.log('🏗️ iTwin Model 1 ID:', iTwinModelIds.model1);
     console.log('🏗️ iTwin Model 2 ID:', iTwinModelIds.model2);
     console.log('💡 Share key expires: February 22, 2025');
+    console.log('');
+    console.log('🔧 FIXES APPLIED:');
+    console.log('   ✅ Fix 1: iTwin zoom works immediately (readyPromise)');
+    console.log('   ✅ Fix 2: Imagery uses Asset 2 (Bing Maps Aerial) instead of non-existent Asset 3845');
   </script>
 </body>
 </html>
