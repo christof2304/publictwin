@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇫🇮 Helsinki Live - ÖPNV & 3D Stadt</title>
+    
+    <!-- Cesium CSS -->
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+        
+        #cesiumContainer {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+        
+        .info-panel h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-panel .subtitle {
+            color: #aaa;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .divider {
+            border: none;
+            border-top: 1px solid #444;
+            margin: 12px 0;
+        }
+        
+        .status {
+            font-size: 13px;
+            min-height: 80px;
+        }
+        
+        .status strong {
+            color: #00ff88;
+        }
+        
+        .filters {
+            font-size: 13px;
+        }
+        
+        .filters label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .filters input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .footer-info {
+            font-size: 11px;
+            color: #888;
+            margin-top: 12px;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        
+        .btn {
+            display: block;
+            margin-bottom: 8px;
+            padding: 12px 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            min-width: 180px;
+            text-align: left;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .debug {
+            font-size: 10px;
+            color: #666;
+            max-height: 100px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="cesiumContainer"></div>
+    
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <h1>🇫🇮 <span>HELSINKI LIVE</span></h1>
+        <div class="subtitle">Echtzeit ÖPNV + 3D-Stadtmodell</div>
+        
+        <div class="divider"></div>
+        
+        <div id="status" class="status loading">
+            Initialisiere Visualisierung...<br>
+            Lade 3D-Gebäude...
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="filters">
+            <label><input type="checkbox" id="toggleTrams" checked> 🚃 Straßenbahnen</label>
+            <label><input type="checkbox" id="toggleBuses" checked> 🚌 Busse</label>
+            <label><input type="checkbox" id="toggleMetro" checked> 🚇 Metro</label>
+            <label><input type="checkbox" id="toggleTrains" checked> 🚆 Züge</label>
+            <label><input type="checkbox" id="toggleFerries" checked> ⛴️ Fähren</label>
+            <label><input type="checkbox" id="toggleBuildings" checked> 🏢 3D-Gebäude</label>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="footer-info">
+            🔄 Auto-Update: 15 Sekunden<br>
+            📡 Quelle: HSL Digitransit API<br>
+            🏗️ Gebäude: OpenStreetMap
+        </div>
+        
+        <div id="debug" class="debug"></div>
+    </div>
+    
+    <!-- Control Buttons -->
+    <div class="controls">
+        <button class="btn" id="viewCity">🏙️ Stadtübersicht</button>
+        <button class="btn" id="viewStation">🚉 Hauptbahnhof</button>
+        <button class="btn" id="viewTrams">🚃 Mannerheimintie</button>
+        <button class="btn" id="reloadData">🔄 Daten neu laden</button>
+    </div>
+    
+    <!-- Cesium JS -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Cesium.js"></script>
+    
+    <script>
+        // Cesium Ion Access Token (Standard Public Token)
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTcxNzksImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
+        
+        // Viewer initialisieren
+        const viewer = new Cesium.Viewer('cesiumContainer', {
+            baseLayerPicker: false,
+            geocoder: false,
+            homeButton: false,
+            sceneModePicker: false,
+            navigationHelpButton: false,
+            animation: false,
+            timeline: false,
+            fullscreenButton: true,
+            vrButton: false,
+        });
+        
+        // Variablen
+        const vehicles = {};
+        let osmBuildings = null;
+        let requestCount = 0;
+        
+        // Debug-Funktion
+        function addDebug(msg) {
+            const debugDiv = document.getElementById('debug');
+            const time = new Date().toLocaleTimeString();
+            debugDiv.innerHTML = `[${time}] ${msg}<br>` + debugDiv.innerHTML;
+            console.log(`[${time}] ${msg}`);
+        }
+        
+        // OSM Buildings laden
+        async function loadOSMBuildings() {
+            try {
+                addDebug('Lade OSM Buildings...');
+                osmBuildings = await Cesium.createOsmBuildingsAsync();
+                viewer.scene.primitives.add(osmBuildings);
+                addDebug('✅ 3D-Gebäude geladen');
+                document.getElementById('status').innerHTML = '<span style="color:#00ff88;">✅ 3D-Stadt geladen</span><br>Warte auf Fahrzeugdaten...';
+            } catch (error) {
+                addDebug('⚠️ OSM Buildings Fehler: ' + error.message);
+                document.getElementById('status').innerHTML = '<span style="color:#ffaa00;">⚠️ Gebäude-Fehler</span><br>Warte auf Fahrzeugdaten...';
+            }
+        }
+        
+        // Fahrzeug-Icon erstellen
+        function getVehicleIcon(type, color) {
+            const icons = {
+                'TRAM': '🚃',
+                'BUS': '🚌',
+                'SUBWAY': '🚇',
+                'RAIL': '🚆',
+                'FERRY': '⛴️'
+            };
+            
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+                <circle cx="24" cy="24" r="22" fill="${color}" stroke="white" stroke-width="3"/>
+                <text x="24" y="32" font-size="24" text-anchor="middle" fill="white">${icons[type] || '🚌'}</text>
+            </svg>`;
+            
+            return 'data:image/svg+xml,' + encodeURIComponent(svg);
+        }
+        
+        // Farbe nach Typ
+        function getVehicleColor(type) {
+            const colors = {
+                'TRAM': '#00A651',
+                'BUS': '#007AC9',
+                'SUBWAY': '#FF6319',
+                'RAIL': '#8C4799',
+                'FERRY': '#00B0B0'
+            };
+            return colors[type] || '#999999';
+        }
+        
+        // GraphQL Query
+        const query = `
+        query {
+          vehicles {
+            id
+            label
+            lat
+            lon
+            heading
+            mode
+            route
+            speed
+          }
+        }
+        `;
+        
+        // Fahrzeuge aktualisieren
+        async function updateVehicles() {
+            requestCount++;
+            addDebug(`API Request #${requestCount}...`);
+            
+            try {
+                const response = await fetch('https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.errors) {
+                    addDebug('❌ GraphQL Fehler: ' + JSON.stringify(data.errors[0].message));
+                    return;
+                }
+                
+                if (!data.data || !data.data.vehicles) {
+                    addDebug('⚠️ Keine Fahrzeugdaten in Response');
+                    return;
+                }
+                
+                const vehicleList = data.data.vehicles;
+                addDebug(`✅ ${vehicleList.length} Fahrzeuge empfangen`);
+                
+                const currentVehicles = new Set();
+                const counts = { TRAM: 0, BUS: 0, SUBWAY: 0, RAIL: 0, FERRY: 0 };
+                
+                vehicleList.forEach(vehicle => {
+                    if (!vehicle.lat || !vehicle.lon) return;
+                    
+                    const vehicleId = vehicle.id;
+                    const type = vehicle.mode;
+                    const color = getVehicleColor(type);
+                    
+                    currentVehicles.add(vehicleId);
+                    counts[type] = (counts[type] || 0) + 1;
+                    
+                    const position = Cesium.Cartesian3.fromDegrees(
+                        vehicle.lon,
+                        vehicle.lat,
+                        20
+                    );
+                    
+                    if (vehicles[vehicleId]) {
+                        // Update existing
+                        vehicles[vehicleId].position = position;
+                        vehicles[vehicleId].label.text = vehicle.route || vehicle.label || '?';
+                        if (vehicle.heading !== null && vehicle.heading !== undefined) {
+                            vehicles[vehicleId].billboard.rotation = Cesium.Math.toRadians(vehicle.heading);
+                        }
+                    } else {
+                        // Create new
+                        vehicles[vehicleId] = viewer.entities.add({
+                            id: vehicleId,
+                            position: position,
+                            billboard: {
+                                image: getVehicleIcon(type, color),
+                                scale: 0.8,
+                                rotation: vehicle.heading ? Cesium.Math.toRadians(vehicle.heading) : 0,
+                                alignedAxis: Cesium.Cartesian3.UNIT_Z,
+                                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                                disableDepthTestDistance: Number.POSITIVE_INFINITY
+                            },
+                            label: {
+                                text: vehicle.route || vehicle.label || '?',
+                                font: '13pt bold sans-serif',
+                                fillColor: Cesium.Color.WHITE,
+                                outlineColor: Cesium.Color.BLACK,
+                                outlineWidth: 3,
+                                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                                pixelOffset: new Cesium.Cartesian2(0, -30),
+                                showBackground: true,
+                                backgroundColor: new Cesium.Color(0, 0, 0, 0.75),
+                                backgroundPadding: new Cesium.Cartesian2(7, 4),
+                                disableDepthTestDistance: Number.POSITIVE_INFINITY
+                            },
+                            description: `
+                                <div style="font-family:sans-serif;">
+                                    <h3 style="margin:0 0 10px 0;">${type} ${vehicle.route || ''}</h3>
+                                    <p style="margin:5px 0;"><strong>Fahrzeug:</strong> ${vehicle.label || 'N/A'}</p>
+                                    <p style="margin:5px 0;"><strong>Linie:</strong> ${vehicle.route || 'N/A'}</p>
+                                    <p style="margin:5px 0;"><strong>Geschwindigkeit:</strong> ${vehicle.speed ? Math.round(vehicle.speed * 3.6) + ' km/h' : 'N/A'}</p>
+                                    <p style="margin:5px 0;"><strong>Position:</strong> ${vehicle.lat.toFixed(5)}°, ${vehicle.lon.toFixed(5)}°</p>
+                                </div>
+                            `,
+                            _vehicleType: type
+                        });
+                    }
+                });
+                
+                // Remove old vehicles
+                Object.keys(vehicles).forEach(id => {
+                    if (!currentVehicles.has(id)) {
+                        viewer.entities.remove(vehicles[id]);
+                        delete vehicles[id];
+                    }
+                });
+                
+                const total = Object.keys(vehicles).length;
+                
+                // Update status
+                document.getElementById('status').innerHTML = `
+                    <strong style="font-size:16px;color:#00ff88;">🚦 ${total} Fahrzeuge live</strong><br><br>
+                    <div style="font-size:12px;">
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background:#00A651;"></div>
+                                <span>🚃 ${counts.TRAM || 0}</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background:#007AC9;"></div>
+                                <span>🚌 ${counts.BUS || 0}</span>
+                            </div>
+                        </div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background:#FF6319;"></div>
+                                <span>🚇 ${counts.SUBWAY || 0}</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background:#8C4799;"></div>
+                                <span>🚆 ${counts.RAIL || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('status').classList.remove('loading');
+                
+            } catch (error) {
+                addDebug('❌ Fehler: ' + error.message);
+                document.getElementById('status').innerHTML = `
+                    <span style="color:#ff6666;">❌ Verbindungsfehler</span><br>
+                    <small style="color:#888;">Versuche erneut...</small>
+                `;
+            }
+        }
+        
+        // Filter anwenden
+        function applyFilters() {
+            const filters = {
+                TRAM: document.getElementById('toggleTrams').checked,
+                BUS: document.getElementById('toggleBuses').checked,
+                SUBWAY: document.getElementById('toggleMetro').checked,
+                RAIL: document.getElementById('toggleTrains').checked,
+                FERRY: document.getElementById('toggleFerries').checked
+            };
+            
+            Object.values(vehicles).forEach(vehicle => {
+                const type = vehicle._vehicleType;
+                vehicle.show = filters[type] !== undefined ? filters[type] : true;
+            });
+            
+            if (osmBuildings) {
+                osmBuildings.show = document.getElementById('toggleBuildings').checked;
+            }
+        }
+        
+        // Kamera-Positionen
+        const cameraPositions = {
+            city: {
+                destination: Cesium.Cartesian3.fromDegrees(24.9384, 60.1699, 8000),
+                orientation: {
+                    heading: 0,
+                    pitch: Cesium.Math.toRadians(-35),
+                    roll: 0
+                }
+            },
+            station: {
+                destination: Cesium.Cartesian3.fromDegrees(24.9414, 60.1719, 700),
+                orientation: {
+                    heading: Cesium.Math.toRadians(30),
+                    pitch: Cesium.Math.toRadians(-25),
+                    roll: 0
+                }
+            },
+            trams: {
+                destination: Cesium.Cartesian3.fromDegrees(24.9450, 60.1650, 500),
+                orientation: {
+                    heading: Cesium.Math.toRadians(-45),
+                    pitch: Cesium.Math.toRadians(-20),
+                    roll: 0
+                }
+            }
+        };
+        
+        // Event Listeners
+        document.getElementById('toggleTrams').addEventListener('change', applyFilters);
+        document.getElementById('toggleBuses').addEventListener('change', applyFilters);
+        document.getElementById('toggleMetro').addEventListener('change', applyFilters);
+        document.getElementById('toggleTrains').addEventListener('change', applyFilters);
+        document.getElementById('toggleFerries').addEventListener('change', applyFilters);
+        document.getElementById('toggleBuildings').addEventListener('change', applyFilters);
+        
+        document.getElementById('viewCity').addEventListener('click', () => {
+            viewer.camera.flyTo({...cameraPositions.city, duration: 2});
+        });
+        
+        document.getElementById('viewStation').addEventListener('click', () => {
+            viewer.camera.flyTo({...cameraPositions.station, duration: 2});
+        });
+        
+        document.getElementById('viewTrams').addEventListener('click', () => {
+            viewer.camera.flyTo({...cameraPositions.trams, duration: 2});
+        });
+        
+        document.getElementById('reloadData').addEventListener('click', () => {
+            addDebug('🔄 Manueller Reload');
+            updateVehicles();
+        });
+        
+        // Initiale Kamera-Position
+        viewer.camera.setView({
+            destination: Cesium.Cartesian3.fromDegrees(24.9384, 60.1699, 12000),
+            orientation: {
+                heading: 0,
+                pitch: Cesium.Math.toRadians(-40),
+                roll: 0
+            }
+        });
+        
+        // Lighting für realistischere Gebäude
+        viewer.scene.globe.enableLighting = true;
+        
+        // Initialisierung
+        addDebug('🚀 Helsinki Live gestartet');
+        loadOSMBuildings();
+        
+        // Erste Daten laden nach 2 Sekunden
+        setTimeout(() => {
+            updateVehicles();
+        }, 2000);
+        
+        // Auto-Update alle 15 Sekunden
+        setInterval(updateVehicles, 15000);
+        
+        console.log('🏙️ Helsinki Live - Bereit!');
+    </script>
+</body>
+</html>
