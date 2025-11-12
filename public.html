@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Public Twin - Citizen Comments (with iTwin)</title>
+  <title>Public Twin - Citizen Comments (with iTwin Models)</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   
@@ -273,10 +273,19 @@
     
     <div style="margin: 15px 0; padding: 10px; border-top: 1px solid #555; background: rgba(255,255,255,0.05); border-radius: 4px;">
       <h4 style="color: #5ac; margin: 0 0 10px 0; font-size: 13px;">🎨 Design Variants:</h4>
+      
+      <!-- Original Ion Assets -->
       <button id="variant1Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Malmö"</button>
       <button id="variant2Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Atlanta"</button>
       <button id="variant3Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "150"</button>
       <button id="variant4Btn" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ Design "Station"</button>
+      
+      <!-- NEW: iTwin Models from First Example -->
+      <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555;">
+        <div style="font-size: 10px; color: #888; margin-bottom: 5px;">🏗️ iTwin BIM Models:</div>
+        <button id="variant5Btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ iTwin Model 1</button>
+        <button id="variant6Btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 5px 5px 5px 0; width: calc(100% - 10px);">○ iTwin Model 2</button>
+      </div>
       
       <!-- Voting Widget -->
       <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px;">
@@ -303,9 +312,17 @@
             <span style="color: #ff9800;">Design "150":</span>
             <span><span style="color: #4caf50;">👍 <span id="v3up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v3down">0</span></span></span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
             <span style="color: #9c27b0;">Design "Station":</span>
             <span><span style="color: #4caf50;">👍 <span id="v4up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v4down">0</span></span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444;">
+            <span style="color: #667eea;">iTwin Model 1:</span>
+            <span><span style="color: #4caf50;">👍 <span id="v5up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v5down">0</span></span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+            <span style="color: #764ba2;">iTwin Model 2:</span>
+            <span><span style="color: #4caf50;">👍 <span id="v6up">0</span></span> | <span style="color: #d32f2f;">👎 <span id="v6down">0</span></span></span>
           </div>
         </div>
       </div>
@@ -386,11 +403,19 @@
     // =====================================
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNWFjNDYxZC0yN2U5LTQ0MGYtYWY1Ny1lN2VmNGJiNjVlYTQiLCJpZCI6MjYzNTkwLCJpYXQiOjE3NjE3MzIzOTh9.HsP4Aq5jS6OiRwUXc8uRv6nwbrTcx8ugaGSkLiTYhO8';
 
-    // iTwin Platform Share Key (Model A from Sandcastle)
-    // Documentation: https://cesium.com/learn/itwin/itwin-design-data-cesiumjs/
+    // iTwin Platform Share Key (from first example)
     const iTwinShareKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpVHdpbklkIjoiNTM1YTI0YTMtOWIyOS00ZTIzLWJiNWQtOWNlZGI1MjRjNzQzIiwiaWQiOiI2NTEwMzUzMi02MmU3LTRmZGQtOWNlNy1iODIxYmEyMmI5NjMiLCJleHAiOjE3NzcwNTU4MTh9.Q9MgsWWkc6bb1zHUJ7ahZjxPtaTWEjpNvRln7NS3faM";
     
-    // iTwin Model A - Station and Surrounding Area
+    // Set default share key for iTwin Platform
+    Cesium.ITwinPlatform.defaultShareKey = iTwinShareKey;
+    
+    // iTwin Model IDs from first example
+    const iTwinModelIds = {
+      model1: "d57113ce-ccf6-448b-a920-59a71c50af3d",
+      model2: "50f1139c-0fdf-43c9-bbea-46542aa33e2d"
+    };
+    
+    // iTwin Model A - Station and Surrounding Area (original from second example)
     const iTwinData = {
       iTwinId: "535a24a3-9b29-4e23-bb5d-9cedb524c743",
       iModels: {
@@ -399,10 +424,6 @@
       },
       realityData: "85897090-3bcc-470b-bec7-20bb639cc1b9"
     };
-    // Share Key expires: February 22, 2025
-    
-    // Set default share key for iTwin Platform (used by Cesium.ITwinData)
-    Cesium.ITwinPlatform.defaultShareKey = iTwinShareKey;
 
     const viewer = new Cesium.Viewer("cesiumContainer", {
       timeline: false,
@@ -419,7 +440,9 @@
     let tileset1 = null;
     let tileset2 = null;
     let tileset3 = null;
-    let tileset4 = null; // iTwin iModel
+    let tileset4 = null; // iTwin Station (original)
+    let tileset5 = null; // NEW: iTwin Model 1
+    let tileset6 = null; // NEW: iTwin Model 2
     let googleTileset = null;
     let osmBuildings = null;
     let googleImageryLayer = null;
@@ -431,7 +454,9 @@
       variant1: { thumbsUp: 0, thumbsDown: 0 },
       variant2: { thumbsUp: 0, thumbsDown: 0 },
       variant3: { thumbsUp: 0, thumbsDown: 0 },
-      variant4: { thumbsUp: 0, thumbsDown: 0 }
+      variant4: { thumbsUp: 0, thumbsDown: 0 },
+      variant5: { thumbsUp: 0, thumbsDown: 0 }, // NEW
+      variant6: { thumbsUp: 0, thumbsDown: 0 }  // NEW
     };
 
     // =====================================
@@ -520,7 +545,9 @@
               variant1: { thumbsUp: 0, thumbsDown: 0 },
               variant2: { thumbsUp: 0, thumbsDown: 0 },
               variant3: { thumbsUp: 0, thumbsDown: 0 },
-              variant4: { thumbsUp: 0, thumbsDown: 0 }
+              variant4: { thumbsUp: 0, thumbsDown: 0 },
+              variant5: { thumbsUp: 0, thumbsDown: 0 },
+              variant6: { thumbsUp: 0, thumbsDown: 0 }
             });
           }
           
@@ -528,7 +555,9 @@
             variant1: { thumbsUp: 0, thumbsDown: 0 },
             variant2: { thumbsUp: 0, thumbsDown: 0 },
             variant3: { thumbsUp: 0, thumbsDown: 0 },
-            variant4: { thumbsUp: 0, thumbsDown: 0 }
+            variant4: { thumbsUp: 0, thumbsDown: 0 },
+            variant5: { thumbsUp: 0, thumbsDown: 0 },
+            variant6: { thumbsUp: 0, thumbsDown: 0 }
           };
           
           if (voteType === 'up') {
@@ -701,6 +730,10 @@
       document.getElementById('v3down').textContent = votes.variant3?.thumbsDown || 0;
       document.getElementById('v4up').textContent = votes.variant4?.thumbsUp || 0;
       document.getElementById('v4down').textContent = votes.variant4?.thumbsDown || 0;
+      document.getElementById('v5up').textContent = votes.variant5?.thumbsUp || 0;
+      document.getElementById('v5down').textContent = votes.variant5?.thumbsDown || 0;
+      document.getElementById('v6up').textContent = votes.variant6?.thumbsUp || 0;
+      document.getElementById('v6down').textContent = votes.variant6?.thumbsDown || 0;
     }
 
     function toggleLatestCommentsWidget() {
@@ -738,7 +771,7 @@
         const borderColor = getVariantColor(comment.variant);
         item.style.borderLeftColor = borderColor;
         
-        const variantText = getVariantName(comment.variant).replace('Design "', '').replace('"', '');
+        const variantText = getVariantName(comment.variant).replace('Design "', '').replace('"', '').replace('iTwin ', '');
         
         const timeAgo = getTimeAgo(comment.timestamp);
         
@@ -786,6 +819,8 @@
              variant === 'variant2' ? 'Design "Atlanta"' : 
              variant === 'variant3' ? 'Design "150"' : 
              variant === 'variant4' ? 'Design "Station"' : 
+             variant === 'variant5' ? 'iTwin Model 1' : 
+             variant === 'variant6' ? 'iTwin Model 2' : 
              'a design';
     }
 
@@ -793,7 +828,9 @@
       return variant === 'variant1' ? '#4caf50' : 
              variant === 'variant2' ? '#2196f3' : 
              variant === 'variant3' ? '#ff9800' :
-             variant === 'variant4' ? '#9c27b0' : '#888';
+             variant === 'variant4' ? '#9c27b0' : 
+             variant === 'variant5' ? '#667eea' : 
+             variant === 'variant6' ? '#764ba2' : '#888';
     }
 
     function updateVotingWidget() {
@@ -811,6 +848,8 @@
       if (tileset2) tileset2.show = false;
       if (tileset3) tileset3.show = false;
       if (tileset4) tileset4.show = false;
+      if (tileset5) tileset5.show = false; // NEW
+      if (tileset6) tileset6.show = false; // NEW
       
       // Reset all buttons
       document.getElementById('variant1Btn').style.background = '#666';
@@ -821,6 +860,10 @@
       document.getElementById('variant3Btn').innerHTML = '○ Design "150"';
       document.getElementById('variant4Btn').style.background = '#666';
       document.getElementById('variant4Btn').innerHTML = '○ Design "Station"';
+      document.getElementById('variant5Btn').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      document.getElementById('variant5Btn').innerHTML = '○ iTwin Model 1';
+      document.getElementById('variant6Btn').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      document.getElementById('variant6Btn').innerHTML = '○ iTwin Model 2';
       
       // Show selected variant
       if (variant === 'variant1') {
@@ -850,7 +893,7 @@
       } else if (variant === 'variant4') {
         if (tileset4 && tileset4.station) {
           tileset4.show = true;
-          // Fly to station view (from Sandcastle code)
+          // Fly to station view
           viewer.scene.camera.flyTo({
             destination: new Cesium.Cartesian3(
               1255783.605894154,
@@ -868,6 +911,24 @@
         document.getElementById('variant4Btn').style.background = '#9c27b0';
         document.getElementById('variant4Btn').innerHTML = '● Design "Station"';
         showStatus('Design "Station" active (Station + Area)', 'success');
+      } else if (variant === 'variant5') {
+        // NEW: iTwin Model 1
+        if (tileset5) {
+          tileset5.show = true;
+          viewer.flyTo(tileset5);
+        }
+        document.getElementById('variant5Btn').style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
+        document.getElementById('variant5Btn').innerHTML = '● iTwin Model 1';
+        showStatus('iTwin Model 1 active', 'success');
+      } else if (variant === 'variant6') {
+        // NEW: iTwin Model 2
+        if (tileset6) {
+          tileset6.show = true;
+          viewer.flyTo(tileset6);
+        }
+        document.getElementById('variant6Btn').style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
+        document.getElementById('variant6Btn').innerHTML = '● iTwin Model 2';
+        showStatus('iTwin Model 2 active', 'success');
       }
       
       updateCommentVisibility();
@@ -964,9 +1025,6 @@
         // Load iTwin Model A - Station and Surrounding Area
         try {
           console.log('🔄 Loading iTwin Model A (Station + Surrounding Area)...');
-          console.log('📋 iTwinId:', iTwinData.iTwinId);
-          console.log('📋 Surrounding Area iModelId:', iTwinData.iModels.surroundingArea);
-          console.log('📋 Station iModelId:', iTwinData.iModels.station);
           
           // Load Surrounding Area
           const surroundingArea = await Cesium.ITwinData.createTilesetFromIModelId({
@@ -986,7 +1044,7 @@
           station.show = false;
           console.log('✅ Station loaded');
           
-          // Store both as tileset4 (we'll manage them together)
+          // Store both as tileset4
           tileset4 = {
             surroundingArea: surroundingArea,
             station: station,
@@ -1018,10 +1076,39 @@
           
         } catch (error) {
           console.error('❌ Error loading iTwin Model A:', error);
-          console.error('💡 Error details:', error.message);
-          console.error('💡 Share key expires: February 22, 2025');
-          console.error('💡 Visit https://cesium.com/learn/itwin/itwin-design-data-cesiumjs/ for help');
           showStatus('iTwin Model A: Could not load. See console for details.', 'error');
+        }
+        
+        // NEW: Load iTwin Model 1 from first example
+        try {
+          console.log('🔄 Loading iTwin Model 1 (' + iTwinModelIds.model1 + ')...');
+          tileset5 = await Cesium.ITwinData.createTilesetFromIModelId({
+            iModelId: iTwinModelIds.model1
+          });
+          tileset5.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE;
+          viewer.scene.primitives.add(tileset5);
+          tileset5.show = false;
+          console.log('✅ iTwin Model 1 loaded successfully');
+        } catch (error) {
+          console.error('❌ Error loading iTwin Model 1:', error);
+          console.error('💡 Error details:', error.message);
+          showStatus('iTwin Model 1: Could not load', 'error');
+        }
+        
+        // NEW: Load iTwin Model 2 from first example
+        try {
+          console.log('🔄 Loading iTwin Model 2 (' + iTwinModelIds.model2 + ')...');
+          tileset6 = await Cesium.ITwinData.createTilesetFromIModelId({
+            iModelId: iTwinModelIds.model2
+          });
+          tileset6.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE;
+          viewer.scene.primitives.add(tileset6);
+          tileset6.show = false;
+          console.log('✅ iTwin Model 2 loaded successfully');
+        } catch (error) {
+          console.error('❌ Error loading iTwin Model 2:', error);
+          console.error('💡 Error details:', error.message);
+          showStatus('iTwin Model 2: Could not load', 'error');
         }
         
         showStatus('All assets loaded! Select a design to view.', 'success');
@@ -1194,6 +1281,15 @@
       switchVariant('variant4');
     });
 
+    // NEW: Event listeners for iTwin Models
+    document.getElementById('variant5Btn').addEventListener('click', function() {
+      switchVariant('variant5');
+    });
+
+    document.getElementById('variant6Btn').addEventListener('click', function() {
+      switchVariant('variant6');
+    });
+
     document.getElementById('thumbsUpBtn').addEventListener('click', function() {
       vote('up');
     });
@@ -1347,7 +1443,10 @@
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    console.log('✅ Public Twin Comment System with iTwin Model A (Station) loaded');
+    console.log('✅ Public Twin Comment System with iTwin Models loaded');
+    console.log('🏗️ iTwin Model 1 ID:', iTwinModelIds.model1);
+    console.log('🏗️ iTwin Model 2 ID:', iTwinModelIds.model2);
+    console.log('💡 Share key expires: February 22, 2025');
   </script>
 </body>
 </html>
